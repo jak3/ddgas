@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 from datetime import datetime
 
+import yaml
 from flask import (Flask, render_template, g, redirect, url_for)
 
 from delek.controller.db import init_app
@@ -30,6 +31,20 @@ def internal_error(e):
     return render_template('error/500.html'), 500
 
 
+def load_associazione_config(app):
+    """ Carica i dati pubblici dell'associazione (branding, contatti,
+    regole) da config/associazione.yaml e li rende disponibili in
+    app.config['ASSOCIAZIONE'] e come variabile 'associazione' in ogni
+    template. """
+    path = os.path.join(app.root_path, '..', 'config', 'associazione.yaml')
+    with open(path, encoding='utf-8') as f:
+        app.config['ASSOCIAZIONE'] = yaml.safe_load(f)
+
+    @app.context_processor
+    def inject_associazione():
+        return {'associazione': app.config['ASSOCIAZIONE']}
+
+
 def create_app(local=False):
     """ INIT App """
 
@@ -37,6 +52,7 @@ def create_app(local=False):
     app.register_error_handler(403, forbidden)
     app.register_error_handler(404, page_not_found)
     app.register_error_handler(500, internal_error)
+    load_associazione_config(app)
 
     if not local:
         url = urlparse(os.environ.get('DATABASE_URL'))

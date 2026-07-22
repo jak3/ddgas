@@ -256,6 +256,18 @@ def giroconto_utente():
 
         error = check_inputs_movimento(inputs)
 
+        if not error and float(inputs['importo']) < 0:
+            # Un importo negativo qui invertirebbe il verso del giroconto:
+            # chi lo invia riceverebbe credito e il destinatario verrebbe
+            # addebitato a sua insaputa.
+            error = {'error_msg': 'Importo negativo non valido'}
+
+        if not error:
+            saldo = float(get_totale_utente(inputs['per_id_utente']))
+            if saldo < float(inputs['importo']):
+                error = {'error_msg':
+                         'Non presenti abbastanza soldi nel portafoglio'}
+
         if not error:
             # Negativo per chi esegue
             insert_movimento(inputs | {

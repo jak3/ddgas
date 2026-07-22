@@ -22,12 +22,12 @@ troverete le coordinate del conto.</p>
 <p>Si invitano comunque i gasisti a tenere sotto controllo la situazione del loro credito; sviste segnalate a distanza di troppo tempo potrebbero essere difficili da gestire.</p>
 <p>Quando mi accorgo che i soldi stanno finendo (vedi punto 3) effettuo un altro versamento.</p>
 <p><strong>Attenzione!</strong> Ricordatevi che da quando fate il bonifico al momento nel quale troverete i soldi accreditati sul conto GAS <strong>possono passare anche diversi giorni (fino a 1 settimana)</strong> quindi calcolate bene i tempi se avete un ordine in programma.</p>
-<p>Il <span style='font-weight: bold;text-decoration: underline;'>minimo credito</span> che deve rimanere sul conto di ogni gasista è <b>5 euro. </b>
-Se l'acquisto prevede di andare sotto tale importo, il sistema non permette l'ordine.</p>
 <p>Questo è il semplice funzionamento, ovvero ciò che ogni gasista ha bisogno di sapere per aderire al prepagato. Ciò che il singolo gasista che acquista deve fare è semplicemente versare soldi nel conto corrente e sincerarsi che il suo saldo sia sempre più o meno sufficiente per far fronte ai suoi acquisti.</p>
-<p>Il gas ha un costo. Per questo motivo ogni gasista versa 5 euro di quota associativa annuale. La quota associativa viene utilizzata per coprire i costi di gestione del conto, l'hosting del sito, l'acquisto di attrezzature da tenere al Magazzino Parallelo (bilancia, frigorifero, ecc).</p>
-<p>Il Magazzino Parallelo è un circolo ARCI. Per poter accedere e per potersi iscrivere al GAS è quindi necessario avere la tessera ARCI.</p>
-<p>Associazione Gas Malatesta APS, via Termoli 301 47521 Cesena C.F.  90085730407</p>
+<p>Il gas ha un costo. Per questo motivo ogni gasista versa {{ associazione.regole.quota_associativa_annuale }} euro di quota associativa annuale. La quota associativa viene utilizzata per coprire i costi di gestione del conto, l'hosting del sito, l'acquisto di attrezzature da tenere al Magazzino Parallelo (bilancia, frigorifero, ecc).</p>
+{% if associazione.regole.tessera_ente_terzo.richiesta %}
+<p>Il Magazzino Parallelo è un circolo ARCI. Per poter accedere e per potersi iscrivere al GAS è quindi necessario avere la tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }}.</p>
+{% endif %}
+<p>{{ associazione.identita.nome }}, {{ associazione.identita.indirizzo }} C.F. {{ associazione.identita.codice_fiscale }}</p>
 <p>Un paio di precisazioni:</p>
 <p><strong>1. COME POSSO VERSARE I SOLDI NEL CONTO CORRENTE?</strong></p>
 <p>Due possibilità:</p>
@@ -38,21 +38,26 @@ Se l'acquisto prevede di andare sotto tale importo, il sistema non permette l'or
 </ol>
 
 <p>Come già specificato l'importo da versare ogni volta è a discrezione del gasista. Ci sarà chi preferisce versare 500 euro e non pensarci per un bel po' e chi preferirà versare 50 o 100 euro alla volta. Per evitare di sovraccaricare le persone che gestiscono i conti e quindi che annotano entrate e uscite sarebbe buona cosa preferire un versamento da 50 euro piuttosto che 5 versamenti da 10 euro.</p>
-<p>Banca di Credito Cooperativo Romagnolo BCC di Cesena e Gatteo Società
-Cooperativa</p>
-<p>Intestazione conto: Associazione Gas Malatesta APS</p>
-<p>IBAN: IT04K0707023900000000417760</p>
+<p>{{ associazione.bancari.banca }}</p>
+<p>Intestazione conto: {{ associazione.bancari.intestazione }}</p>
+<p>IBAN: {{ associazione.bancari.iban }}</p>
 <div class="table-responsive">
 <table>
   <tr>
     <td rowspan=2><b>DETTAGLIO</b></td>
     <td>STATO</td> <td>CIN</td> <td>INT.CIN</td> <td>ABI</td> <td>CAB</td> <td>NUM. CONTO</td>
   </tr>
-  <tr> <td>IT</td> <td>04</td> <td>K</td> <td>07070</td> <td>23900</td> <td>000000417760</td>
+  <tr>
+    <td>{{ associazione.bancari.iban[0:2] }}</td>
+    <td>{{ associazione.bancari.iban[2:4] }}</td>
+    <td>{{ associazione.bancari.iban[4:5] }}</td>
+    <td>{{ associazione.bancari.iban[5:10] }}</td>
+    <td>{{ associazione.bancari.iban[10:15] }}</td>
+    <td>{{ associazione.bancari.iban[15:27] }}</td>
   </tr>
 </table>
 </div>
-<strong>Banca di Credito Cooperativo Romagnolo BCC di Cesena e Gatteo Società Cooperativa</strong>
+<strong>{{ associazione.bancari.banca }}</strong>
 <p><strong><u>CAUSALE</u></strong>: <b>Nome Cognome</b> del gasista che effettua il versamento (il nome deve essere del gasista che risulta iscritto, non di un
 parente o dell'intestatario del conto) <b>contributo per attività mutuali.</b></p>
 <p><strong>2. CHI GESTISCE I MIEI SOLDI?</strong></p>
@@ -62,7 +67,7 @@ ed Erika (presidente dell'Associazione). Sono loro che terranno aggiornati i con
 <p>Per avere il proprio estratto conto, saldo compreso, si accede, dal sito, alla voce Cassa.</p>
 <p>Per vedere solo il saldo, basta accedere alla voce Ordina.</p>
 <p><strong>4. COSA SUCCEDE SE NON HO DISPONIBILITA' DI SOLDI NEL CONTO?</strong></p>
-<p>Se non si ha disponibilità sul conto corrente non è possibile effettuare acquisti. Se avete urgenza di comprare qualcosa e vi trovate senza disponibilità sul conto potete chiedere ad un altro gasista (via mail o a voce) di comprare a nome vostro. Oppure di farvi un prestito. In questo caso dovete inviare una prima mail a chi gestisce i prestiti <a href='mailto:infogas@googlegroups.com'>infogas@googlegroups.com</a> chiedendo di effettuare un giroconto a vostro favore dal gasista prestatore. Una volta che avrete effettuato un nuovo versamento dovete inviare una seconda mail a Luigi chiedendo di riaccreditare i soldi a chi ve li ha prestati.</p>
+<p>Se non si ha disponibilità sul conto corrente non è possibile effettuare acquisti. Se avete urgenza di comprare qualcosa e vi trovate senza disponibilità sul conto potete chiedere ad un altro gasista (via mail o a voce) di comprare a nome vostro. Oppure di farvi un prestito: dal sito, alla voce <b>Giroconto</b>, potete trasferire credito direttamente da un utente all'altro, senza bisogno di passare da chi gestisce i conti. Una volta che avrete effettuato un nuovo versamento potrete restituire il prestito allo stesso modo, con un nuovo giroconto verso chi ve lo aveva anticipato.</p>
 <p><strong>IMPORTANTE:</strong> l'adesione al prepagato è condizione necessaria per poter effettuare gli acquisti.</p>
 
 {% endblock %}

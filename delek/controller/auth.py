@@ -827,7 +827,7 @@ def effettua_tesseramento():
     dbi = get_db()
     campagna = get_ultima_campagna_tesseramenti()
 
-    codice_arci = request.form['codice_arci']
+    codice_arci = request.form.get('codice_arci')
     if codice_arci:
         registra_codice_arci(id_utente, codice_arci)
 

@@ -72,12 +72,14 @@
     </p>
   </form>
 
+  {% if associazione.regole.tessera_ente_terzo.richiesta %}
   <hr>
 
   <div class="padding-s background-warning-50">
     <form action="{{ url_for('auth.set_codice_arci') }}" method="post" accept-charset="utf-8">
+      <p>Tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }} procurata autonomamente, non tramite questo sito: qui puoi solo registrarne il codice per tenerne traccia.</p>
       <p class="field">
-      <label for="codice_arci"><b>Codice Tessera ARCI</b></label>
+      <label for="codice_arci"><b>Codice Tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }}</b></label>
       <input type="text" id="codice_arci" name="codice_arci"
                                           {% if codice_arci %}
                                           value="{{ codice_arci }}"
@@ -85,9 +87,10 @@
                                           />
       </p>
       <p class="field">
-      <button type="submit" class="button button-warning button-border">Aggiorna Codice Tessera ARCI</button>
+      <button type="submit" class="button button-warning button-border">Aggiorna Codice Tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }}</button>
       </p>
     </form>
   </div>
+  {% endif %}
 {% endif %}
 {% endblock %}

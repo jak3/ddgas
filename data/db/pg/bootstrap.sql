@@ -1,3 +1,8 @@
+-- Dati minimi indispensabili al funzionamento dell'app: il codice fa
+-- riferimento diretto a questi id/nomi (es. tipologia 3 = giroconto).
+-- Da eseguire su ogni nuova istanza dopo schema.sql (e arci.sql se il
+-- modulo tessera_ente_terzo è abilitato).
+--
 -- nei movimenti avremo es:
 -- versamento: (per_id_utente: N, verso_id: N)
 -- prelievo: (per_id_utente: N, verso_id: N)
@@ -19,15 +24,10 @@ values
   ('segretario', 'Si occupa dei verbali delle riunioni'),
   ('accoglienza', 'Introduce al gruppo i nuovi membri e li attiva agli acquisti'),
   ('tesoriere', 'Gestisce la cassa (versamenti e pagamenti annuali)'),
-  ('tesseramenti', 'Avvia la campagna tesseramenti e può visionare i codice delle tessere ARCI'),
+  ('tesseramenti', 'Avvia la campagna tesseramenti e può visionare i codici delle eventuali tessere di enti terzi'),
   ('presidiante', 'Assegna utenti per presidiare il ritiro'),
   ('produttore', 'Non paga la tessera annuale');
 
-
-insert into arruolati (id_ruolo, id_utente)
-values
-  (1, 1), -- luigi moderatore
-  (1, 63),-- manta moderatore
-  (1, 51),-- GasMirco moderatore
-  (5, 12) -- Cristinasi tesoriere
-  ON CONFLICT DO NOTHING;
+-- A questo punto assegnare manualmente il ruolo 'moderatore' al primo utente
+-- amministratore, es.:
+-- insert into arruolati (id_ruolo, id_utente) values (1, <id_utente>);

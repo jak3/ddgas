@@ -5,11 +5,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>{% block title %}GAS Malatesta{% endblock %}</title>
+    <title>{% block title %}{{ associazione.identita.nome_breve }}{% endblock %}</title>
 
     <link rel="stylesheet" href="https://unpkg.com/turretcss/dist/turretcss.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <style>
+      :root { --brand-color: {{ associazione.branding.colore_primario }}; }
+      .background-red-gas { background-color: var(--brand-color); }
+      .color-red-gas { color: var(--brand-color); }
+    </style>
 <script>
 function hideShowMenu() {
   var x = document.getElementById("homemenu");
@@ -23,7 +28,7 @@ function hideShowMenu() {
   <body class="container">
     <header>
       <div class="background-red-gas color-white padding-left-m">
-        <h1>G.A.S. Malatesta</h1> Gruppo di acquisto solidale di Cesena
+        <h1>{{ associazione.identita.nome_breve }}</h1> {{ associazione.identita.tagline }}
       </div>
       <nav class="background-light-100 padding-xxs text-align-right nav-inline">
         <ul>
@@ -40,7 +45,7 @@ function hideShowMenu() {
     <div class="flex padding-top-s" id="content">
       <button id="btnmenu" class="button button-grey button-border" onclick="hideShowMenu()">Menu</button>
       <aside class="menu" id="homemenu">
-        <img class="logo" src="{{ url_for('static', filename='cestino.jpg') }}" alt="" />
+        <img class="logo" src="{{ url_for('static', filename=associazione.branding.logo) }}" alt="" />
         <nav class="padding-top-s">
           <ul>
             <li class="no-margin"><a href="{{ url_for('produttori.list_produttori') }}">Produttori</a></li>
