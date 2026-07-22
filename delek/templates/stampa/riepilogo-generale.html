@@ -1,0 +1,8 @@
+{% extends 'stampa/riepilogo.html' %}
+
+{% block content %}
+
+{% import 'stampa/macro/riepilogo.html' as riepilogo %}
+{{ riepilogo.stampa(riepilogo_prodotti) }}
+
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Campagna Tesseramenti{% endblock %}</h1>
+<script>
+  function search_user(input_id, querysel){
+      input = document.getElementById(input_id);
+      filter = input.value.toUpperCase();
+      document.querySelectorAll(querysel).forEach(user => {
+          content = user.textContent.replace(/\s+/g, '').toUpperCase()
+          user.style.display = content.indexOf(filter) > -1 ? "" : "none";
+        });
+  }
+  function search_tesserati(){
+    search_user('input_ut', '[id^=utiu]');
+  }
+  function search_non_tesserati(){
+    search_user('input_unt', '[id^=utiunt]');
+  }
+</script>
+{% endblock %}
+
+{% block content %}
+
+<form method="post">
+  <div class="group group-space-between border padding-m">
+    <ul>
+      <li class="field">
+        <label for="quota">Quota</label>
+        <input name="quota" id="quota" type="number" min="0" step="0.01" placeholder="8.00" required />
+      </li>
+      <li class="field">
+        <button class="button button-border button-warning">Avvia Campagna</button>
+      </li>
+    </ul>
+    <p><b>Quota</b> corrisponde all'importo che verrà scalato dal conto di ogni
+    gasista per la quota di partecipazione annua.</p>
+  </div>
+</form>
+
+  <hr>
+
+<form method="post">
+  <div class="group group-space-between border padding-m">
+    <ul>
+      <li class="field">
+        <span>Selezionare l'anno di cui si vuole visionare gli utenti tesserati:</span>
+        <label for="id" class="select">
+          <select name="id">
+            <option></option>
+            {% for campagna in campagne %}
+            <option value="{{ campagna.id }}">{{ campagna.data_inizio | data }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </li>
+      <li class="field">
+        <button class="button button-border button-warning">Visualizza Tesserati</button>
+      </li>
+    </ul>
+  </div>
+</form>
+
+<hr>
+
+<div class="group group-space-between padding-m background-warning-50">
+<ul>
+  <li></li>
+  <li><a class="button button-border button-warning" href="{{ url_for('auth.list_arci') }}">Visualizza Tessere Arci</a></li>
+</ul>
+</div>
+
+{% if utenti_tesserati %}
+
+<hr>
+
+<div class="group group-m">
+  <ul>
+    <li><h2>Utenti Tesserati ({{ utenti_tesserati|length }})</h2></li>
+    <li><input type="text" id="input_ut" onkeyup="search_tesserati()" placeholder="Cerca utente..."></li>
+  </ul>
+</div>
+
+<ul style="list-style-type: '\1F464'">
+  {% for utente in utenti_tesserati %}
+  <li id="utiu">
+    {{ utente | utente }}
+  </li>
+  {% else %}
+  Non sono presenti utenti tesserati.
+  {% endfor %}
+</ul>
+
+<hr>
+
+<div class="group group-m">
+  <ul>
+    <li><h2>Utenti Non Tesserati Con Saldo</h2></li>
+    <li><input type="text" id="input_unt" onkeyup="search_non_tesserati()" placeholder="Cerca utente..."></li>
+  </ul>
+</div>
+
+<ul style="list-style-type: '\1F464'">
+  {% for utente in utenti %}
+  {% if utente.username not in utenti_tesserati|join and utente.saldo != 0 and utente.username != 'FCA'%}
+  <li id="utiunt">
+    {{ utente|utente }} · Saldo <b>{{ utente.saldo }}</b> &euro;
+  </li>
+  {% endif %}
+  {% else %}
+  Non sono presenti utenti non tesserati che hanno saldo.
+  {% endfor %}
+</ul>
+
+{% endif %}
+
+{% endblock %}
+

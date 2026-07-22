@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Iscrizione{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <p>Per effettuare una <b>PRE-iscrizione</b> compila questo modulo e ricordati di <b>segnarti username e password</b> che hai scelto. Una volta compilati tutti i campi, premi sul tasto Iscriviti.</p>
+
+  <p>Entro al massimo 1 mese (escluso Agosto) ti invieremo un' email e ti
+  spiegheremo come procedere per portare a compimento l'iscrizione. Per qualsiasi
+  cosa puoi contattarci all'indirizzo: <a href='mailto:infogas@googlegroups.com'>infogas@googlegroups.com</a></p>
+
+  <p>Attenzione, compilando il modulo qui sotto effettuerai SOLO un pre-iscrizione
+  quindi non avrai ancora la possibilità di accedere a tutte le funzionalità del sito.</p>
+
+  <form method="post">
+    <p class="field">
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email" placeholder="Email" required />
+    </p>
+    <p class="field">
+      <label for="telefono">Telefono</label>
+      <input name="telefono" id="telefono" placeholder="Numero di Telefono" required />
+    </p>
+    <p class="field">
+      <label for="username">Username</label>
+      <input name="username" id="username" placeholder="Username" required />
+    </p>
+    <p class="field">
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password" minlength="5" placeholder="Password" required/>
+    </p>
+    <p class="field">
+      <label for="nome">Nome</label>
+      <input type="nome" name="nome" id="nome" placeholder="Nome" required/>
+    </p>
+    <p class="field">
+      <label for="cognome">Cognome</label>
+      <input type="cognome" name="cognome" id="cognome" placeholder="Cognome" required/>
+    </p>
+    <p class="field">
+      <label for="cf">Codice Fiscale</label>
+      <input type="cf" name="cf" id="cf" minlength="11" maxlength="16"
+                                                        placeholder="Codice
+                                                                     Fiscale" required/>
+    </p>
+    <p class="field">
+      <button type="submit" class="button">Iscriviti</button>
+    </p>
+  </form>
+
+  <p><b><i>Informativa sulla Privacy:</i></b> Ai sensi dell'articolo 13 del GDPR
+  2016/679, informiamo che tutti i dati personali inseriti non verranno
+  divulgati a terze parti e saranno <b>esclusivamente</b> utilizzati per le
+  attività di gestione degli ordini. Procedento all'iscrizione si accetta
+  l'informativa.</p>
+
+{% endblock %}

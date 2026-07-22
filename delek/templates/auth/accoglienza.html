@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block header %}
+
+<div class="group group-m">
+  <ul>
+    <li><h2>Utenti in attesa di attivazione</h2></li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<form class="padding-top-s" action="{{ url_for('auth.gestisci_nuovi') }}" method="post">
+
+  <dl>
+    <dt>
+      <div class="group group-m">
+        <ul>
+          <li>Data Iscrizione</li>
+          <li>Check Attivazione</li>
+          <li>( Username ) Informazioni Utente</li>
+        </ul>
+      </div>
+    <dd>
+      <ul style="list-style-type: '\1F464'">
+        {% for nuovo in nuovi %}
+        <li class="{{ loop.cycle('', 'backgroud-light-50') }}">
+          <div class="group group-m">
+            <ul>
+              <li>{{ nuovo.data_iscrizione|data }}</li>
+              <li><input type="checkbox" name="checkbox" value="{{ nuovo.id_utente }}" /></li>
+              <li>
+                {{ nuovo | utente }}
+              </li>
+            </ul>
+          </div>
+        </li>
+        {% else %}
+        Non ci sono nuovi iscritti da attivare.
+        {% endfor %}
+      </ul>
+    </dd>
+  </dl>
+
+{% if 'moderatore' in g.ruoli or 'accoglienza' in g.ruoli %}
+<div class="group group-m group-center">
+<ul>
+  <li>
+     <button class="button button-warning button-border" type="submit">Attiva Selezionati</button>
+  </li>
+  <li>
+    <button class="button button-warning button-border" type="submit"
+                                                        name="allin">Attiva Tutti</button>
+  </li>
+  <li>
+    <button class="button button-warning button-border" type="submit"
+                                                        name="delete">Rimuovi Selezionati</button>
+  </li>
+  <li>
+    <button class="button button-warning button-border" type="submit"
+                                                        onclick="return confirm('Sicuro di voler rimuovere tutti i nuovi utenti?');"
+                                                        name="deleteall">Rimuovi Tutti</button>
+  </li>
+</ul>
+</div>
+{% endif %}
+
+</form>
+
+{% endblock %}

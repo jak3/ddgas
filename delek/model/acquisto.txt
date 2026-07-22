@@ -1,0 +1,31 @@
+produttore N
+
+- ogni utente seleziona i prodotti che vuole acquistare da listino_N
+
+- per ogni prodotto inseriamo in ordine_in_corso_N la richiesta (possibile
+  modifica fino a data di scadenza)
+
+- quando un ordine è scaduto, il referente stampa il foglio per il produttore
+
+- il produttore riferisce al referente eventuali rettifiche
+
+- il referente sistema gli importi per ogni utente
+    pagina separata con elenco utenti e pagato
+              pagato  resto movimento
+    utente 1   100     1      101
+    utente 2   100     0      100
+    utente 3   100     -2     98
+    utente 4   100     1      101
+    utente 5   100     0      100
+    utente 6   100     1      101
+    utente 7   100     0      100
+    utente 8   100     -5     95
+    utente 9   100     1      101
+    utente 10  100     0      100
+    utente 11  100     4      104
+
+      Chiudi ordine
+
+    La chiusura dell'ordine comporta:
+      - inserimento del movimento finale nella tabella movimenti
+      - pulizia della tabella ordine_in_corso_N

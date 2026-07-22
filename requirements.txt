@@ -1,0 +1,7 @@
+Flask
+Jinja2
+PyJWT
+Werkzeug
+gunicorn
+psycopg2
+sendgrid

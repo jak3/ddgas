@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Riepilogo Ordine Chiuso{% endblock %}</h1></li>
+        <script>
+          window.onload = function() {
+                      document.querySelectorAll('[id^=btn]').forEach(el =>
+                                  el.classList.add('display-none'));
+                    }
+        </script>
+{% endblock %}
+
+{% block content %}
+Selezionare la data di consegna per l'ordine di cui si vuole visionare lo storico:
+
+<form method="post">
+  <p class="field">
+  <label class="select" for="consegna">
+    <select name="consegna" autocomplete="off" onchange="this.form.submit()">
+      <option></option>
+      {% for consegna in consegne %}
+      <option value="{{ consegna }}">{{ consegna | data }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  </p>
+  <p class="field">
+  <button id="btn" type="submit" class="button button-warning button-border">Visualizza Storico</button>
+  </p>
+</form>
+
+<hr>
+
+{% if ordini %}
+<form action="{{ url_for('movimenti.aggiusta_ordine_chiuso') }}"
+      method="post" accept-charset="utf-8" class="border border-radius padding-m">
+  <input type="hidden" value="{{id_produttore}}" name="id_produttore"/>
+  <input type="hidden" value="{{data}}" name="data"/>
+
+  <div class="group group-s">
+    <ul>
+      <li><label for="nuovo_totale">Nuovo Totale:</label></li>
+      <li>
+        <input type="number" step="0.01" min="0" placeholder="0"
+                                                 name="nuovo_totale"
+                                                 id="nuovo_totale" required/>
+      </li>
+      <li><input type="text" value="" placeholder="descrizione"
+                                      name="descrizione" required/></li>
+      <li><button type="submit" class="button button-warning button-border">Aggiusta Totale</a></li>
+    </ul>
+  </div>
+
+</form>
+
+<hr>
+
+<div class="group group-space-between">
+  <ul>
+    <li>
+      <a href="{{ url_for('stampa.storico_tiny', id_produttore=id_produttore, data=data) }}" class="button button-warning button-border">Stampa Ridotta</a>
+      <a href="{{ url_for('stampa.storico', id_produttore=id_produttore, data=data) }}" class="button button-warning button-border">Stampa</a>
+    </li>
+    <li class="font-size-l">Totale: <b>{{ "%.2f" | format(totale) }} &euro;</b></li>
+  </ul>
+</div>
+
+{% import 'stampa/macro/storico.html' as storico %}
+{{ storico.stampa(ordini) }}
+
+{% endif %}
+{% endblock %}

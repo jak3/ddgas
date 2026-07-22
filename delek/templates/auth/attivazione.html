@@ -1,0 +1,11 @@
+{% extends 'auth/register.html' %}
+
+{% block content %}
+
+{% if username %}
+<p><span class="color-success padding-right-m">✔</span>Registrazione avvenuta con successo! Attendere l'attivazione
+dell'utente <b>{{ username }}</b> da parte di un amministratore.</p>
+{% endif %}
+
+{% endblock %}
+

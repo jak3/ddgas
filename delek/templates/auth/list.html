@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block header %}
+
+  <div class="group group-m group-space-between">
+    <ul>
+      <li><h1>{% block title %}Elenco Utenti{% endblock %}</h1></li>
+      <li><a href="{{ url_for('auth.esporta_soci') }}" class="button button-warning
+                   button-border" target="_blank">Esporta elenco per Libro Soci</a></li>
+      <li><a href="{{ url_for('auth.esporta_inattivi') }}" class="button button-warning
+                   button-border" target="_blank">Esporta elenco inattivi</a></li>
+    </ul>
+  </div>
+      <script>
+        window.onload = function() {
+          document.getElementById('btn-inattivi').classList.remove('display-none');
+        }
+        function toggleInattivi() {
+          var btni = document.getElementById('btn-inattivi');
+          if(btni.innerHTML.indexOf('Vedi') != -1){
+            btni.innerHTML = 'Nascondi Utenti Inattivi';
+            document.querySelectorAll('[id^=uti-]').forEach(el =>
+                      el.classList.remove('display-none'));
+          }
+          else{
+            btni.innerHTML = 'Vedi Utenti Inattivi';
+            document.querySelectorAll('[id^=uti-]').forEach(el =>
+                      el.classList.add('display-none'));
+          }
+        }
+        function search_user(){
+          input = document.getElementById('input_u');
+          filter = input.value.toUpperCase();
+          document.querySelectorAll('[id^=uti]').forEach(user => {
+            content = user.textContent.replace(/\s+/g, '').toUpperCase()
+            user.style.display = content.indexOf(filter) > -1 ? "" : "none";
+          });
+        }
+      </script>
+{% endblock %}
+
+{% block content %}
+
+<div class="group group-m">
+  <ul>
+    <li><h2>Tutti gli Utenti</h2></li>
+    <li><input type="text" id="input_u" onkeyup="search_user()" placeholder="Cerca utente..."></li>
+    {% if 'moderatore' in g.ruoli or 'accoglienza' in g.ruoli %}
+    <li>
+      <button id="btn-inattivi" class="display-none button button-warning
+                               button-border"
+                                onclick="toggleInattivi()">Vedi Utenti Inattivi</button>
+    </li>
+    <li>
+      <a href="{{ url_for('movimenti.totali_conti_utenti') }}" target="_blank" class="button
+               button-warning button-border">Situazione Cassa Utenti</a>
+    </li>
+    <li>
+      <a href="{{ url_for('ruoli.list_ruoli_utenti') }}" target="_blank" class="button
+               button-warning button-border">Visualizza Ruoli Utenti</a>
+    </li>
+    {% endif %}
+  </ul>
+</div>
+
+<ul style="list-style-type: '\1F464'">
+  {% for utente in utenti %}
+    {% if utente.attivo == 0 %}
+    <li id="{{ 'uti-' ~ utente.id }}" class="display-none {{ loop.cycle('','backgroud-light-50') }} {{ 'color-grey' }}">
+    {% else %}
+    <li id="utiu" class="{{ loop.cycle('', 'backgroud-light-50') }}">
+    {% endif %}
+    {% if 'moderatore' in g.ruoli %}
+    <a href="{{ url_for('auth.gestione_permessi', id_utente=utente.id)}}">{{ utente | utente }}</a>
+    {% else %}
+    {{ utente | utente }}
+    {% endif %}
+  </li>
+  {% else %}
+  Non sono presenti utenti.
+  {% endfor %}
+</ul>
+
+{% endblock %}

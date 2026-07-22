@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="group group-m group-space-between">
+  <ul>
+    <li><h2>{% block title %}Rettifiche {{ produttore.nome }}{% endblock %}</h2></li>
+    <li>Totale Pre Rettifiche: <span class="{{ 'font-weight-bold' if not
+                                            nuovi_totali }}">{{ "%.2f" | format(totale_ordine)
+                                            }} &euro;</span></li>
+    {% if nuovi_totali %}
+    <li>Totale Post Rettifiche: <span class="font-weight-extra-bold font-size-l"> {{ "%.2f" |
+        format(nuovi_totali|sum + extras|sum(attribute='importo')) }} &euro;</span></li>
+    {% endif %}
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<p>Inserire nella casella degli importi (con contenuto <b>0,00</b>), l'importo
+effettivo che ogni gasista ha speso, solo se non corrisponde al <b>Totale Pre
+Rettifica</b>, altrimenti lasciare il valore '0,00'. <u>Sarà presente un
+passaggio intermedio per verificare gli importi.</u></p>
+
+<form action="{{ url_for('ordini.rettifica_ordine', id_produttore=produttore.id) }}" method="post">
+  {% for extra in extras %}
+  <ul style="list-style: none /*'\1F464'*/ inside">
+    <li class="border no-margin-left">
+      <input type="hidden" value="{{ extra.id_utente }}" name="extra_id_utente" readonly/>
+      <input type="hidden" value="{{ extra.utente }}" name="extra_utente" readonly/>
+      <input type="hidden" value="{{ extra.importo }}" name="extra_importo" readonly/>
+      <input type="hidden" value="{{ extra.descrizione }}" name="extra_descrizione" readonly/>
+      <div class="margin-xxs group group-stretch">
+        <ul>
+          <li class="font-size-l">{{ extra.utente }}</li>
+          <li>Totale: <span class="font-weight-bold"> {{ "%.2f" | format(extra.importo) }} &euro;</span></li>
+        </ul>
+      </div>
+      <div class="group group-m group-stretch margin-xxs">
+        <ul>
+          <li style="flex: 1 1 auto"><i>{{ extra.descrizione }}</i></li>
+          <li style="flex: 0 1 auto"><button type="submit" value="{{ extra.id_utente }}" name="rimuovi"
+                                                                  class="button button-error button-border button-square"
+                                                                  aria-label="rimuovi extra">&#128465;</button></li>
+        </ul>
+      </div>
+    </li>
+  </ul>
+  {% endfor %}
+
+  <div class="field">
+    <ul style="list-style: none /*'\1F464'*/ inside">
+      {% for ordine in ordini %}
+      <li class="border no-margin-left">
+        <input type="hidden" value="{{ ordine.id_utente }}" name="id_utente" />
+        <div class="margin-xxs group group-stretch">
+          <ul>
+            <li class="font-size-l">{{ [ ordine.nome or '', ordine.cognome or '', '(', ordine.username, ')'] | join(' ') }}</li>
+            <li>Totale Pre Rettifica: <span class="{{ 'font-weight-bold' if not nuovi_totali }}"> {{ "%.2f" | format(ordine.totale_utente) }} &euro;</span></li>
+            {% if nuovi_totali %}
+            <li>Totale Post Rettifica: <span class="font-weight-extra-bold
+                                                     font-size-l"> {{ "%.2f" | format(nuovi_totali[loop.index0]) }} &euro;</span></li>
+            {% endif %}
+
+            {% if totale_ordine > minimo_ordine %}
+            <li><input type="number" step="0.01"
+                                     value="{{ importi_rettifica[loop.index0] if importi_rettifica else '0,00' }}"
+                                     name="importo_rettifica"
+                                     /></li>
+            {% endif %}
+          </ul>
+        </div>
+        <div class="group group-m group-stretch margin-xxs">
+          <ul>
+            <li style="flex: 1 1 auto"><input type="text" name="motivazione" placeholder="Specifica (opzionale)" value="{{ motivazioni[loop.index0] if motivazioni }}"/></li>
+            <li style="flex: 0 1 auto"><a class="button button-error button-border button-square" href="{{ url_for('ordini.rimuovi_singolo_ordine', id_produttore=produttore.id, id_utente=ordine.id_utente) }}" aria-label="rimuovi ordine">&#128465;</a></li>
+          </ul>
+        </div>
+      </li>
+      {% else %}
+      <p>Non ci sono stati ordini per {{ produttore.nome.capitalize() }}</p>
+      {% endfor %}
+
+    </ul>
+  </div>
+
+  {% if totale_ordine < minimo_ordine %}
+  <strong>Non è stato raggiunto il minimo d'ordine di <span class="color-error">{{ minimo_ordine }} &euro; </span>.</strong>
+  {% endif %}
+  <div class="field">
+    <div class="group group-space-between">
+      <ul>
+        {% if ordini|length > 0 and totale_ordine > minimo_ordine %}
+        <li><button type="submit" class="button button-warning button-border">Esegui rettifica</button></li>
+        {% endif %}
+        {% if nuovi_totali or totale_ordine < minimo_ordine %}
+        <li><button type="submit" class="button button-{{ 'warning' if sicuro else 'grey'}} button-border"
+                                  name="{{ 'conferma' if sicuro else 'pre-conferma'}}">Conferma e Chiudi</button></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+
+  {% if ordini|length > 0 and totale_ordine > minimo_ordine %}
+  <p><b>Esegui Rettifica</b>: permette di vedere gli importi aggiornati prima di
+  apportare le modifiche.</p>
+  {% endif %}
+
+  {% if nuovi_totali or totale_ordine < minimo_ordine %}
+  <p><b>Conferma e Chiudi</b>: conferma i Totali Post Rettifica, <u>Chiude e
+    Archivia</u> l'ordine.</p>
+  {% endif %}
+
+  <hr class="margin-bottom-m">
+
+<p><b>Ricorda</b> che se si cancella un ordine di un gasista, verranno persi gli
+ordini extra aggiunti con il menù sottostante. La giusta sequenza per le
+operazioni sarebbe, <u>prima Cancellare gli ordini che non sono andati a buon
+fine</u> poi eventualmente aggiungere ordini extra. Se si cancella per errore un
+ordine, basterà aggiungerlo nuovamente come ordine extra.</p>
+
+  <div class="border padding-m">
+    <h3>Aggiungi Ordine</h3>
+
+    <div id="select-per-utente" class="field">
+      <p>Per l'utente:</p>
+      <label class="select" for="select-per">
+        <select name="per_id_utente" id="select-per" autocomplete="off">
+          <option></option>
+          {% for utente in utenti %}
+            {% if utente.id not in ordini %}
+            <option value="{{ utente.id }}">{{ utente|utente }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <div class="field">
+      <label class="">Valore in Euro</label>
+      <input type="number" step="0.01" min="0" placeholder="0" name="importo" id="importo" />
+    </div>
+
+    <div class="field">
+      <label class="">Breve Descrizione</label>
+      <input type="text" name="descrizione" id="descrizione" />
+    </div>
+
+    <button class="button button-warning button-border" type="submit">Aggiungi Ordine</button>
+  </div>
+
+  <p><b>Aggiungi Ordine</b>: permette di aggiungere un ordine per un gasista che
+  non è riuscito ad acquistare prima della chiusura dell'ordine, ma si è accordato
+  con il referente e riesce comunque a ricevere la merce. Se il gasista è già
+  presente tra gli ordini sopra elencati, aggiungere la specifica e l'importo
+  sopra.</p>
+
+</form>
+
+
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Storico Ordine{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+<p class="font-size-l">I prezzi elencati fanno riferimento al listino al momento dell'ordine e prima
+che venissero fatti eventuali rettifiche.</p>
+
+
+{# Gestisce sia il vecchio formato (string/array) che il nuovo (dict con produttore) #}
+{% if ordine.dettaglio is mapping %}
+  {# Nuovo formato: dict con produttore e dettaglio #}
+  <h3>{{ ordine.dettaglio.produttore }}</h3>
+
+  {% if ordine.dettaglio.dettaglio is string %}
+    <div class="border group group-m group-space-between margin-top-xxs margin-bottom-xxs">
+      <ul class="no-margin">
+        <li><b>{{ ordine.dettaglio.dettaglio }}</b></li>
+        <li><i class="color-grey">{{ "%.2f" | format(ordine.importo) }} &euro;</i></li>
+      </ul>
+    </div>
+  {% else %}
+    {% set totals = [] %}
+    {% for prodotto in ordine.dettaglio.dettaglio %}
+    <div class="border group group-m group-space-between margin-top-xxs margin-bottom-xxs">
+      <ul class="no-margin">
+        <li>{{ prodotto[0]|int }}x <b>{{ prodotto[1] }}</b> ({{ prodotto[2] }})</li>
+        {% if totals.append(prodotto[0]|int * prodotto[3]|float) %}{% endif %}
+        <li><i class="color-grey">{{ "%.2f" | format(prodotto[0]|int * prodotto[3]|float) }} &euro;</i></li>
+      </ul>
+    </div>
+    {% else %}
+    Non ci sono prodotti nello storico.
+    {% endfor %}
+  {% endif %}
+
+{% elif ordine.dettaglio is string %}
+  {# Vecchio formato: stringa #}
+  <div class="border group group-m group-space-between margin-top-xxs margin-bottom-xxs">
+    <ul class="no-margin">
+      <li><b>{{ ordine.dettaglio }}</b></li>
+      <li><i class="color-grey">{{ "%.2f" | format(ordine.importo) }} &euro;</i></li>
+    </ul>
+  </div>
+{% else %}
+{# Vecchio formato: array #}
+{% set totals = [] %}
+{% for prodotto in ordine.dettaglio %}
+<div class="border group group-m group-space-between margin-top-xxs margin-bottom-xxs">
+  <ul class="no-margin">
+    <li>{{ prodotto[0]|int }}x <b>{{ prodotto[1] }}</b> ({{ prodotto[2] }})</li>
+    {% if totals.append(prodotto[0]|int * prodotto[3]|float) %}{% endif %}
+    <li><i class="color-grey">{{ "%.2f" | format(prodotto[0]|int * prodotto[3]|float) }} &euro;</i></li>
+  </ul>
+</div>
+  {% else %}
+  Non ci sono prodotti nello storico.
+  {% endfor %}
+{% endif %}
+
+
+<div class="group group-space-between">
+  <ul>
+    <li></li>
+    <li class="font-size-l">
+      {% if ordine.dettaglio is not string %}
+      <span class="color-grey">Pre Rettifica: {{ "%.2f" | format(totals | sum) }} &euro; |</span>
+      {% endif %}
+      Totale Ordine: <b>{{ "%.2f"| format(ordine.importo) }} &euro;</b>
+    </li>
+  </ul>
+</div>
+
+{% endblock %}
+

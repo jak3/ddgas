@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="group group-m group-space-between">
+  <ul>
+    <li><h2>{% block title %}Elenco Ruoli Utenti{% endblock %}</h2></li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+  {% for ruolo in ruoli %}
+<div class="group group-m group-stretch border margin-xxs">
+  <ul>
+    <li class="text-align-right">( {{ ruolo['username'] }} ) <i>{{ ruolo['nome'] }} {{ ruolo['cognome'] }}</i></li>
+    <li><b>{{ ruolo['ruolo'] }}</b> <i>{{ ruolo['descrizione'] }}</i></li>
+  </ul>
+</div>
+  {% endfor %}
+{% endblock %}
+

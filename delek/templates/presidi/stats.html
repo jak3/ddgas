@@ -1,0 +1,13 @@
+{% extends 'presidi/list.html' %}
+
+{% block content %}
+Elenco utenti che non si sono ancora segnati ai presidi dell'anno in corso:
+
+<ul style="list-style-type: '\1F464'">
+  {% for utente in utenti %}
+  <li>{{ utente | utente }}</li>
+  {% else %}
+  Non sono presenti utenti.
+  {% endfor %}
+</ul>
+{% endblock %}

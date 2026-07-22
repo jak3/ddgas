@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Adesione Tesseramento Anno {{ "%i" | format(campagna.anno) }}/{{ "%i" | format(campagna.anno + 1) }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form action="{{ url_for('auth.effettua_tesseramento') }}" method="post">
+  <p class="field">
+  <label for="codice_arci">Codice Tessera Arci</label>
+  <input type="text" id="codice_arci" name="codice_arci" />
+  </p>
+  <p class="font-size-l">Facendo click sul bottone aderisci al pagamento di <b>{{ campagna.quota|abs }} &euro;</b>
+  per il tesseramento.</p>
+  <button class="button button-border button-warning">Aderisci ed Effettua Pagamento</button>
+</form>
+{% endblock %}

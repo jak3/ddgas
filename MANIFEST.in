@@ -1,0 +1,4 @@
+include delek/schema.sql
+graft delek/static
+graft delek/templates
+global-exclude *.pyc

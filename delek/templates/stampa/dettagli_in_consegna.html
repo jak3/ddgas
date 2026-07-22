@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Dettagli degli ordini con consegna oggi{% endblock %}</h1>
+
+<div class="group group-m group-space-between">
+  <ul>
+    <li><p>Visualizzazione limitata ai produttori che
+      consegnano oggi ({{ now.strftime('%d/%m/%Y') }})</p></li>
+    <li><a href="{{ url_for('stampa.esporta_tutti_dettagli') }}"
+           class="button button-warning button-border">Esporta in CSV</a></li>
+  </ul>
+</div>
+
+<div class="search-container padding-top-s">
+  <input type="text" id="searchInput" placeholder="Filtra per produttore o utente..." >
+</div>
+
+{% endblock %}
+
+{% block content %}
+<div id="ordiniContainer">
+{% if ordini_per_produttore %}
+  {% for nome_produttore, utenti in ordini_per_produttore.items() %}
+  <div class="produttore-section margin-top-l" data-produttore="{{ nome_produttore }}">
+    <h3 class="background-light-50 color-error-400">{{ nome_produttore }}</h3>
+    {% for id_utente, utente in utenti.items() %}
+    <div class="utente-section margin-top-m" data-utente="{{ utente.nome_completo }}">
+      <h5>{{ utente.nome_completo }}</h5>
+      <div class="group">
+        {% for prodotto in utente.prodotti %}
+        <ul>
+          <li><b>{{ prodotto.quantita }} x</b> {{ prodotto.descrizione }}
+          {{ prodotto.dettaglio }}
+          <i>{{ prodotto.specifica }}</i></li>
+        </ul>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+{% else %}
+<p>Non ci sono produttori con consegna prevista per oggi.</p>
+{% endif %}
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const resetButton = document.getElementById('resetButton');
+    const resultStats = document.getElementById('resultStats');
+    const producerCount = document.getElementById('producerCount');
+    const userCount = document.getElementById('userCount');
+
+    // Funzione per eseguire la ricerca
+    function performSearch() {
+      const searchTerm = searchInput.value.toLowerCase().trim();
+      const produttoreSections = document.querySelectorAll('.produttore-section');
+
+      let produttoriVisibili = 0;
+      let utentiVisibili = 0;
+
+      produttoreSections.forEach(produttoreSection => {
+        const nomeProduttore = produttoreSection.getAttribute('data-produttore').toLowerCase();
+        const utenteSections = produttoreSection.querySelectorAll('.utente-section');
+
+        let produttoreHasVisibleUsers = false;
+
+        utenteSections.forEach(utenteSection => {
+          const nomeUtente = utenteSection.getAttribute('data-utente').toLowerCase();
+
+          // Se il termine di ricerca è presente nel nome del produttore o dell'utente
+          const utenteVisible = searchTerm === '' ||
+                               nomeUtente.includes(searchTerm) ||
+                               nomeProduttore.includes(searchTerm);
+
+          utenteSection.style.display = utenteVisible ? 'block' : 'none';
+
+          if (utenteVisible) {
+            produttoreHasVisibleUsers = true;
+            utentiVisibili++;
+          }
+        });
+
+        // Mostra il produttore solo se ha almeno un utente visibile
+        produttoreSection.style.display = produttoreHasVisibleUsers ? 'block' : 'none';
+
+        if (produttoreHasVisibleUsers) {
+          produttoriVisibili++;
+        }
+      });
+
+      // Aggiorna i contatori
+      producerCount.textContent = produttoriVisibili;
+      userCount.textContent = utentiVisibili;
+      resultStats.style.display = searchTerm ? 'block' : 'none';
+    }
+
+    // Ascoltatori eventi
+    searchInput.addEventListener('input', performSearch);
+
+    // Reset del filtro
+    resetButton.addEventListener('click', function() {
+      searchInput.value = '';
+      performSearch();
+    });
+  });
+</script>
+{% endblock %}

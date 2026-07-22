@@ -1,0 +1,14 @@
+{% extends 'stampa/base.html' %}
+
+{% block header %}
+
+{% include 'stampa/include/riepilogo-header.html' ignore missing with context %}
+
+{% endblock %}
+
+{% block content %}
+
+{% import 'stampa/macro/storico.html' as storico %}
+{{ storico.stampa(ordini) }}
+
+{% endblock %}

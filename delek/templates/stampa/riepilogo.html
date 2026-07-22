@@ -1,0 +1,14 @@
+{% extends 'stampa/base.html' %}
+
+{% block header %}
+
+{% include 'stampa/include/riepilogo-header.html' ignore missing with context %}
+
+{% endblock %}
+
+{% block content %}
+
+{% import 'stampa/macro/riepilogo.html' as riepilogo %}
+{{ riepilogo.stampa(prodotti_ordinati, totali_utenti) }}
+
+{% endblock %}

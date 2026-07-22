@@ -1,0 +1,16 @@
+<ul style="list-style: none /*'\1F4C1'*/ inside">
+  {% for ordine in ordini_archivio %}
+  <li class="border padding-xs">
+    <div class="group group-m group-stretch">
+      <ul>
+        <li class="max-width-xxs"><b>{{ ordine.consegna | data }}</b></li>
+        <li><a href="{{ url_for('produttori.storico_utente',
+                     id_storico=ordine.id_storico) }}">{{ [ordine.prodotto_principale, '(', ordine.nome, ')'] | join(' ') }}</a></li>
+        <li> {{ "%.2f" | format(-1*ordine.importo) }} &euro;</li>
+      </ul>
+    </div>
+  </li>
+  {% else %}
+  <p>Non hai ordini in archivio.</p>
+  {% endfor %}
+</ul>

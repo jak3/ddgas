@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block header %}
+
+<div class="group group-m group-space-between">
+  <ul>
+    <li><h1>{% block title %}Totali conti Utenti{% endblock %}</h1></li>
+    <li>
+      <button id="btn-zeroc" class="button button-warning
+                               button-border"
+                                onclick="toggleZeroCredito()">Nascondi Credito Nullo</button>
+    </li>
+    <li>
+      <a class="button button-warning button-border" href="{{ url_for('movimenti.esporta') }}">Esporta Totali</a>
+    </li>
+  </ul>
+</div>
+<script>
+  function toggleZeroCredito() {
+    var btni = document.getElementById('btn-zeroc');
+    if(btni.innerHTML.indexOf('Vedi') != -1){
+      btni.innerHTML = 'Nascondi Credito Nullo';
+      document.querySelectorAll('[id^=uti]').forEach(el =>
+        el.classList.remove('display-none'));
+    }
+    else{
+      btni.innerHTML = 'Vedi Tutti';
+      document.querySelectorAll('[id^=uti]').forEach(el =>
+        el.classList.add('display-none'));
+    }
+  }
+</script>
+{% endblock %}
+
+{% block content %}
+
+<h2>Utenti Non Tesserati</h2>
+
+{% for totale in totali if not totale.attivo %}
+<div id="{{ 'utizero' if totale.totale == 0 }}" class="border group group-m margin-top-xxs margin-bottom-xxs padding-xxs">
+  <ul class="{{ loop.cycle('','background-light-50') }}">
+    <li class="no-padding">{{ totale.username }}</li>
+    <li class="no-padding"><b>{{ "%.2f €" | format(totale.totale) }}</b></li>
+  </ul>
+</div>
+{% else %}
+Non sono presenti totali di utenti.
+{% endfor %}
+
+<h2>Utenti Tesserati</h2>
+
+{% for totale in totali if totale.attivo %}
+<div id="{{ 'utizero' if totale.totale == 0 }}" class="border group group-m margin-top-xxs margin-bottom-xxs padding-xxs">
+  <ul class="{{ loop.cycle('','background-light-50') }}">
+    <li class="no-padding">{{ totale.username }}</li>
+    <li class="no-padding"><b>{{ "%.2f €" | format(totale.totale) }}</b></li>
+  </ul>
+</div>
+{% else %}
+Non sono presenti totali di utenti.
+{% endfor %}
+
+{% endblock %}

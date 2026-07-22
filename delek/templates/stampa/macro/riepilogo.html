@@ -1,0 +1,95 @@
+{%- macro stampa(prodotti, totali='') -%}
+
+{% for prodotto in prodotti %}
+
+{% if prodotto.username is defined %}
+  {% if loop.first or (loop.previtem is defined and prodotto.username != loop.previtem.username) %}
+  <div class="group group-m group-space-between">
+    <ul>
+      <li><h3 class="color-error-300">{{ [prodotto.cognome or '', prodotto.nome
+          or '', '(', prodotto.username, ')'] | join(' ') }}</h3></li>
+      <li class="font-size-l">Totale Ordine:
+        <b>{{ "%.2f" | format(totali[prodotto.id_utente]) if totali else 0 }} &euro;</b>
+      </li>
+    </ul>
+  </div>
+
+  {% endif %}
+{% endif %}
+
+{#
+{% if loop.changed(prodotto.categoria) and prodotto.categoria %}
+<p class="padding-xs background-light-100 font-weight-bold font-style-italic border">
+{{ prodotto.categoria if prodotto.categoria }}
+</p>
+{% endif %}
+#}
+
+{% if prodotto.id %}
+<a href="#{{ prodotto.id }}" class="text-decoration-none">
+{% endif %}
+
+<div class="border group group-m group-space-between margin-top-xxs margin-bottom-xxs">
+  <ul class="{{ loop.cycle('','background-light-50') }} no-margin">
+    <li style="flex:min-content">
+        {% if prodotto.colli_richiesti is not defined and prodotto.n_min_colli > 1 %}
+          <b>{{ prodotto.totale_ordinati // prodotto.n_min_colli }} x</b>
+          {{ prodotto.descrizione_prodotto|e }}
+          <i>{{ prodotto.dettaglio_qta|e if prodotto.dettaglio_qta }}</i>
+          ( {{ "%.2f" | format(prodotto.prezzo * prodotto.n_min_colli) }} &euro; cad. )
+          {% if prodotto.totale_ordinati // prodotto.n_min_colli == 0 %}
+          [ <span class="font-weight-bold color-error">NON CHIUSO</span> ]
+          {% endif %}
+        {% else %}
+          <b>{{ prodotto.colli_richiesti if prodotto.colli_richiesti is defined else prodotto.totale_ordinati }} x</b>
+          {{ prodotto.descrizione_prodotto|e }}
+          <i>{{ prodotto.dettaglio_qta|e if prodotto.dettaglio_qta }}</i>
+          ( {{ "%.2f" | format(prodotto.prezzo) }} &euro; cad. )
+        {% endif %}
+
+      {% if prodotto.nota %}
+      <p class="no-margin"><span aria-hidden="true">&#10551;</span><i>{{ prodotto.nota|e }}</i></p>
+      {% endif %}
+
+      {% if prodotto.n_min_colli > 1 %}
+        {% if prodotto.pending %}
+          {% if prodotto.pending > 1 %}
+          <b class="color-error">{{ prodotto.pending }} prodotti non fanno parte di un pacco chiuso!</b>
+          {% elif prodotto.pending == 1 %}
+          <b class="color-error">{{ prodotto.pending }} prodotto non fa parte di un pacco chiuso!</b>
+          {% endif %}
+        {% elif prodotto.totale_ordinati // prodotto.n_min_colli != 0 %}
+        <b class="color-success">Ordine Confermato!</b>
+        {% else %}
+        <b class="color-warning">Ordine in Attesa!</b>
+        {% endif %}
+      <p>
+        <i>{{ prodotto.totale_ordinati }}</i> unità richieste da tutti i gasisti, di cui
+        <i class="color-success">{{ prodotto.totale_ordinati - prodotto.totale_ordinati % prodotto.n_min_colli }}</i> ordinate e
+        <i class="color-error">{{ prodotto.totale_ordinati % prodotto.n_min_colli }}</i> no. Pacchi da
+        <i class="color-info">{{ prodotto.n_min_colli }}</i>
+      </p>
+      {% endif %}
+      {% if prodotto.specifica %}
+      <b>{{ prodotto.specifica }}</b>
+      {% endif %}
+    </li>
+    {% if prodotto.colli_richiesti is defined %}
+      <li>Totale: {{ "%.2f" | format(prodotto.prezzo * prodotto.colli_richiesti) }} &euro;</li>
+    {% else %}
+      <li>Totale: {{ "%.2f" | format(prodotto.prezzo *
+        (prodotto.totale_ordinati - prodotto.totale_ordinati % prodotto.n_min_colli )) }} &euro;
+      </li>
+    {% endif %}
+  </ul>
+</div>
+
+{% if prodotto.id %}
+</a>
+{% endif %}
+
+{% else %}
+<p>Non ci sono prodotti ordinati.</p>
+{% endfor %}
+
+{%- endmacro %}

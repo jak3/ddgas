@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="group group-m group-space-between">
+  <ul>
+    <li><h2>{% block title %}Rettifica Singolo Utente{% endblock %}</h2></li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<form action="{{ url_for('movimenti.rettifica_utente') }}" method="post">
+
+  <div id="select-per-utente" class="field">
+    <p>Per l'utente:</p>
+    <label class="select" for="select-per">
+      <select name="per_id_utente" id="select-per" autocomplete="off">
+        {% for utente in utenti %}
+        <option value="{{ utente.id }}">{{ [utente.username, '(', utente.nome or '', utente.cognome or '', ')'] | join(' ') }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </div>
+
+  <div class="field">
+   <label class="">Valore in Euro</label>
+   <input type="number" step="0.01" placeholder="0" name="importo" id="importo"
+                                                                   value="{{ request.form.importo }}"/>
+  </div>
+
+  <div class="field">
+   <label class="">Breve Descrizione</label>
+   <input type="text" name="descrizione" id="descrizione" value="{{ request.form.descrizione }}"/>
+  </div>
+
+  <div id="select-a-utente" class="field">
+    <button class="button button-warning button-border" type="submit">Crea Movimento</button>
+  </div>
+</form>
+
+{% endblock %}

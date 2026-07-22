@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="group group-m group-space-between">
+  <ul>
+    <li>
+      <h1>{% block title %}Ordina Prodotti {{ produttore.nome }}{% endblock %}</h1>
+    </li>
+    <li>Scadenza: <b>{{ date_ordine.scadenza|data }}</b></li>
+    <li>Consegna: <b>{{ date_ordine.consegna|data }}</b></li>
+    <li>Credito: <b>{{ "%.2f" | format(totale) if totale else 0 }} &euro;</b></li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+
+{% if prodotti_ordinati %}
+<div class="group group-m group-space-between">
+  <ul>
+    <li><h3>Momentaneamente in ordinazione</h3></li>
+    <li>Totale Provvisorio: {{ "%.2f" | format(prodotti_ordinati | sum(attribute='prezzo_totale')) }} &euro;</li>
+  </ul>
+</div>
+{% import 'stampa/macro/riepilogo.html' as riepilogo %}
+{{ riepilogo.stampa(prodotti_ordinati) }}
+<hr>
+{% endif %}
+
+{% if totale_ordine < minimo_ordine %}
+<p><strong>Non è stato raggiunto il minimo d'ordine di <span class="color-error">{{ "%.2f" | format(minimo_ordine) }} &euro; </span>.
+  Ordinati da tutti i gasisti <span class="color-success">{{ "%.2f" |
+    format(totale_ordine) }} &euro; </span>.</strong></p>
+{% endif %}
+
+<form method="post" accept-charset="utf-8">
+  {% for prodotto in prodotti %}
+
+  {% if loop.changed(prodotto.categoria) %}
+  <p class="padding-xs background-info-50 border-color-info font-weight-bold font-style-italic border">
+  {{ prodotto.categoria if prodotto.categoria else "Senza Categoria" }}
+  </p>
+  {% endif %}
+
+  <div id="{{ prodotto.id }}" class="border group group-m group-stretch margin-top-xxs
+                margin-bottom-xxs text-align-center">
+    <ul class="{{ loop.cycle('','background-light-50') }} no-margin no-padding">
+      <input name="id_prodotto" type="hidden" value="{{ prodotto.id }}" />
+      <li style="flex:2" class="text-align-left no-margin-vertical">
+        <div class="no-margin-vertical">
+          <b>{{ prodotto.descrizione_prodotto|e }}</b>
+          <i>{{ prodotto.nota|e if prodotto.nota }}</i>
+          {{ ['(', prodotto.dettaglio_qta|e, ')'] | join(' ') if prodotto.dettaglio_qta }}
+          {% if prodotto.totale_ordinati or prodotto.n_min_colli > 1 %}
+          <br>
+          <br>[ <b>{{ prodotto.n_min_colli - prodotto.totale_ordinati %
+            prodotto.n_min_colli if prodotto.totale_ordinati else
+            prodotto.n_min_colli}}</b>
+          <i>unità alla chiusura del prossimo pacco. Pacchi già chiusi: </i>
+          <b>{{ prodotto.totale_ordinati // prodotto.n_min_colli if
+            prodotto.totale_ordinati else '0'}}</b> ]
+          {% endif %}
+        </div>
+      </li>
+      <li class="no-margin">
+        <input name="prezzo" value="{{ "%.2f" | format(prodotto.prezzo) }}" hidden />
+        <p class="font-size-l font-weight-black no-margin no-padding">{{ "%.2f" | format(prodotto.prezzo) }} &euro;</p>
+      </li>
+      {% if prodotto.colli_rimasti != 0 %}
+      <li class="no-margin">
+        {% if date_ordine.scadenza > date_ordine.now %}
+        <input name="colli_richiesti"
+               type="number" step="1" min="0"
+                                      {{ 'max={}'.format(prodotto.n_max_colli) if prodotto.n_max_colli > 0 }}
+                                      {{ 'max={}'.format(prodotto.colli_disponibili) if prodotto.n_max_colli == 0 and prodotto.colli_disponibili > 0 }}
+                                      value="{{ prodotto.colli_richiesti if prodotto.colli_richiesti else '0' }}" />
+        {% else %}
+        {{ prodotto.colli_richiesti if prodotto.colli_richiesti else '0' }}
+        {% endif %}
+      </li>
+      {% else %}
+      <input name="colli_richiesti" type="hidden" value="0"/>
+      {% endif %}
+      {% if prodotto.n_min_colli > 1 %}
+      <li style="flex:0.5">
+        <div class="group group-m group-column">
+          <ul>
+            <li class="no-margin-vertical font-weight-bold color-info-300 padding-bottom-xxs">Pacco da {{ '(mancanti)' if prodotto.totale_ordinati }}</li>
+            <li class="no-margin-vertical no-padding-vertical">{{ prodotto.n_min_colli }}
+            {% if prodotto.totale_ordinati %}
+            ( <span class="color-error">{{ prodotto.n_min_colli -
+              prodotto.totale_ordinati % prodotto.n_min_colli }}</span> )
+            {% endif %}
+            </li>
+          </ul>
+        </div>
+      </li>
+      {% endif %}
+      {% if prodotto.n_max_colli %}
+      <li style="flex:0.5">
+        <div class="group group-m group-column">
+          <ul>
+            <li class="no-margin-vertical padding-bottom-xxs font-weight-bold color-info-300">Colli Massimi per Gasista</li>
+            <li class="no-margin-vertical no-padding-vertical ">{{ prodotto.n_max_colli }}</li>
+          </ul>
+        </div>
+      </li>
+      {% endif %}
+      {% if prodotto.colli_disponibili and prodotto.colli_rimasti >= 0 %}
+      <li style="flex:0.5">
+        {% if prodotto.colli_rimasti != 0 %}
+        <div class="group group-m group-column">
+          <ul>
+            <li class="no-margin-vertical padding-bottom-xxs font-weight-bold color-info-300">Disponibilità</li>
+            <li class="no-margin-vertical no-padding-vertical">
+              {{ '{} /'.format(prodotto.colli_rimasti) }}
+              {{ prodotto.colli_disponibili }}
+            </li>
+          </ul>
+        </div>
+        {% else %}
+        <input name="specifica" type="hidden" value=""/>
+        <p class="color-error"><b>Non più disponibile.</b></p>
+        {% endif %}
+      </li>
+      {% endif %}
+      {% if prodotto.colli_rimasti != 0 %}
+      <li style="flex:2">
+        <input name="specifica" placeholder="Specifica (note al produttore)" type="text"
+                                                                             value="{{ prodotto.specifica if
+                                                                                    prodotto.specifica}}" />
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+
+  {% else %}
+  <p>Non ci sono prodotti nel listino.</p>
+  {% endfor %}
+
+  {% if prodotti and date_ordine.scadenza > date_ordine.now %}
+  <button onclick="document.location.hash=''" type="submit" class="button button-warning button-border">Ordina</button>
+  {% endif %}
+
+</form>
+
+<div class="group group-space-between">
+  <ul>
+    <li></li>
+    <li><a class="button button-warning button-border" href="{{ url_for('ordini.list_ordini') }}">Torna agli Ordini</a></li>
+  </ul>
+</div>
+
+<a class="button error sticky position-bottom-right"
+        href="#endpage" id="gotobtn" title="Vai a fondo pagina"
+                                            style="position:fixed; bottom:5%;
+                                                      right:5%">▼</a>
+<div id="endpage"></div>
+{% endblock %}

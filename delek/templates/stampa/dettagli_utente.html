@@ -1,0 +1,22 @@
+{% extends 'stampa/dettagli.html' %}
+
+{% block content %}
+
+{% import 'stampa/macro/riepilogo.html' as riepilogo %}
+{{ riepilogo.stampa(prodotti_ordinati) }}
+
+{% endblock %}
+
+{% block afoot %}
+
+<div class="group group-space-between">
+  <ul>
+    <li></li>
+    <li>
+      <a class="button button-warning button-border"
+         href="{{ url_for('ordini.list_ordini') }}">Torna agli Ordini</a>
+    </li>
+  </ul>
+</div>
+
+{% endblock %}

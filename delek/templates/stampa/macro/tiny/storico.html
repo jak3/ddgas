@@ -1,0 +1,60 @@
+{%- macro stampa(ordini, totale) -%}
+<script>
+window.onload = function() { window.print() }
+</script>
+
+{% for ordine in ordini %}
+
+{# Gestisce vecchio formato (string/array) e nuovo formato (dict) #}
+{% set dettaglio_dati = ordine.dettaglio.dettaglio if ordine.dettaglio is mapping else ordine.dettaglio %}
+{#{% set nome_produttore = ordine.dettaglio.produttore if ordine.dettaglio is mapping else none %}
+#}
+<div class="group group-space-between">
+  <ul>
+    <li class="font-size-l">
+      <b>{{ ordine.cognome if ordine.cognome }} {{ ordine.nome if ordine.nome }} {{ ['(', ordine.username, ')'] | join(' ') }}</b>
+      {# {% if nome_produttore %}<br><span class="color-grey">{{ nome_produttore }}</span>{% endif %}
+      #}
+    </li>
+    <li>
+      {% if dettaglio_dati is not string %}
+      {% set totals = [] %}
+
+      {% for det in dettaglio_dati %}
+        {% if totals.append(det[0]|int * det[3]|float) %}{% endif %}
+      {% endfor %}
+
+      <span class="color-grey">Pre Rettifica: {{ "%.2f" | format(totals | sum) }} &euro; |</span>
+      {% endif %}
+      Totale Ordine: <b>{{ "%.2f" | format(ordine.importo) }} &euro;</b>
+    </li>
+  </ul>
+</div>
+
+{% if dettaglio_dati is string %}
+
+<div class="group group-space-between padding-left-xs">
+  <ul>
+    <li>{{ dettaglio_dati }}</li>
+    <li>[ <i class="color-grey">{{ "%.2f" | format(ordine.importo) }} &euro;</i> ]</li>
+  </ul>
+</div>
+
+{% else %}
+
+{% for prodotto in dettaglio_dati %}
+<div class="group group-space-between padding-left-xs">
+  <ul>
+    <li>{{ prodotto[0]|int }} x {{ prodotto[1] }} ({{ prodotto[2] }})</li>
+    <li>[ <i class="color-grey">{{ "%.2f" | format(prodotto[3]|float * prodotto[0]|int) }} &euro;</i> ]</li>
+  </ul>
+</div>
+{% else %}
+Non ci sono prodotti nello storico.
+{% endfor %}
+
+{% endif %}
+
+{% endfor %}
+
+{%- endmacro %}

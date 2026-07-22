@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <div class="group group-column">
+    <ul>
+      <li><h1>{% block title %}Prodotti {{ produttore.nome.capitalize() }}{% endblock %}</h1></li>
+      <li>
+        <div class="group group-xxs">
+          <ul>
+      {% if prodotti %}
+            <li><a id="btn-nascondi" class="display-none button button-warning button-border" onclick="toggleNonDisponibili()">Nascondi Prodotti Non Disponibili</a></li>
+      {% endif %}
+      {% block modhead %}
+        {% if 'moderatore' in g.ruoli or produttore.id in g.referenze %}
+            <li><a class="button button-warning button-border" href="{{ url_for('ordini.update', id_produttore=produttore.id) }}">Gestisci Ordine</a></li>
+            <li><a class="button button-warning button-border" href="{{ url_for('listini.update', id_produttore=produttore.id) }}">Modifica Listino</a></li>
+            <li><a class="button button-warning button-border" href="{{ url_for('listini.esporta', id_produttore=produttore.id) }}">Esporta Listino</a></li>
+            <li><a class="button button-warning button-border" href="{{ url_for('listini.importa', id_produttore=produttore.id) }}">Importa Listino</a></li>
+        {% endif %}
+      {% endblock %}
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    window.onload = function() {
+        var rows_nd = document.querySelectorAll(".opacity-40");
+        if(rows_nd.length > 0)
+          document.getElementById('btn-nascondi').classList.remove('display-none');
+    }
+    function toggleNonDisponibili() {
+        var rows_nd = document.querySelectorAll(".opacity-40");
+        var bc = document.getElementById("btn-nascondi");
+        if(bc.innerHTML.includes("Nascondi")){
+          bc.innerHTML = bc.innerHTML.replace("Nascondi", "Vedi");
+          for(let row of rows_nd)
+            row.hidden = true;
+        } else {
+          bc.innerHTML = bc.innerHTML.replace("Vedi", "Nascondi");
+          for(let row of rows_nd)
+            row.hidden = false;
+        }
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+{% for prodotto in prodotti %}
+{% if loop.first or prodotto.categoria != loop.previtem.categoria %}
+<p class="border padding-xs background-light-100 font-weight-bold
+          font-style-italic font-size-xl" >{{ prodotto.categoria if prodotto.categoria }}</p>
+{% endif %}
+<div class="border group group-stretch margin-top-xxs margin-bottom-xxs
+            padding-xxs {{ 'opacity-40' if prodotto.disponibile == 0 }}">
+  <ul>
+    <li class="no-padding font-weight-bold font-size-l" style="min-width:100px">{{ prodotto.descrizione_prodotto|e }}</li>
+    {% if prodotto.dettaglio_qta %}
+    <li class="no-padding">
+      <div class="group group-column">
+        <ul>
+          <li><p class="color-info-800">Dettaglio Quantità</p></li>
+          <li>{{ prodotto.dettaglio_qta|e }}</li>
+        </ul>
+      </div>
+    </li>
+    {% endif %}
+    <li class="no-padding">
+      <div class="group group-column">
+        <ul>
+          <li><p class="color-info-800">Prezzo (&euro;)</p></li>
+          <li>{{ "%.2f" | format(prodotto.prezzo) }}</li>
+        </ul>
+      </div>
+    </li>
+    {% if prodotto.n_min_colli > 1 %}
+    <li class="no-padding">
+      <div class="group group-column">
+        <ul>
+          <li><p class="color-info-800">Pacco da...</p></li>
+          <li>{{ prodotto.n_min_colli }}</li>
+        </ul>
+      </div>
+    </li>
+    {% endif %}
+    {% if prodotto.n_max_colli %}
+    <li class="no-padding">
+      <div class="group group-column">
+        <ul>
+          <li><p class="color-info-800">Colli Massimi per
+            Gasista</p></li>
+          <li>{{ prodotto.n_max_colli }}</li>
+        </ul>
+      </div>
+    </li>
+    {% endif %}
+    {% if prodotto.colli_disponibili %}
+    <li class="no-padding">
+      <div class="group group-column">
+        <ul>
+          <li><p class="color-info-800">Disponibilità</p></li>
+          <li>{{ prodotto.colli_disponibili }}</li>
+        </ul>
+      </div>
+    </li>
+    {% endif %}
+    {% if prodotto.nota %}
+    <li class="no-padding" style="min-width:100px">
+      <div class="group group-column">
+        <ul>
+          <li><p class="color-info-800">Note</p></li>
+          <li>{{ prodotto.nota|e }}</li>
+        </ul>
+      </div>
+    </li>
+    {% endif %}
+  </ul>
+</div>
+{% endfor %}
+{% endblock %}

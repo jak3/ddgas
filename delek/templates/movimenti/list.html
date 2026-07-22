@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="group group-m group-space-between">
+  <ul>
+    <li> <h1>{% block title %}Lista Movimenti{% endblock %}</h1> </li>
+    <li>Totale (senza ordini in corso): <strong>{{ totale }} &euro;</strong></li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<form action="{{ url_for('movimenti.list_movimenti') }}" method="post">
+
+  <div class="group group-xs group-column">
+    <ul>
+      <li class="border-bottom">
+        <div class="group group-xs group-space-between margin-xxs">
+          <ul>
+            <li>
+              <p class="control flex">
+              <label class="control-label padding-xxs">Dal:</label><input class="no-margin" type="date" id="da_data" value="{{ request.form.da_data }}"/>
+              <label class="control-label padding-xxs">Al:</label><input class="no-margin" type="date" id="a_data" value="{{ request.form.a_data }}"/>
+              </p>
+            </li>
+            <li>
+              <button type="submit" class="button button-warning button-border">Filtra Date</button>
+            </li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <button name="mese" type="submit" class="margin-bottom-xxs button button-warning
+                                         button-border">Ultimo Mese</button>
+        <button name="trimestre" type="submit" class="button button-warning
+                                         button-border">Ultimo Trimestre</button>
+      </li>
+    </ul>
+  </div>
+
+
+</form>
+
+<hr>
+
+<p>
+Per visionare i dettagli degli acquisti, visitare la pagina <a class="button
+                                                                      button-warning
+                                                                      button-border
+                                                                      button-pill
+                                                                      button-xxs"
+                                                               href="{{
+                                                                     url_for('ordini.list_archivio')
+                                                                     }}">Storico</a>
+</p>
+
+{% for movimento in movimenti %}
+<div class="border group group-m margin-top-xxs margin-bottom-xxs padding-xxs">
+  <ul class="{{ loop.cycle('','background-light-50') }}">
+    <li class="no-padding">{{ movimento.effettuato_il | data }}</li>
+    <li class="no-padding"><b>{{ "%.2f €" | format(movimento.importo) }}</b></li>
+    <li class="no-padding" style="flex:auto">{{ movimento.descrizione if movimento.descrizione }}</li>
+  </ul>
+</div>
+{% else %}
+Non sono presenti movimenti.
+{% endfor %}
+{% endblock %}

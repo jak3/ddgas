@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Log In{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    <p class="field">
+      <input name="username" id="username" placeholder="Username" required />
+    </p>
+    <p class="field">
+      <input type="password" name="password" id="password"
+                                             placeholder="Password"
+                                             minlength="5" required/>
+    </p>
+    <p class="field">
+      <button type="submit" class="button">Log In</button>
+    </p>
+  </form>
+  <div class="padding-top-s">
+    <a href="{{ url_for('auth.smemo') }}">Password Dimenticata?</a>
+  </div>
+{% endblock %}

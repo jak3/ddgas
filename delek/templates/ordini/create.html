@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Crea Nuovo Ordine{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <form method="post">
+
+    <div class="field">
+      <strong>Produttore</strong>
+      <label class="select" for="select">
+        <select name="id_produttore" id="select-produttore">
+          {% for produttore in produttori %}
+          <option value="{{ produttore.id }}">{{ produttore.nome.capitalize() }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <p class="field">
+    <label for="scadenza"><strong>Scadenza</strong></label>
+    <input type="date" id="scadenza" name="scadenza" value="{{ request.form.scadenza | data_input if request.form }}"/>
+    <div class="flex align-content-flex-start">
+      <div class="space-l"></div>
+      Data fino la quale è possibile effettuare un ordine da parte di un gasista.
+    </div>
+    </p>
+
+    <p class="field">
+    <label for="consegna"><strong>Consegna</strong></label>
+    <input type="date" id="consegna" name="consegna" value="{{ request.form.consegna | data_input if request.form }}"/>
+    <div class="flex align-content-flex-start">
+      <div class="space-l"></div>
+      Data di consegna della merce acquistata.
+    </div>
+    </p>
+
+    <p class="field">
+    <label for="minimo_ordine"><strong>Minimo Ordine</strong></label>
+    <input name="minimo_ordine" id="minimo_ordine" type="number" step="0.01" placeholder="0.00" value="{{ request.form.minimo_ordine }}" />
+    <div class="flex align-content-flex-start">
+      <div class="space-l"></div>
+      Se il produttore richiede un incasso minimo per poter far partire l'ordine.
+    </div>
+    </p>
+
+    <p class="field">
+    <label for="nota"><strong>Nota</strong></label>
+    <input name="nota" id="nota" placeholder="Nota" value="{{ request.form.nota }}" />
+    <div class="space-xxs"></div>
+    </p>
+
+    <p class="field">
+    <button type="submit" class="button button-warning button-border">Crea</button>
+    </p>
+  </form>
+</div>
+{% endblock %}

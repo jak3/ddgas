@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block header %}
+
+  <div class="group group-m group-space-between">
+    <ul>
+      <li><h1>{% block title %}Archivio Ordini Chiusi{% endblock %}</h1></li>
+      {% if 'moderatore' in g.ruoli or 'tesoriere' in g.ruoli %}
+        <li>
+          <a class="button button-warning button-border" href="{{ url_for('ordini.esporta') }}">Esporta Ordini Chiusi</a>
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+{% endblock %}
+
+{% block content %}
+<ul style="list-style: none /*'\1F4C1'*/ inside">
+  {% for ordine in pagamenti_ordini_chiusi %}
+  <li class="border padding-xs">
+    <div class="group group-m group-stretch">
+      <ul>
+        <li class="max-width-xxs"><b>{{ ordine.consegna | data }}</b></li>
+        <li>{{ ordine.nome_produttore }}</li>
+        <li><b>{{ "%.2f" | format(-1*ordine.totale) }} &euro;</b></li>
+        {% if 'moderatore' in g.ruoli or 'tesoriere' in g.ruoli %}
+        <li>
+          {% if ordine.data_pagamento %}
+          <a class="button button-border success button-pill button-xxs"
+             href="{{ url_for('ordini.pagamento',
+                   id_pagamento=ordine.id_pagamento)
+                       }}">Pagato il {{ ordine.data_pagamento | data }}</a>
+          {% else %}
+          <a class="button button-border warning button-pill button-xxs"
+             href="{{ url_for('ordini.pagamento',
+                   id_pagamento=ordine.id_pagamento) }}">Inserisci Pagamento</a>
+          {% endif %}
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </li>
+  {% else %}
+  <p>Non sono presenti ordini chiusi.</p>
+  {% endfor %}
+</ul>
+{% endblock %}
+

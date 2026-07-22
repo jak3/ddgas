@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Importa Listino{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+<p><b>Ricorda che importando un listino, l'attuale listino verrà cancellato. Tutti i
+  prodotti verranno sostituiti con quelli presenti nel file.</b></p>
+
+<p>Il formato del file dovrà rispettare alcuni vincoli:</p>
+
+<ol>
+  <li>Essere un file csv (ogni informazione prodotto deve essere separata dalla virgola);</li>
+  <li>Avere le seguenti colonne (categoria, disponibile, descrizione prodotto,
+    dettaglio quantità, prezzo, n minimo colli, n massimo colli, colli
+    disponibili, nota);</li>
+</ol>
+
+<form method="post" enctype="multipart/form-data">
+  <div class="field">
+    <p>Allega il file da importare:</p>
+  </div>
+  <div class="field">
+    <input type="file" id="listino" name="listino" accept="text/csv">
+  </div>
+  <button type="submit" class="button button-xs button-pill button-border button-warning">Importa Listino</button>
+</form>
+
+<h3>Descrizione delle colonne</h3>
+
+<dl>
+  <dt>categoria</dt>
+  <dd>Attributo per raggruppare un insieme di prodotti, sarà uguale quindi più
+    prodotti, può essere lasciata vuota.</dd>
+  <dt>disponibile</dt>
+  <dd>Indica se il prodotto è attualmente disponibile o meno, può essere
+    lasciato vuoto. Valori ammessi (0 oppure False se non disponibile, 1 oppure
+    True se disponibile).</dd>
+  <dt>descrizione prodotto</dt>
+  <dd>Descrive il prodotto, è un dato obbligatorio e può corrispondere anche
+    solamente al nome del prodotto.</dd>
+  <dt>dettaglio quantità</dt>
+  <dd>Esempio "1kg", "1l", "1", può essere lasciato vuoto.</dd>
+  <dt>prezzo</dt>
+  <dd>Indica il prezzo del prodotto. Utilizzare come simbolo di separazione
+    decimali il punto, in quanto la virgola serve come separatore delle colonne.</dd>
+  <dt>n minimo colli</dt>
+  <dd>Indica quanti colli devono essere acquistati da parte di tutti i gasisti
+    per poter vendere il prodotto. Corrisponde generalmente a ordini a pacchi.
+    Se per esempio un pacco consiste di 6 colli, il n minimo risulterà 6. Può
+    essere lasciato vuoto se non sono previsti limiti.</dd>
+  <dt>n massimo colli</dt>
+  <dd>Indica quanti colli per ogni gasista possono essere acquistati. Limita
+    quindi la quantità acquistabile per ogni gasista. Può essere lasciato vuoto
+  se non sono previsti limiti.</dd>
+  <dt>colli disponibili</dt>
+  <dd>Indica quanti colli in totale, tutti i gasisti, possono acquistare per
+    tale prodotto. Utile in caso il produttore non ha scorte illimitate di
+    prodotti. Può essere lasciato vuoto se non sono previsti limiti.</dd>
+  <dt>nota</dt>
+  <dd>Eventuali note da comunicare ai gasisti in merito del prodotto,
+    generalmente utilizzato per modifiche o caratteristiche temporanee del
+    prodotto, per esempio se il prodotto è di prima o seconda mano.</dd>
+</dl>
+
+<h3>Esempio di contenuto del file</h3>
+
+<pre>
+categoria,disponibile,descrizione prodotto,dettaglio quantità,prezzo,n minimo colli,n massimo colli,colli disponibili,nota
+miele,1,acacia,1kg,10,1,,,
+miele,1,tiglio,1kg,9,1,,,
+miele,1,melata,1kg,11,1,,,
+cosmesi,0,crema viso,150ml,3.5,1,,,
+cosmesi,1,crema mani,100ml,2.5,1,,,
+altro,1,propoli,500g,5.5,1,2,10,da raschiatura
+altro,0,cera,100g,0.5,1,,,alcuni pezzetti hanno impurità
+</pre>
+
+<p>Notare che quando vi sono più virgole vicine, significa che tale campo/colonna è
+vuota. È possibile esportare un file CSV compilando un foglio di calcolo (Excel,
+Google Sheets, Office Calc, Numbers, ecc..).</p>
+
+<a class="button button-warning button-border"
+   href="{{ url_for('listini.scarica_template', id_produttore=id_produttore) }}">Scarica Template</a>
+
+{% endblock %}

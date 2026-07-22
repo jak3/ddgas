@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Tessere ARCI{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+<ul style="list-style-type: '\1F464'">
+{% for utente in utenti %}
+<li id="utiu" class="{{ loop.cycle('', 'backgroud-light-50') }}">
+  [ <b>{{ utente.codice }}</b> ] {{ utente | utente }}
+</li>
+{% else %}
+    Non sono presenti tesserati ARCI.
+{% endfor %}
+</ul>
+
+<a class="button button-warning button-border" href="{{
+          url_for('auth.download_arci') }}" >Scarica Documento Riassuntivo</a>
+
+{% endblock %}

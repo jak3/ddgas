@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="group group-m group-space-between">
+  <ul>
+    <li><h2>{% block title %}Elenco Ruoli{% endblock %}</h2></li>
+    <li>
+      <a href="{{ url_for('ruoli.list_ruoli_utenti') }}" target="_blank" class="button
+                                                        button-warning button-border">Visualizza Ruoli Utenti</a>
+    </li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<dl>
+  {% for ruolo in ruoli %}
+  <dt>{{ ruolo['ruolo'] }}</dt>
+  <dl>{{ ruolo['descrizione'] }}</dl>
+  {% endfor %}
+</dl>
+{% endblock %}

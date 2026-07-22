@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Archivio Ordini{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+{% include 'ordini/include/archivio.html' ignore missing with context %}
+{% endblock %}

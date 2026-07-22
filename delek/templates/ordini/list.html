@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="group group-m group-space-between">
+  <ul>
+    <div class="group group-m">
+      <ul>
+        <li><h1>{% block title %}Elenco Ordini{% endblock %}</h1></li>
+        {% if 'moderatore' in g.ruoli or 'referente' in g.ruoli %}
+        <li>
+          <a class="button button-warning button-border" href="{{ url_for('ordini.create') }}">Apri Nuovo Ordine</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+    <li>Credito: <b>{{ "%.2f" | format(totale) if totale else "0" }} &euro;</b></li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+
+{% if msg_presidio %}
+<p class="background-warning font-size-l font-weight-bold color-white
+              padding-s">{{ msg_presidio }}</p>
+{% endif %}
+
+<h3 class="background-warning-50 padding-xxs"><span aria-hidden="true">&#129530;</span> Ordini in Corso</h3>
+
+<ul style="list-style: none/*'\1F9FA'*/ inside" class="overflow-wrap-anywhere">
+  {% for ordine in ordini_scadenza %}
+  <li class="border padding-xs">
+    <div class="group group-xxs group-column">
+      <ul>
+        <li>
+          <a class="color-info"
+             href="{{ url_for('ordini.effettua_ordine', id_produttore=ordine.id_produttore) }}">
+            {{ [ordine.prodotto_principale, '(', ordine.nome_produttore, ')'] | join(' ') }}
+          </a>
+          {% if ordine.id_produttore in da_chi_ordino %}
+          <a class="button button-border
+                        success button-pill button-xxs" href="{{
+                                                       url_for('stampa.dettagli_ordini_utente',
+                                                       id_produttore=ordine.id_produttore) }}" >Presente un tuo ordine</a>
+          {% endif %}
+        </li>
+        {% if ordine.nota %}
+        <li>
+          <span aria-hidden="true">&#10551;</span><i>{{ ordine.nota }}</i>
+        </li>
+        {% endif %}
+        <li>
+          scadenza: <b>{{ ordine.scadenza|data_it }}</b> consegna: <b>{{ ordine.consegna|data_it }}</b>
+        </li>
+        {% if 'moderatore' in g.ruoli or ('referente' in g.ruoli and
+        ordine.id_produttore in g.referenze ) %}
+        <li>
+          <a class="button button-border button-warning button-pill button-xs
+                    margin-bottom-xxs"
+             href="{{ url_for('stampa.dettagli_ordini', id_produttore=ordine.id_produttore) }}">Dettagli Ordini</a>
+          <a class="button button-border button-warning button-pill button-xs"
+             href="{{ url_for('ordini.update', id_produttore=ordine.id_produttore) }}">Modifica</a>
+        </li>
+        {% endif %}
+        </li>
+        {% if ordine.consegna not in prenotati %}
+        <li>
+          <b class="color-error">Non si sono ancora segnati presidianti!</b>
+          <a href="{{ url_for('presidi.list_presidi') }}">Prenota</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </li>
+  {% else %}
+  <p>Non ci sono ordini in corso.</p>
+  {% endfor %}
+</ul>
+
+<h3 class="background-warning-50 padding-xxs"><span aria-hidden="true">&#128230;</span> Le Tue Prossime Consegne</h3>
+
+<ul style="list-style: none /*'\1F69A'*/ inside" class="overflow-wrap-anywhere">
+  {% for ordine in mie_prossime_consegne %}
+  <li class="border padding-xs">
+    <div class="group group-space-between">
+      <ul>
+        <li style="flex:content"><b>{{ ordine.consegna | data_it }}</b>
+          <a class="color-info"
+             href="{{ url_for('stampa.dettagli_ordini_utente', id_produttore=ordine.id_produttore) }}">
+            {{ [ordine.prodotto_principale, '(', ordine.nome_produttore, ')'] | join(' ') }}
+          </a>
+        </li>
+        {% if 'moderatore' in g.ruoli or ('referente' in g.ruoli and ordine.id_produttore in g.referenze ) %}
+        <li>
+          <a class="button button-border button-warning button-pill button-xs
+                    margin-bottom-xxs"
+             href="{{ url_for('stampa.dettagli_ordini', id_produttore=ordine.id_produttore) }}">Dettagli Ordini</a>
+          <a class="button button-border button-warning button-pill button-xs"
+             href="{{ url_for('ordini.update', id_produttore=ordine.id_produttore) }}">Modifica</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+    {% if ordine.nota %}
+    <span aria-hidden="true">&#10551;</span><i>{{ ordine.nota }}</i>
+    {% endif %}
+  </li>
+  {% else %}
+  <p>Non hai ordini in consegna</p>
+  {% endfor %}
+</ul>
+
+<h3 class="background-warning-50 padding-xxs"><span aria-hidden="true">&#128230;</span> Prossime Consegne</h3>
+
+<ul style="list-style: none /*'\1F69A'*/ inside" class="overflow-wrap-anywhere">
+  {% for ordine in prossime_consegne %}
+  <li class="border padding-xs">
+    <b>{{ ordine.consegna | data }}</b>
+    <a class="color-info" href="{{ url_for('stampa.dettagli_ordini', id_produttore=ordine.id_produttore) }}">
+      {{ [ordine.prodotto_principale, '(', ordine.nome_produttore, ')'] | join(' ') }}
+    </a>
+    {% if ordine.nota %}
+    <p class="no-margin no-padding"><i>{{ ordine.nota }}</i></p>
+    {% endif %}
+  </li>
+  {% else %}
+  <p>Non ci sono ordini in consegna.</p>
+  {% endfor %}
+</ul>
+
+{% if ordini_in_rettifica %}
+
+<h3 class="background-warning-50 padding-xxs"><span aria-hidden="true">&#128203;</span> In Fase di Rettifica</h3>
+
+<ul style="list-style: none /*'\1F4CB'*/ inside" class="overflow-wrap-anywhere">
+  {% for ordine in ordini_in_rettifica %}
+  <li class="border padding-xs">
+    <div class="group group-space-between">
+      <ul>
+        <li style="flex:content">
+          <p class="no-margin"><a class="color-info"
+             href="{{ url_for('stampa.dettagli_ordini_utente', id_produttore=ordine.id_produttore) }}">
+            {{ [ordine.prodotto_principale, '(', ordine.nome_produttore, ')'] | join(' ') }}
+          </a></p>
+          {% if ordine.nota %}
+          <span aria-hidden="true">&#10551;</span><i>{{ ordine.nota }}</i>
+          {% endif %}
+        </li>
+        {% if 'moderatore' in g.ruoli or ('referente' in g.ruoli and ordine.id_produttore in g.referenze ) %}
+        <li>
+          <a class="button button-border button-warning button-pill button-xs
+                    margin-bottom-xxs"
+             href="{{ url_for('stampa.dettagli_ordini', id_produttore=ordine.id_produttore) }}">Dettagli Ordini</a>
+          <a class="button button-border button-warning button-pill button-xs"
+             href="{{ url_for('ordini.rettifica_ordine', id_produttore=ordine.id_produttore) }}">Rettifica</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </li>
+  {% else %}
+  <p>Non ci sono ordini in fase di rettifica.</p>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<h3 class="background-warning-50 padding-xxs"><span
+    aria-hidden="true">&#128193;</span> Archivio dei Tuoi Ordini <a
+    href="{{ url_for('ordini.list_archivio') }}" class="color-info font-size-m">( Vedi Tutti )</a></h3>
+
+{% include 'ordini/include/archivio.html' ignore missing with context %}
+
+{# Inserire la possibilita di visionare l'archivio di tutti gli ordini, anche
+a distanza di consegna > di un anno #}
+{% endblock %}

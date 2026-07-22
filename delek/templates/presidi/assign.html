@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Assegna Presidio{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<p>Seleziona l'Utente da assegnare:</p>
+  <form method="post">
+    <p class="field">
+    <label class="select" for="id_utente">
+      <select name="id_utente" autocomplete="off">
+        <option></option>
+        {% for utente in utenti %}
+        <option value="{{ utente.id }}">{{ utente | utente }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    </p>
+    <p class="field">
+      <button type="submit" class="button button-warning button-border">Assegna Gasista</button>
+    </p>
+  </form>
+{% endblock %}
+
+

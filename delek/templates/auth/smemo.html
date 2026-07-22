@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Password Reset{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<p>È necessario inserire <b>username</b> ed <b>email</b> (quella associata
+all'username inserito). Se i dati saranno corretti, ti verrà inviato un
+messaggio di posta con la nuova password. Se non ricordi nemmeno questi dati
+contattare un amministratore.</p>
+  <form method="post">
+    <p class="field">
+      <input name="username" placeholder="Username" required />
+    </p>
+    <p class="field">
+      <input name="email" placeholder="Email" required/>
+    </p>
+    <p class="field">
+      <button type="submit" class="button button-warning button-border">Mandami una nuova Password</button>
+    </p>
+  </form>
+{% endblock %}
+

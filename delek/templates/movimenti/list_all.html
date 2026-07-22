@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="group group-m group-space-between">
+  <ul>
+    <li>
+      <div class="group group-m">
+        <ul>
+          <li><h1>{% block title %}Lista Movimenti Cassa{% endblock %}</h1></li>
+          <li><a class="button button-warning button-border" href="{{ url_for('movimenti.handle') }}" >Nuovo Movimento</a></li>
+        </ul>
+      </div>
+    </li>
+    <li>Totale in cassa (movimenti utenti): <strong>{{ totale }} &euro;</strong><br>
+      <small>di cui in transizione (ordini in corso): <strong>{{ "%.2f" | format(totale_ordini_in_corso) }} &euro;</strong></small><br>
+      <small>di cui (aggiustamenti): <strong>{{ totale_cassa_aggiustamenti }} &euro;</strong></small>
+    </li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<form action="{{ url_for('movimenti.list_movimenti_all') }}" method="post"
+                                                             class="margin-bottom-l">
+
+  <div class="group group-xs group-column">
+    <ul>
+      <li class="border-bottom">
+        <div class="group group-xs group-space-between margin-xxs">
+          <ul>
+            <li>
+              <p class="control flex">
+              <label class="control-label padding-xxs">Dal:</label><input class="no-margin" type="date" id="da_data" value="{{ request.form.da_data }}"/>
+              <label class="control-label padding-xxs">Al:</label><input class="no-margin" type="date" id="a_data" value="{{ request.form.a_data }}"/>
+              </p>
+            </li>
+            <li>
+              <button type="submit" class="button button-warning button-border">Filtra Date</button>
+            </li>
+          </ul>
+        </div>
+      </li>
+      <li class="border-bottom">
+        <div class="group group-xs group-space-between margin-xxs">
+          <ul>
+            <li>
+              <label class="select" for="select-utente">
+                <select name="id_utente" id="select-utente" autocomplete="off">
+                  <option selected>- - -</option>
+                  {% for utente in utenti %}
+                  <option value="{{ utente.id }}">{{ [utente.nome or '', utente.cognome or '', '(', utente.username, ')'] | join(' ') }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+            </li>
+            <li>
+              <button type="submit" class="button button-warning
+                                            button-border">Filtra Utente</button>
+            </li>
+          </ul>
+        </div>
+      </li>
+      <li class="border-bottom">
+        <div class="group group-xs group-space-between margin-xxs">
+          <ul>
+            <li>
+              <label class="select" for="select-tipologia">
+                <select name="tipologia" id="select-tipologia" autocomplete="off">
+                  <option selected>- - -</option>
+                  {% for tipologia in tipologie_movimenti %}
+                  <option value="{{ tipologia.id }}" class="padding-m">{{ tipologia.nome }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+            </li>
+            <li>
+              <button type="submit" class="button button-warning
+                            button-border">Filtra Tipologia</button>
+            </li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <strong>Azioni Rapide:</strong>
+        <button name="mese" type="submit" class="button button-warning
+                                         button-border">Ultimo Mese</button>
+        <button name="trimestre" type="submit" class="button button-warning
+                                         button-border">Ultimo Trimestre</button>
+      </li>
+    </ul>
+  </div>
+  {# TODO: Aggiungi checkbox per vedere anche gli acquisti, che di default non lo sono #}
+</form>
+
+{% if totale_utente %}
+<p>Totale portafoglio utente: <b>{{ totale_utente }} &euro;</b></p>
+{% endif %}
+
+{% for movimento in movimenti %}
+<div class="border group group-m group-stretch margin-top-xxs margin-bottom-xxs padding-xxs">
+  <ul class="{{ loop.cycle('','background-light-50') }}">
+    <li class="no-padding">{{ movimento.effettuato_il | data }}</li>
+    <li class="no-padding">
+      {% if movimento.nome or movimento.cognome %}
+      <p class="no-padding no-margin">{{ [movimento.nome or '', movimento.cognome or ''] | join(' ') }}</p>
+      {% endif %}
+      {% if movimento.username %}
+      <p class="no-padding no-margin">{{ ['(', movimento.username, ')'] | join(' ') }}</p>
+      {% else %}
+      <p class="no-padding no-margin">Cassa</p>
+      {% endif %}
+    </li>
+    <li class="no-padding"><b>{{ "%.2f €" | format(movimento.importo) }}</b></li>
+    <li class="no-padding">{{ movimento.descrizione if movimento.descrizione }}
+      {% if movimento.produttore %}
+      (<b> {{ movimento.produttore }} </b>)
+      {% endif %}
+    </li>
+    {% if 'tesoriere' in g.ruoli %}
+    <li class="no-padding">
+      <form method="post" style="display: inline"
+            action="{{ url_for('movimenti.delete', id_movimento=movimento.id) }}"
+            onsubmit="return confirm('Cancellare definitivamente il movimento?\n{{ movimento | movimento }}');">
+        <button type="submit" class="button button-square color-error"
+                aria-label="Cancella movimento">&#128465;</button>
+      </form>
+    </li>
+    {% endif %}
+  </ul>
+</div>
+{% else %}
+Non sono presenti movimenti.
+{% endfor %}
+{% endblock %}
+

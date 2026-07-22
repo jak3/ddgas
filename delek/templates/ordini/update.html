@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="group group-m group-space-between">
+  <ul>
+    <li><h2>{% block title %}{{ 'Nuovo' if not dettaglio.scadenza }} Ordine {{ produttore.nome }}{% endblock %}</h2></li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <form method="post" action="{{ url_for('ordini.update', id_produttore=produttore.id) if dettaglio.scadenza else url_for('ordini.create') }}" method="post"
+        class="margin-bottom-m" >
+    <input type="hidden" value="{{ produttore.id }}" name="id_produttore"/>
+
+    {% if dettaglio.consegna and today > dettaglio.consegna %}
+    <div class="padding-m background-warning-50">
+      <p class="font-size-l">È necessario fare le rettifiche e quindi chiudere l'ordine prima di aprirne uno nuovo.</p>
+      <a href="{{ url_for('ordini.rettifica_ordine', id_produttore=produttore.id)
+               }}" class="button button-warning button-border">Vai alla pagina delle rettifiche</a>
+    </div>
+    {% endif %}
+
+    <div class="field">
+      <label for="scadenza"><strong>Scadenza</strong></label>
+      <input type="date" id="scadenza" name="scadenza" value="{{ request.form.scadenza or dettaglio.scadenza | data_input if dettaglio.scadenza }}"/>
+      <div class="flex align-content-flex-start">
+        <div class="space-l"></div>
+        Data fino la quale è possibile effettuare un ordine da parte di un gasista.
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="consegna"><strong>Consegna</strong></label>
+      <input type="date" id="consegna" name="consegna" value="{{ request.form.consegna or dettaglio.consegna | data_input if dettaglio.consegna }}"/>
+      <div class="flex align-content-flex-start">
+        <div class="space-l"></div>
+        Data di consegna della merce acquistata.
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="minimo_ordine"><strong>Minimo Ordine</strong></label>
+      <input name="minimo_ordine" id="minimo_ordine" type="number" step="0.01"
+                                                                   placeholder="0.00"
+                                                                   value="{{ request.form.minimo_ordine or dettaglio.minimo_ordine if dettaglio.minimo_ordine }}" />
+      <div class="flex align-content-flex-start">
+        <div class="space-l"></div>
+        Se il produttore richiede un incasso minimo per poter far partire l'ordine.
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="nota"><strong>Nota</strong></label>
+      <input name="nota" id="nota" placeholder="Nota" value="{{ request.form.nota or dettaglio.nota if dettaglio.nota }}" />
+      <div class="space-xxs"></div>
+    </div>
+
+    <div class="field group group-m">
+      <ul>
+        <li>
+          <button type="submit" class="button button-warning button-border">{{ 'Aggiorna' if dettaglio.scadenza else 'Apri' }}</button>
+        </li>
+        {% if dettaglio.scadenza %}
+        <li>
+          <a class="button button-warning button-border" href="{{ url_for('stampa.dettagli_ordini', id_produttore=produttore.id) }}">Dettagli Ordine</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </form>
+
+  {% if dettaglio.scadenza %}
+
+    {% if today <= dettaglio.scadenza %}
+    <form method="post" action="{{ url_for('ordini.close', id_produttore=produttore.id) }}" method="post">
+      <input type="submit" class="button button-border button-{{ 'error' if sicuro_close else 'grey' }}" value="Chiudi"
+             name="{{ 'conferma' if sicuro_close else 'pre-conferma'}}" />
+    </form>
+    {% endif %}
+
+
+    <hr class="margin-bottom-xxl">
+
+    <form method="post" action="{{ url_for('ordini.delete', id_produttore=produttore.id) }}" method="post">
+      <input type="submit" class="button button-{{ 'error' if sicuro else 'grey'}}"
+                                          name="{{ 'conferma' if sicuro else 'pre-conferma'}}" value="Annulla e Cancella TUTTI gli ordini" />
+    </form>
+
+  {% endif %}
+</div>
+{% endblock %}

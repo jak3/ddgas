@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Imposta Data Pagamento{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form method="post">
+  <div class="group group-space-between border padding-m">
+    <ul>
+      <li class="field">
+        <span>Selezionare la data di pagamento:</span>
+        <input type="date" id="data_pagamento" name="data_pagamento" />
+      </li>
+      <li class="field">
+        <button class="button button-border button-warning">Salva</button>
+      </li>
+    </ul>
+  </div>
+</form>
+{% endblock %}
+
+

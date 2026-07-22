@@ -1,0 +1,49 @@
+.background-red-gas { background-color: #aa0033; }
+.logo { max-width: 95%; }
+.color-red-gas { color: #aa0033; }
+.nbvat { border-width: 0px; vertical-align: top; }
+.width-10 { width: 10%; }
+.width-15 { width: 15%; }
+.width-25 { width: 25%; }
+.width-35 { width: 35%; }
+aside { flex:12%; }
+#space-aside-main { flex:3%; }
+main { flex:85%; }
+
+@media (max-width: 480px) {
+
+  * { text-align:center; }
+
+  .flex {
+    flex-direction: column;
+  }
+
+  #content { padding-top:0rem; }
+
+  .logo { display:none; }
+  #space-aside-main { display:none; }
+
+  .container { padding:0; margin:0; }
+  main { padding-top: 1rem; }
+
+  ul li { list-style-position: inside;
+    margin: 0;
+    padding: 0;
+  }
+  .group ul { flex-direction:column; }
+  .group ul li { padding:0.3rem; }
+}
+
+#btnmenu {display: none;}
+
+@media screen and (max-width: 480px) {
+  #btnmenu {display: inline;}
+
+  .menu {display: none;}
+
+  .menu.responsive {position: relative;}
+  .menu.responsive {
+    float: none;
+    display: block;
+  }
+}

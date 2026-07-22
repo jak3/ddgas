@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>{% block title %}GAS Malatesta{% endblock %}</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/turretcss/dist/turretcss.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+<script>
+function hideShowMenu() {
+  var x = document.getElementById("homemenu");
+  if (x.className === "menu")
+    x.className += " responsive";
+  else
+    x.className = "menu";
+}
+</script>
+  </head>
+  <body class="container">
+    <header>
+      <div class="background-red-gas color-white padding-left-m">
+        <h1>G.A.S. Malatesta</h1> Gruppo di acquisto solidale di Cesena
+      </div>
+      <nav class="background-light-100 padding-xxs text-align-right nav-inline">
+        <ul>
+          {% if g.user %}
+          <li><a href="{{ url_for('auth.info_utente') }}"><b>{{ g.user.username }}</b></a></li>
+          <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
+          {% else %}
+          <li><a href="{{ url_for('auth.register') }}">Iscrizione</a></li>
+          <li><a href="{{ url_for('auth.login') }}">Log In</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </header>
+    <div class="flex padding-top-s" id="content">
+      <button id="btnmenu" class="button button-grey button-border" onclick="hideShowMenu()">Menu</button>
+      <aside class="menu" id="homemenu">
+        <img class="logo" src="{{ url_for('static', filename='cestino.jpg') }}" alt="" />
+        <nav class="padding-top-s">
+          <ul>
+            <li class="no-margin"><a href="{{ url_for('produttori.list_produttori') }}">Produttori</a></li>
+            <li class="no-margin"><a href="{{ url_for('istruzioni.list_tutorial') }}">FAQ / DOCS</a></li>
+            <li class="no-margin"><a href="{{ url_for('regolamento') }}">Regolamento</a></li>
+            <li class="no-margin"><a href="{{ url_for('contatti') }}">Contatti</a></li>
+            {% if g.user %}
+            <hr>
+            <li class="no-margin"><a href="{{ url_for('ordini.list_ordini') }}">Ordina</a></li>
+            <hr>
+            <li class="no-margin"><a href="{{ url_for('presidi.list_presidi') }}">Turni di Presidio</a></li>
+            <hr>
+            <li class="no-margin"><a href="{{ url_for('auth.list_utenti') }}">Membri</a></li>
+            {% if 'moderatore' in g.ruoli %}
+            <li class="no-margin"><a href="{{ url_for('ruoli.list_ruoli') }}">Ruoli</a></li>
+            {% endif %}
+            <li class="no-margin"><a href="{{ url_for('auth.accoglienza') }}">Accoglienza</a></li>
+            {% if 'moderatore' in g.ruoli or 'tesseramenti' in g.ruoli %}
+            <li class="no-margin"><a href="{{ url_for('auth.tesseramenti') }}">Tesseramenti</a></li>
+            {% endif %}
+            <hr>
+            {% if 'moderatore' in g.ruoli or 'tesoriere' in g.ruoli %}
+            <li class="no-margin"><a href="{{ url_for('movimenti.handle') }}">Cassa</a></li>
+            <li class="no-margin"><a href="{{ url_for('ordini.chiusi') }}">Ordini Chiusi</a></li>
+            {% else %}
+            <li class="no-margin"><a href="{{ url_for('movimenti.giroconto_utente') }}">Giroconto</a></li>
+            {% endif %}
+            <li class="no-margin"><a href="{{ url_for('movimenti.list_movimenti') }}">Movimenti</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="padding-s">
+        <section>
+          <header>
+            {% block header %}{% endblock %}
+          </header>
+          {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+          <div class="padding-top-s">
+            {% for category, message in messages %}
+            <p class="background-{{ category }} color-white padding-xs">{{ message }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% endwith %}
+          <hr>
+          {% block content %}{% endblock %}
+          <div class="padding-top-m">
+          {% block afoot %}{% endblock %}
+          </div>
+        </section>
+        <hr>
+        <footer class="text-align-center color-info-100 color-red-gas padding-vertical-s">
+          <em>&copy; Giacomo Mantani (2026)</em>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

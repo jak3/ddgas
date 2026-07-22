@@ -1,0 +1,66 @@
+{% extends 'stampa/dettagli.html' %}
+
+{% block content %}
+{% import 'stampa/macro/riepilogo.html' as riepilogo %}
+
+{% if prodotti_ordinati %}
+
+<div class="group group-m group-space-between">
+  <ul>
+    <li>
+      <h2>Riepilogo Singoli Utenti</h2>
+    </li>
+
+    <div class="group group-m">
+      <ul>
+        <li><a class="button button-warning button-border" href="{{
+                      url_for('stampa.esporta_riepilogo_utenti',
+                      id_produttore=produttore.id) }}" >Esporta CSV</a></li>
+        <li><a class="button button-warning button-border" href="{{
+                      url_for('stampa.dettagli_ordini_con_utenti_tiny',
+                      id_produttore=produttore.id) }}" >Stampa Ridotta</a></li>
+        <li><a class="button button-warning button-border" href="{{
+                      url_for('stampa.dettagli_ordini_con_utenti', id_produttore=produttore.id) }}" >Stampa</a></li>
+      </ul>
+    </div>
+  </ul>
+</div>
+
+{{ riepilogo.stampa(prodotti_ordinati, totali_utenti) }}
+
+<hr class="border border-color-error">
+
+<div class="group group-m group-space-between">
+  <ul>
+    <li>
+      <h2>Riepilogo Generale</h2>
+    </li>
+    <li>
+      <div class="font-size-xl">Totale Ordini:
+        <b>{{ "%.2f" | format(totale) if totale else 0 }} &euro;</b>
+      </div>
+    </li>
+    <div class="group group-m">
+      <ul>
+        <li><a class="button button-warning button-border" href="{{
+                      url_for('stampa.esporta_riepilogo_generale',
+                      id_produttore=produttore.id) }}" >Esporta CSV</a></li>
+        <li><a class="button button-warning button-border" href="{{
+                      url_for('stampa.dettagli_ordini_generale_tiny',
+                      id_produttore=produttore.id) }}" >Stampa Ridotta</a></li>
+        <li><a class="button button-warning button-border" href="{{
+                      url_for('stampa.dettagli_ordini_generale', id_produttore=produttore.id) }}" >Stampa</a></li>
+      </ul>
+    </div>
+  </ul>
+</div>
+
+{{ riepilogo.stampa(riepilogo_prodotti) }}
+
+{% else %}
+
+Non sono presenti ordini.
+
+{% endif %}
+
+{% endblock %}

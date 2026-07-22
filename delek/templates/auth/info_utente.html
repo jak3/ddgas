@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Informazioni Utente{% endblock %}</h1>
+  <script>
+    window.onload = function() {
+      document.getElementById('group-show').classList.remove('display-none');
+    }
+  function show() {
+    var x = document.getElementById('password');
+    var l = document.getElementById('lbltoggle');
+    if(x.type === 'password') {
+        x.type = 'text';
+        l.text = 'Nascondi Password';
+    }
+    else {
+        x.type = 'password';
+        l.text = 'Vedi Password';
+    }
+  }
+  </script>
+{% endblock %}
+
+{% block content %}
+{% if g.user %}
+  <form method="post">
+    <p class="field">
+      <label for="username">Username</label>
+      <input name="username" id="username" value="{{ request.form.username if
+                   request.form else g.user.username }}" required/>
+    </p>
+    <p class="field">
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password" minlength="5"/>
+      <a href="#" id="lbltoggle" onclick="show()">Vedi Password</a>
+    </p>
+    <p class="field">
+      <label for="email">Email</label>
+      <input name="email" id="email" placeholder="Inserire l'Email..." value="{{
+                   request.form.email if request.form else g.user.email if
+                   g.user.email }}" required/>
+    </p>
+    <p class="field">
+      <label for="telefono">Telefono</label>
+      <input name="telefono" id="telefono" placeholder="Inserire il Telefono..."
+                                           value="{{ request.form.telefono if
+                                                  request.form else
+                                                  g.user.telefono if
+                                                  g.user.telefono }}" />
+    </p>
+    <p class="field">
+      <label for="cf">Codice Fiscale</label>
+      <input name="cf" id="cf" placeholder="Inserire il Codice Fiscale..." value="{{
+                   ( request.form.cf if request.form else g.user.cf if
+                   g.user.cf ) | upper}}" required/>
+    </p>
+    <p class="field">
+      <label for="nome">Nome</label>
+      <input name="nome" id="nome" placeholder="Inserire il Nome..." value="{{
+                   request.form.nome if request.form else g.user.nome if
+                   g.user.nome }}" required/>
+    </p>
+    <p class="field">
+      <label for="cognome">Cognome</label>
+      <input name="cognome" id="cognome" placeholder="Inserire il Cognome..."
+                                         value="{{ request.form.cognome if
+                                                request.form else g.user.cognome
+                                                if g.user.cognome }}" required/>
+    </p>
+    <p class="field">
+      <button type="submit" class="button button-warning button-border">Aggiorna Informazioni</button>
+    </p>
+  </form>
+
+  <hr>
+
+  <div class="padding-s background-warning-50">
+    <form action="{{ url_for('auth.set_codice_arci') }}" method="post" accept-charset="utf-8">
+      <p class="field">
+      <label for="codice_arci"><b>Codice Tessera ARCI</b></label>
+      <input type="text" id="codice_arci" name="codice_arci"
+                                          {% if codice_arci %}
+                                          value="{{ codice_arci }}"
+                                          {% endif %}
+                                          />
+      </p>
+      <p class="field">
+      <button type="submit" class="button button-warning button-border">Aggiorna Codice Tessera ARCI</button>
+      </p>
+    </form>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,57 @@
+{%- macro stampa(ordini, totale) -%}
+
+{% for ordine in ordini %}
+
+{# Gestisce vecchio formato (string/array) e nuovo formato (dict) #}
+{% set dettaglio_dati = ordine.dettaglio.dettaglio if ordine.dettaglio is mapping else ordine.dettaglio %}
+{#
+{% set nome_produttore = ordine.dettaglio.produttore if ordine.dettaglio is mapping else none %}
+#}
+
+{% if dettaglio_dati is string %}
+<hr>
+<div class="border group group-m group-space-between margin-top-xxs margin-bottom-xxs">
+  <ul class="{{ loop.cycle('','background-light-50') }} no-margin">
+    <li><b>{{ dettaglio_dati }}</b>{% if nome_produttore %} - {{ nome_produttore }}{% endif %}</li>
+    <li><i class="color-grey">{{ "%.2f" | format(ordine.importo) }} &euro;</i></li>
+  </ul>
+</div>
+{% else %}
+<div class="group group-space-between margin-top-xs">
+  <ul>
+    <li>
+      <h3 class="color-error-300">{{ ordine.cognome if ordine.cognome }} {{ ordine.nome if ordine.nome }} {{ ['(', ordine.username, ')'] | join(' ') }}</h3>
+      {#
+      {% if nome_produttore %}
+      <p class="color-grey no-margin">{{ nome_produttore }}</p>
+      {% endif %}
+      #}
+    </li>
+    <li class="font-size-l">
+      {% set totals = [] %}
+
+      {% for det in dettaglio_dati %}
+        {% if totals.append(det[0]|int * det[3]|float) %}{% endif %}
+      {% endfor %}
+
+      <span class="color-grey">Pre Rettifica: {{ "%.2f" | format(totals | sum) }} &euro; |</span>
+      Totale Ordine: <b>{{ "%.2f" | format(ordine.importo) }} &euro;</b>
+    </li>
+  </ul>
+</div>
+{% for prodotto in dettaglio_dati %}
+<div class="border group group-m group-space-between margin-top-xxs margin-bottom-xxs">
+  <ul class="{{ loop.cycle('','background-light-50') }} no-margin">
+    <li>{{ prodotto[0]|int }}x <b>{{ prodotto[1] }}</b> ({{ prodotto[2] }})</li>
+    <li><i class="color-grey">{{ "%.2f" | format(prodotto[3]|float * prodotto[0]|int) }} &euro;</i></li>
+  </ul>
+</div>
+{% else %}
+Non ci sono prodotti nello storico.
+{% endfor %}
+
+{% endif %}
+
+{% endfor %}
+
+{%- endmacro %}

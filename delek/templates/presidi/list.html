@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="group group-m group-space-between">
+  <ul>
+    <li><h1>{% block title %}Elenco Presidi{% endblock %}</h1></li>
+    <li><a href="{{ url_for('presidi.vademecum') }}"><i>Vademecum</i></a></li>
+    <li><form action="{{ url_for('presidi.create') }}" method="post"><div class="group group-m">
+        <ul>
+            <li><input type="date" value="{{ request.form.giorno | data_input if request.form }}" name="giorno" id="giorno" required/></li>
+{% if 'moderatore' in g.ruoli or 'presidi' in g.ruoli %}
+            <li><button type="submit" class="button button-warning button-border">Aggiungi Data Presidio</button></li>
+{% endif %}
+        </ul>
+      </div>
+          </form>
+    </li>
+    <li><a href="{{ url_for('stampa.dettagli_in_consegna') }}" class="button
+                 button-info button-border">Stampa Consegna Oggi</a></li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+
+{% for presidio in presidi %}
+<div class="{{ loop.cycle('','backgroud-light-50') }} group group-m
+            group-space-between border padding-xxs margin-xxs">
+  <ul>
+    <li>
+      <div class="group group-m">
+        <ul>
+          <li><p>{{ presidio.giorno | data }}</p></li>
+          {% if presidio.username %}
+          <li>
+            <p>{{ presidio | utente }}
+            </p>
+          </li>
+          <li>
+            {% if g.user.username == presidio.username or 'presidi' in g.ruoli or 'moderatore' in g.ruoli %}
+            <a class="color-warning font-weight-extra-bold"
+               href="{{ url_for('presidi.unbooking', id_presidio=presidio.id) }}">Rimuovi Prenotazione</a>
+            {% endif %}
+          </li>
+          {% else %}
+          <li>
+            <a class="button button-xs button-warning button-border"
+               href="{{ url_for('presidi.booking', id_presidio=presidio.id) }}">Prenota</a>
+            {% if 'presidi' in g.ruoli or 'moderatore' in g.ruoli %}
+            <a class="button button-xs button-warning button-border"
+               href="{{ url_for('presidi.assign', id_presidio=presidio.id) }}">Assegna</a>
+            {% endif %}
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </li>
+    {% if 'moderatore' in g.ruoli or 'presidi' in g.ruoli %}
+    <li><a class="button button-square color-error" aria-label="Cancella presidio"
+           href="{{ url_for('presidi.delete', id_presidio=presidio.id) }}">&#128465;</a>
+    </li>
+    {% endif %}
+  </ul>
+</div>
+{% endfor %}
+
+{% if 'moderatore' in g.ruoli or 'presidi' in g.ruoli %}
+<hr>
+
+<div class="group group-space-between">
+  <ul>
+    <li><a href="{{ url_for('presidi.stats') }}" class="button button-info button-border">Mostra Statistiche Gasisti</a></li>
+    <li><a href="{{ url_for('presidi.list_presidi_passati') }}" class="button button-info button-border">Mostra Presidi Passati</a></li>
+    <li><a href="{{ url_for('presidi.newy') }}" class="button button-warning button-border">Genera Date Anno in Corso</a></li>
+    <li><a href="{{ url_for('presidi.clear') }}" class="button button-error button-border">Cancella Date Anno Passato</a></li>
+  </ul>
+</div>
+
+{% endif %}
+
+{% endblock %}
+

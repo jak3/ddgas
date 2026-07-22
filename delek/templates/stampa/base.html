@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>{% block title %}{% endblock %}</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/turretcss/dist/turretcss.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body class="container">
+    <section>
+      <header>
+        {% block header %}{% endblock %}
+      </header>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="padding-top-s">
+        {% for category, message in messages %}
+        <p class="background-{{ category }} color-white padding-xs">{{ message }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endwith %}
+      <hr>
+      {% block content %}{% endblock %}
+    </section>
+  </body>
+</html>

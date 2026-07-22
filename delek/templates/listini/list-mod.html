@@ -1,0 +1,156 @@
+{% extends 'listini/list.html' %}
+
+{% block modhead %}
+<li><a class="button button-warning button-border" href="{{ url_for('listini.list_prodotti', id_produttore=produttore.id) }}">Vista Utente</a></li>
+<li><a type="submit" class="button button-warning button-border" href="{{ url_for('listini.create', id_produttore=produttore.id) }}">Aggiungi Prodotto</a></li>
+<script src="{{ url_for('static', filename='goto.js') }}" charset="utf-8"></script>
+{% endblock %}
+{% block content %}
+
+<form action="{{ url_for('listini.update', id_produttore=produttore.id) }}" method="post">
+  {% for prodotto in prodotti %}
+  {% if loop.first or prodotto.categoria != loop.previtem.categoria %}
+  <div class="border padding-xs background-light-100 font-weight-bold
+              font-style-italic font-size-xl" >
+    <input name="old_categoria" type="hidden"
+                                value="{{ prodotto.categoria|e if prodotto.categoria }}" />
+    <input name="new_categoria" placeholder="Categoria Prodotto"
+                                value="{{ prodotto.categoria|e if prodotto.categoria }}" />
+  </div>
+    {% endif %}
+    <div class="border group group-m group-stretch margin-top-xxs margin-bottom-xxs
+                        padding-xxs {{ loop.cycle('','backgroud-light-50') }}
+                        {{ 'background-light-300 opacity-40' if not prodotto.disponibile else 'background-success-50' }}"
+         {{ 'aria-describedby="Prodotto Non Disponbile"' if not prodotto.disponibile }}>
+      <ul>
+        <li>
+          <div class="group group-m group-column group-space-between">
+            <ul>
+              <li><p class="color-info-800">Disponbile</p></li>
+              <li><label class="select" style="width:5em" for="disponibile">
+                  <select name="disponibile" required autocomplete="off">
+                    {% if prodotto.disponibile %}
+                    <option value="1" selected>si</option>
+                    <option value="0">no</option>
+                    {% else %}
+                    <option value="1">si</option>
+                    <option value="0" selected>no</option>
+                    {% endif %}
+                  </select>
+                </label></li>
+            </ul>
+          </div>
+        </li>
+        {# Aggiungere la possibilita di evidenziare i campi errati (lato server) #}
+          <li style="min-width:150px">
+            <div class="group group-m group-column">
+              <ul>
+                <li><p class="color-info-800">Prodotto</p></li>
+                <li><textarea name="descrizione_prodotto"
+                              placeholder="Descrizione Prodotto">{{
+                              prodotto.descrizione_prodotto|e
+                              }}</textarea></li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <div class="group group-m group-column">
+              <ul>
+                <li><p class="color-info-800">Dettaglio Quantità</p></li>
+                <li><input style="max-width:80px;padding:5px;" name="dettaglio_qta" placeholder="Dettaglio"
+                                                                                                  value="{{
+                                                                                                          prodotto.dettaglio_qta|e
+                                                                                                          if
+                                                                                                          prodotto.dettaglio_qta
+                                                                                                          }}"
+                                                                                                  /></li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <div class="group group-m group-column">
+              <ul>
+                <li><p class="color-info-800">Prezzo (&euro;)</p></li>
+                <li><input style="max-width:70px;padding:5px;" name="prezzo" type="number" step="0.01" min="0" placeholder="1.00"
+                                                                                                               value="{{
+                                                                                                                      "%.2f"
+                                                                                                                       |
+                                                                                                                       format(prodotto.prezzo)
+                                                                                                                       }}"
+                                                                                                               /></li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <div class="group group-m group-column">
+              <ul>
+                <li><p class="color-info-800">Pacco da...</p></li>
+                <li><input style="max-width:50px;padding:5px;" name="n_min_colli" type="number" step="1" min="1" placeholder="1"
+                                                                                                                 value="{{
+                                                                                                                        prodotto.n_min_colli
+                                                                                                                        }}"
+                                                                                                                 /></li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <div class="group group-m group-column">
+              <ul>
+                <li><p class="color-info-800">Colli Massimi per
+                  Gasista</p></li>
+                <li><input style="max-width:50px;padding:5px;" name="n_max_colli" type="number" step="1" min="0" placeholder="0"
+                                                                                                                 value="{{
+                                                                                                                         prodotto.n_max_colli
+                                                                                                                         }}"
+                                                                                                                 /></li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <div class="group group-m group-column">
+              <ul>
+                <li><p class="color-info-800">Disponibilità</p></li>
+                <li><input style="max-width:60px;padding:5px;" name="colli_disponibili" type="number" step="1" min="0" placeholder="0"
+                                                                                                                       value="{{
+                                                                                                                              prodotto.colli_disponibili
+                                                                                                                              }}"
+                                                                                                                       /></li>
+              </ul>
+            </div>
+          </li>
+          <li style="min-width:150px">
+            <div class="group group-m group-column">
+              <ul>
+                <li><p class="color-info-800">Note</p></li>
+                <li><textarea name="nota" placeholder="Nota">{{ prodotto.nota|e
+                    if prodotto.nota }}</textarea></li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <div class="group group-m group-column">
+              <ul>
+                <li><p class="color-info-800">Rimuovi</p></li>
+                <li><input name="id_prodotto" type="hidden" value="{{
+                                                    prodotto.id }}" /></li>
+                <li><a class="button button-square color-error" aria-label="Cancella prodotto"
+                                                                href="{{ url_for('listini.delete',
+                                                                        id_produttore=produttore.id, id_prodotto=prodotto.id)
+                                                                        }}">&#128465;</a></li>
+              </ul>
+            </div>
+          </li>
+      </ul>
+    </div>
+    {% endfor %}
+    {% if prodotti %}
+    <button type="submit" class="button button-warning button-border">Applica Modifiche</button>
+    {% endif %}
+</form>
+
+<a class="button error sticky position-bottom-right"
+        href="#endpage" id="gotobtn" title="Vai a fondo pagina"
+                                            style="position:fixed; bottom:5%;
+                                                      right:5%">▼</a>
+<div id="endpage"></div>
+{% endblock %}

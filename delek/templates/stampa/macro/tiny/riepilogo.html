@@ -1,0 +1,61 @@
+{%- macro stampa(prodotti, totali='') -%}
+<script>
+window.onload = function() { window.print() }
+</script>
+
+{% for prodotto in prodotti %}
+
+{% if prodotto.username is defined %}
+  {% if loop.first or (loop.previtem is defined and prodotto.username != loop.previtem.username) %}
+  <div class="group group-m group-space-between">
+    <ul>
+
+      <li class="no-margin font-size-l"><b>{{ [prodotto.cognome or '', prodotto.nome
+          or ''] | join(' ') }}</b></li>
+      <li class="font-size-m font-weight-regular">Totale Ordine:
+        <b>{{ "%.2f" | format(totali[prodotto.id_utente]) if totali else 0 }} &euro;</b>
+      </li>
+
+    </ul>
+  </div>
+  {% endif %}
+{% endif %}
+
+<div class="group group-xxs group-space-between no-margin" >
+  <ul>
+    <li style="flex:auto">
+
+
+      {% if prodotto.colli_richiesti is not defined and prodotto.n_min_colli > 1 %}
+        {{ prodotto.totale_ordinati // prodotto.n_min_colli }}
+      {% else %}
+        {{ prodotto.colli_richiesti if prodotto.colli_richiesti is defined else prodotto.totale_ordinati }}
+      {% endif %}
+      x {{ prodotto.descrizione_prodotto|e }}
+
+      {% if prodotto.dettaglio_qta %}
+      <i>({{ prodotto.dettaglio_qta|e }})</i>
+      {% endif %}
+
+    </li>
+
+    {% if prodotto.specifica %}
+    <li><b>{{ prodotto.specifica }}</b></li>
+    {% endif %}
+
+    <li>[ <i class="color-grey">
+    {% if prodotto.colli_richiesti is defined %}
+      {{ "%.2f" | format(prodotto.prezzo * prodotto.colli_richiesti) }}
+    {% else %}
+      {{ "%.2f" | format(prodotto.prezzo * (prodotto.totale_ordinati - prodotto.totale_ordinati % prodotto.n_min_colli )) }}
+    {% endif %}
+    &euro;</i> ]</li>
+
+  </ul>
+</div>
+
+{% else %}
+<p>Non ci sono prodotti ordinati.</p>
+{% endfor %}
+
+{%- endmacro %}

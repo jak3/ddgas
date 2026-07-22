@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <div class="group group-m group-space-between">
+    <ul>
+      <li><h1>{% block title %}Produttori{% endblock %}</h1></li>
+      {% if 'moderatore' in g.ruoli %}
+        <li><a class="button button-warning button-border" href="{{ url_for('produttori.create') }}">Nuovo Produttore</a>
+            <button id="btn-inattivi" class="display-none button button-warning
+                    button-border" onclick="toggleInattivi()">Vedi Produttori Inattivi</button>
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+      <script>
+        window.onload = function() {
+          document.querySelectorAll('[id^=btn-contatti-]').forEach(el =>
+                    el.classList.remove('display-none'));
+          document.querySelectorAll('[id^=contatti-]').forEach(el =>
+                    el.classList.add('display-none'));
+          article_inattivi = document.querySelectorAll('[id^=pi-]');
+          if(article_inattivi.length > 0){
+            document.getElementById('btn-inattivi').classList.remove('display-none');
+            article_inattivi.forEach(el => el.classList.add('display-none'));
+          }
+        }
+        function toggleContacts(id) {
+          var lc = document.getElementById('contatti-' + id);
+          var bc = document.getElementById('btn-contatti-' + id);
+          if (bc.innerHTML.indexOf('Vedi') != -1){
+            bc.innerHTML = 'Nascondi Contatti';
+            lc.classList.remove('display-none');
+          } else {
+            bc.innerHTML = 'Vedi Contatti';
+            lc.classList.add('display-none');
+          }
+        }
+        function toggleInattivi() {
+          var btni = document.getElementById('btn-inattivi');
+          if(btni.innerHTML.indexOf('Vedi') != -1){
+            btni.innerHTML = 'Nascondi Produttori Inattivi';
+            document.querySelectorAll('[id^=pi-]').forEach(el =>
+                      el.classList.remove('display-none'));
+          }
+          else{
+            btni.innerHTML = 'Vedi Produttori Inattivi';
+            document.querySelectorAll('[id^=pi-]').forEach(el =>
+                      el.classList.add('display-none'));
+          }
+        }
+        function search_produttore(){
+          input = document.getElementById('input_p');
+          filter = input.value.toUpperCase();
+          document.querySelectorAll('[id^=pb-]').forEach(produttore => {
+            content = produttore.querySelector('[id^=nomepi-]').textContent.replace(/\s+/g, '').toUpperCase()
+            produttore.style.display = content.indexOf(filter) > -1 ? "" : "none";
+          });
+        }
+      </script>
+{% endblock %}
+
+{% block content %}
+  <input type="text" id="input_p" onkeyup="search_produttore()" placeholder="Cerca produttore...">
+  {% for produttore in produttori %}
+  <div id="pb-{{produttore.id}}">
+    {% if not produttore.attivo %}
+    <article class="container border border-radius background-light-200" id="pi-{{produttore.id}}">
+    {% else %}
+    <article class="container border border-radius background-warning-50">
+    {% endif %}
+      <header class="padding-top-xs">
+        <div class="group group-m group-column">
+          <ul>
+            <li><h2 id="nomepi-{{produttore.id}}">{{ '(inattivo) ' if not produttore.attivo }}{{ produttore.nome }}</h2></li>
+            <li>
+              <div class="group group-m">
+                <ul>
+                  {% if g.user %}
+                  <li><button id="btn-contatti-{{ produttore.id }}" class="button button-xxs
+                                  button-warning button-border display-none"
+                                                                    onclick="toggleContacts({{
+                                                                    produttore.id }})">Vedi
+                                                                    Contatti</button></li>
+                  {% endif %}
+                  <li><a class="button button-xxs button-warning button-border" href="{{ url_for('listini.list_prodotti', id_produttore=produttore.id) }}">Vedi Prodotti</a></li>
+                  {% if produttore.id in g.referenze or 'moderatore' in g.ruoli %}
+                  <li><a class="button button-xxs button-warning button-border"
+                         href="{{ url_for('ordini.update',
+                               id_produttore=produttore.id) }}">Gestisci
+                               Ordine</a></li>
+                  <li><a class="button button-xxs button-warning button-border" href="{{
+                                url_for('produttori.storico_all',
+                                id_produttore=produttore.id) }}">Stampa Vecchio Ordine</a></li>
+                  {% endif %}
+
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="group group-m group-space-between">
+          <ul>
+            <li>
+              <ul id="contatti-{{ produttore.id }}" style="list-style:none">
+                {% for property in produttore[3:5] %}
+                {% if property %}
+                <li>{{ property }}</li>
+                {% endif %}
+                {% endfor %}
+              </ul>
+            </li>
+            <li>
+              <p class="text-align-right">
+              <b>Referent{{ 'e' if referenti[produttore.id]|length == 1 else 'i' }}</b> (
+                    {% for referente in referenti[produttore.id] %}
+                      <span class="color-warning-800">{{ referente.nome ~ ' ' ~ referente.cognome if referente.nome and referente.cognome else referente.username }}</span>
+                      {{ ', ' if not loop.last }}
+                    {% endfor %}
+                    )
+              </p>
+            </li>
+          </ul>
+        </div>
+      </header>
+      <p>{{ produttore.descrizione }}</p>
+      <footer>
+        <p class="text-align-center padding-bottom-s">
+            <b>Mesi di Consegna</b> (
+              {% for mese in mesi %}
+              {% if produttore['mask_mesi_consegna'][loop.index0] == '1' %}
+                <span class="color-warning-800">{{ mese.capitalize() }}</span>{% if not loop.last %},{% endif %}
+              {% endif %}
+              {% endfor %}
+              )
+        </p>
+        {% if 'moderatore' in g.ruoli or produttore.id in g.referenze %}
+        <div class="group group-space-between padding-bottom-s">
+          <ul>
+            <li></li>
+            <li><a class="button button-border button-warning button-pill button-xxs" href="{{ url_for('produttori.update', id_produttore=produttore.id) }}">Modifica Informazioni Produttore</a></li>
+          </ul>
+        </div>
+        {% endif %}
+      </footer>
+    </article>
+    {% if not loop.last %}
+      {% if not produttore.attivo %}
+        <hr id="pi-hr-{{produttore.id}}">
+      {% else %}
+        <hr>
+      {% endif %}
+    {% endif %}
+  </div>
+  {% endfor %}
+{% endblock %}

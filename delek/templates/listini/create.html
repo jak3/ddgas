@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Nuovo Prodotto{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="container padding-top-l">
+  <form method="post">
+    <p class="field">
+      <label for="categoria">Categoria</label>
+      <input name="categoria" id="categoria" placeholder="Avena" type="text" list="categorie" value="{{ request.form.categoria }}" />
+      <datalist id="categorie">
+      {% for categoria in categorie %}
+        <option>{{ categoria.nome }}</option>
+      {% endfor %}
+      </datalist>
+    </p>
+    <p class="field">
+      <label for="descrizione_prodotto">Descrizione Prodotto</label>
+      <input name="descrizione_prodotto" id="descrizione_prodotto" placeholder="Farina"
+                                         value="{{ request.form.descrizione_prodotto }}" required/>
+    </p>
+    <p class="field">
+      <label for="dettaglio_qta">Dettaglio Quantità</label>
+      <input name="dettaglio_qta" id="dettaglio_qta" placeholder="1kg"
+                                         value="{{ request.form.dettaglio_qta }}" />
+    </p>
+    <p class="field">
+      <label for="prezzo">Prezzo</label>
+      <input name="prezzo" id="prezzo" type="number" step="0.01"
+                                                     placeholder="1.00" required
+                                         value="{{ request.form.prezzo }}" />
+    </p>
+    <p class="field">
+      <label for="n_min_colli">N. Colli Minimo</label>
+      <input name="n_min_colli" id="n_min_colli" type="number" step="1" placeholder="1"
+                                         value="{{ request.form.n_min_colli or 1 }}" />
+    </p>
+    <p class="field">
+      <label for="n_max_colli">N. Massimo Colli per Gasista</label>
+      <input name="n_max_colli" id="n_max_colli" type="number" step="1" placeholder="0"
+                                         value="{{ request.form.n_max_colli or 0 }}" />
+    </p>
+    <p class="field">
+      <label for="colli_disponibili">Colli Disponibili</label>
+      <input name="colli_disponibili" id="colli_disponibili" type="number" step="1" placeholder="0"
+                                         value="{{ request.form.colli_disponibili or 0 }}" />
+    </p>
+    <p class="field">
+      <label for="nota">Nota</label>
+      <textarea name="nota" id="nota" placeholder="Nota">{{ request.form.nota }}</textarea>
+    </p>
+    <p class="field">
+      <button type="submit" class="button button-warning button-border">Aggiungi Prodotto</button>
+    </p>
+  </form>
+</div>
+{% endblock %}

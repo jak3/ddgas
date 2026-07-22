@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="group group-m group-space-between">
+  <ul>
+    <li><h1>{% block title %}Elenco Presidi Passati{% endblock %}</h1></li>
+    <li><a href="{{ url_for('presidi.vademecum') }}"><i>Vademecum</i></a></li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+
+{% for presidio in presidi %}
+<div class="{{ loop.cycle('','backgroud-light-50') }} group group-m
+            border padding-xxs margin-xxs">
+  <ul>
+    <li><p>{{ presidio.giorno | data }}</p></li>
+    <li><p>{{ presidio | utente }}</p></li>
+  </ul>
+</div>
+{% endfor %}
+
+{% if 'moderatore' in g.ruoli or 'presidi' in g.ruoli %}
+<hr>
+
+<div class="group group-space-between">
+  <ul>
+    <li><a href="{{ url_for('presidi.stats') }}" class="button button-info button-border">Mostra Statistiche Gasisti</a></li>
+    <li><a href="{{ url_for('presidi.list_presidi_passati') }}" class="button button-info button-border">Mostra Presidi Passati</a></li>
+    <li><a href="{{ url_for('presidi.newy') }}" class="button button-warning button-border">Genera Date Anno in Corso</a></li>
+    <li><a href="{{ url_for('presidi.clear') }}" class="button button-error button-border">Cancella Date Anno Passato</a></li>
+  </ul>
+</div>
+
+{% endif %}
+
+{% endblock %}

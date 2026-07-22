@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Nuovo Produttore{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="container padding-top-l">
+  <form method="post">
+    <div class="field">
+      <p>Referente</p>
+      <label class="select" for="select-referente">
+        <select name="id_utente" id="select-referente" autocomplete="off">
+          <option value="None" selected> - - - </option>
+          {% for utente in utenti %}
+          <option value="{{ utente.id }}">{{ utente.username }}{{ '(' ~ utente.nome ~ utente.cognome ~ ')' if utente.nome }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <p class="field">
+    <label for="nome">Nome</label>
+    <input name="nome" id="nome" placeholder="Nome Produttore" value="{{ request.form.nome }}" required/>
+    </p>
+    <p class="field">
+    <label for="email">Email</label>
+    <input name="email" type="email" id="email" placeholder="Email Produttore"
+                                                value="{{ request.form.email }}" />
+    </p>
+    <p class="field">
+    <label for="telefono">Telefono</label>
+    <input name="telefono" id="telefono" placeholder="Telefono Produttore"
+                                         value="{{ request.form.telefono }}" />
+    </p>
+    <p class="field">
+    <label for="website">Website</label>
+    <input name="website" type="url" id="website" placeholder="Sito Web"
+                                                  value="{{ request.form.website }}" />
+    </p>
+
+    <div class="field">
+    <p class="padding-bottom-s">Mesi di Consegna</p>
+
+    <div class="group group-m group-space-evenly">
+      <ul>
+
+        {% for mese in mesi %}
+
+        {% if loop.index == 1 %}
+        <div class="group group-m group-column">
+          <ul style="display:block">
+            {% endif %}
+            {% if loop.index in [4,7,10] %}
+          </ul>
+        </div>
+        <div class="group group-m group-column">
+          <ul style="display:block">
+            {% endif %}
+            <li>
+              <label class="control checkbox">
+                <input type="checkbox" name="{{ mese }}" checked />
+                <span class="control-indicator"></span>
+                <span class="control-label">{{ mese.capitalize() }}</span>
+              </label>
+            </li>
+            {% if loop.index == 12 %}
+          </ul>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+
+    </div>
+
+    <p class="field padding-top-s">
+    <label for="prodotto_principale">Prodotto Principale (es: Arance, Frutta e Verdura etc.)</label>
+    <input name="prodotto_principale" id="prodotto_principale" placeholder="Prodotto Principale"
+                                             value="{{ request.form.prodotto_principale }}" />
+    </p>
+
+    <p class="field">
+    <label for="descrizione">Descrizione</label>
+    <textarea name="descrizione" id="descrizione" placeholder="Piccola Descrizione">{{ request.form.body }}</textarea>
+    </p>
+
+    <p class="field">
+    <button type="submit" class="button">Crea</button>
+    </p>
+
+  </form>
+</div>
+{% endblock %}
