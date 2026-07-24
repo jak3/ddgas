@@ -64,30 +64,52 @@ Elenco di quanto già sistemato e di quanto resta da valutare.
    → Aggiunte whitelist esplicite (`COLONNE_UTENTE_MODIFICABILI`,
    `COLONNE_PRODUTTORE_MODIFICABILI`) applicate dopo la validazione.
 
-## Da valutare (interventi più ampi, non ancora fatti)
+9. **Atomicità delle doppie scritture in cassa.** `db.py` usa
+   `conn.set_session(autocommit=True)`: ogni `execute()` era una transazione
+   a sé, quindi `effettua_tesseramento`, `giroconto_utente` e il giroconto da
+   `movimenti.handle()` potevano restare con una sola gamba del movimento
+   scritta se la seconda falliva. In `effettua_tesseramento` inoltre, se
+   l'utente FCA non esisteva, il codice inseriva comunque l'addebito
+   all'utente e saltava in silenzio l'accredito.
+   → Aggiunto `atomic()` in `db.py` (context manager che disattiva
+   temporaneamente l'autocommit solo per il blocco, commit/rollback
+   espliciti), usato nei tre punti sopra. In `effettua_tesseramento` la
+   verifica dell'utente FCA ora avviene *prima* di scrivere qualunque riga,
+   con errore visibile all'utente se manca. Corretto anche un bug analogo in
+   `movimenti._handle`: il controllo "un giroconto necessita di due utenti
+   diversi" avveniva *dopo* aver già inserito la prima riga.
 
-- **Atomicità delle doppie scritture in cassa.** `db.py` usa
-  `conn.set_session(autocommit=True)`: ogni `execute()` è una transazione a
-  sé. `effettua_tesseramento`, `giroconto_utente` e simili inseriscono due
-  righe collegate (es. -8€ utente / +8€ FCA) con due `INSERT` separati e
-  autocommittati — se il secondo fallisce (utente FCA non trovato,
-  eccezione, timeout) resta silenziosamente solo una gamba del movimento,
-  senza errore visibile. Richiede di avvolgere questi flussi in transazioni
-  esplicite (o quantomeno loggare/segnalare un fallimento parziale);
-  probabilmente non va toccato il default globale di autocommit senza
-  verificare tutte le altre query che vi fanno affidamento.
+10. **CSRF.** Nessun form aveva un token anti-CSRF.
+    → Aggiunto `Flask-WTF` (`CSRFProtect`), un helper Jinja `csrf_field()`
+    che inserisce il campo nascosto, e una pagina di errore 400 dedicata.
+    Iniettato `{{ csrf_field() }}` in tutti i form POST del progetto (40, in
+    27 template) con uno script mirato sul tag `<form ...method="post"...>`
+    per gestire anche i tag multi-riga.
 
-- **CSRF.** Nessun form dell'app ha un token anti-CSRF. Ora che gli endpoint
-  distruttivi sono POST-only questo non è più bypassabile con un semplice
-  link, ma un moderatore/tesoriere autenticato potrebbe comunque essere
-  indotto (pagina malevola di terzi) a inviare una POST a sua insaputa.
-  Valutare `flask-wtf` o equivalente, con priorità sulle route con
-  `@is_ruolo(['moderatore', ...])`.
+## Da valutare prima di andare in produzione
 
-## In corso — indagine dato mancante utente 51 (campagna 2025/2026)
+- **Stripe: passare da secret key a Restricted API Key (RAK).** Per ora in
+  test usiamo una secret key (`sk_...`, accesso completo all'account) —
+  prima del go-live va creata una RAK (`rk_...`) con solo i permessi su
+  Checkout Sessions e Webhooks, sia per l'istanza DDGAS sia per l'account
+  Stripe di produzione di Malatesta. Vale sia per `STRIPE_SECRET_KEY` che
+  per eventuali chiavi analoghe di altri provider in futuro.
 
-Vedi thread di lavoro: il conteggio -8€/+8€ risulta bilanciato (65/65), il
-che è coerente con la cancellazione di **entrambe** le gambe del movimento di
-un solo utente (es. tramite il bug del punto 1, prima del fix) — non prova
-che il movimento non sia mai esistito. Da verificare con log del webserver
-o backup del DB per confermare.
+- **Soglia "credito basso" configurabile per tenant.** Portata in gasma
+  (produzione Malatesta) come avviso persistente in `base.html` quando il
+  saldo dell'utente loggato scende sotto una soglia, con link diretto a
+  Ricarica (`delek/__init__.py`, `inject_saldo_basso()` + `SOGLIA_SALDO_BASSO`
+  hardcoded a 20€). In DDGAS va resa un parametro in `regole:` di
+  `associazione.yaml` (es. `regole.soglia_credito_basso`, accanto a
+  `quota_associativa_annuale`), non un valore fisso nel codice: ogni GAS
+  tenant ha ordini di grandezza di spesa diversi.
+
+- **Far coprire al socio la commissione Stripe sulla ricarica**, invece di
+  farla assorbire all'associazione (~1,5% + 0,25€ per carte europee, varia
+  per account/paese). Stripe non ha un surcharge automatico per Checkout in
+  un setup non-Connect: va calcolato l'importo da addebitare via carta
+  (`importo_da_addebitare = (importo_richiesto + fissa) / (1 - percentuale)`)
+  e accreditare in `movimenti` solo `importo_richiesto`, mostrando la
+  commissione in `ricarica.html` prima della conferma. Se reso opzionale
+  per tenant, anche questo andrebbe in `regole:` di `associazione.yaml`
+  (percentuale/fissa possono differire per account Stripe).
