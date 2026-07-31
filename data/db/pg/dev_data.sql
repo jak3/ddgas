@@ -29,7 +29,7 @@ insert into produttori (nome, email, telefono, website, mask_mesi_consegna, prod
 values
   ('Rivalta', 'prd1@gmail.com', '012345', 'https://prod1-verd.com', '101111111111', 'Verdura', 'Biodinamica',TRUE),
   ('Galline Felici', 'prd2@gmail.com', '022355', 'https://prod2-frut.com', '110011011111', 'Frutta', 'Locale, antica, dolce',TRUE),
-  ('Malatesta', 'prd3@gmail.com', '032365', 'https://prod3-vefr.com', '110111101111', 'Caffe', 'Tostatura del tutto naturale',TRUE),
+  ('Chicco Buono', 'prd3@gmail.com', '032365', 'https://prod3-vefr.com', '110111101111', 'Caffe', 'Tostatura del tutto naturale',TRUE),
   ('Blu di Persia', 'prd4@gmail.com', '042375', 'https://prod4-sali.com', '110010001111', 'Sale', 'Sali della Terra',TRUE),
   ('Senza', 'ssenza@gmail.com', '102345', 'https://essenza-verde.com', '101110011111', 'Oli Essenziali', 'Oli Essenziali da Piante officinali',FALSE),
   ('Torri', 'prd5@gmail.com', '052385', 'https://prod5-miel.com', '110010001001', 'Miele', 'Api libere', TRUE) ON CONFLICT DO NOTHING;

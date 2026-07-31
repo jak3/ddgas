@@ -1,324 +1,100 @@
 {% extends 'base.html' %}
 
+{#
+  SEGNAPOSTO: questo NON è un regolamento pronto all'uso. Lo statuto/
+  regolamento è un documento specifico di ogni associazione (organi,
+  cariche, quorum, procedure di esclusione, rapporti con eventuali enti
+  ospitanti...): va richiesto al cliente in fase di onboarding e incollato
+  qui, sostituendo interamente il contenuto sotto. La struttura in Art.
+  qui sotto è solo un indice esemplificativo delle sezioni tipiche di un
+  regolamento di GAS, per orientare chi lo scrive da zero.
+#}
+
 {% block header %}
   <h1>{% block title %}Regolamento{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
+
+<p class="background-warning color-white padding-xs">
+  <b>Contenuto di esempio.</b> Questa pagina va sostituita con lo statuto o
+  regolamento reale dell'associazione. La struttura sotto è solo una
+  traccia delle sezioni tipiche di un regolamento di GAS.
+</p>
+
 <h1>Parte Generale</h1>
 
-<h2>Art.1 Chi siamo e quali obiettivi ci poniamo</h2>
+<h2>Art. 1 — Chi siamo e quali obiettivi ci poniamo</h2>
 <p>
-Finalità del GAS MALATESTA è provvedere all’acquisto di beni e servizi cercando di
-realizzare una concezione più umana dell’economia, cioè più vicina alle esigenze reali
-dell’uomo e dell’ambiente, formulando un’etica del consumare in modo critico che unisce
-le persone invece di dividerle, che mette in comune tempo e risorse invece di tenerli
-separati, che porta alla condivisione invece di rinchiudere ciascuno in un proprio mondo
-(di consumi).
+Finalità di {{ associazione.identita.nome_breve }} è provvedere all'acquisto di beni e
+servizi cercando di realizzare una concezione più umana dell'economia, cioè più
+vicina alle esigenze reali dell'uomo e dell'ambiente, formulando un'etica del
+consumare in modo critico che unisce le persone invece di dividerle, che mette
+in comune tempo e risorse invece di tenerli separati, che porta alla
+condivisione invece di rinchiudere ciascuno in un proprio mondo di consumi.
 </p>
 
-<p>
-Essere un GAS perciò non vuole dire soltanto risparmiare acquistando in grandi
-quantitativi, ma soprattutto chiedersi che cosa c’è dietro a un determinato bene di
-consumo: se chi lo ha prodotto ha rispettato le risorse naturali e le persone che le hanno
-trasformate; quanto del costo finale serve a pagare il lavoro e quanto invece la pubblicità
-e la distribuzione; qual è l’impatto sull'ambiente in termini di inquinamento, imballaggio,
-trasporto... fino a mettere in discussione il concetto stesso di consumo ed il modello di
-sviluppo che lo sorregge.
-</p>
+<h2>Art. 2 — Partecipazione</h2>
+<p>[Da definire: condizioni di partecipazione, carattere volontario delle
+attività, eventuale rimborso spese.]</p>
 
-<p>
-Per costituire un GAS o per entrare a farne parte non bisogna essere dei "duri e puri" ma
-prendere coscienza della necessità di cambiare nel piccolo e voler riflettere sull’approccio
-da avere quando si fa la spesa.
-</p>
+<h2>Art. 3 — Attività</h2>
+<p>[Da definire: selezione prodotti/fornitori, gestione ordini, acquisto e
+pagamento fornitori, distribuzione ai soci, tenuta amministrativa.]</p>
 
-<p>
-I GAS nascono dall’esigenza di cercare una alternativa ad un modo di consumare poco
-attento; l’obiettivo che va ben oltre i GAS sarebbe in futuro poter fare a meno di questo
-strumento, quando vi saranno le condizioni per creare un mercato diverso. I GAS sono
-una possibile risposta alla situazione attuale in cui l’unico dovere è consumare per
-essere felici.
-</p>
+<h2>Art. 4 — Organizzazione</h2>
+<p>[Da definire: organi dell'associazione (es. direttivo, tesorieri,
+segretario, referenti di prodotto), modalità di elezione, durata delle
+cariche.]</p>
 
-<p>
-Da queste considerazioni è nato a Cesena il GAS "Dai GAS Malatesta". Un gruppo di
-famiglie e Amici che ha deciso di fare suoi i principi ispiratori di un Gruppo di Acquisto
-Solidale.
-</p>
-
-<p>
-Nell'ottica dell'essere solidali, all'interno ed all'esterno del gruppo, il nostro GAS
-promuove anche forme di scambio di oggetti o servizi anche fra i membri del gruppo ed
-iniziative di solidarietà verso terzi (ad es.: raccolte di materiale e/o fondi per progetti di
-cooperazione).
-</p>
-
-<p>
-Promuove inoltre iniziative, anche rivolte alla cittadinanza, su tematiche collegate al
-vivere sostenibile e all'educazione alla sostenibilità.
-</p>
-
-<h2>Art.2 Partecipazione</h2>
-
-<p>
-Per partecipare al Gas Malatesta è necessario condividerne gli obiettivi ed impegnarsi
-attivamente al suo sviluppo nelle modalità definite dal presente Regolamento. Le attività
-realizzate dagli aderenti sono libere, volontarie ed ispirate ai principi di mutualità e
-solidarietà. Tutte le prestazioni hanno carattere volontaristico e non vengono in alcun
-modo remunerate. Chi sostiene spese direttamente imputabili all’attività del G.A.S. ha
-diritto al rimborso delle stesse purchè documentate e precedentemente concordate con il
-NOGM.
-</p>
-
-<h2>Art.3 Attività</h2>
-
-<ul>
-  <li>Selezione dei prodotti e relativi fornitori secondo i principi di cui all’art.1</li>
-  <li>Organizzazione di incontri e dibattiti rivolti non solamente agli iscritti ma a tutta la ittadinanza per far conoscere i principi del consumo critico</li>
-  <li>Approfondimento attraverso l’incontro mensile di temi legati alla produzione ed al onsumo critico e solidale, in particolare attraverso l’incontro con i produttori</li>
-  <li>Gestione degli ordini degli iscritti (raccolta, invio al produttore, rettifiche etc)</li>
-  <li>Effettuazione dell’acquisto associativo e pagamento del fornitore</li>
-  <li>Trasporto e/o ricezione dei prodotti</li>
-  <li>Distribuzione dei prodotti tra i soci ordinati</li>
-  <li>Effettuazione di tutte le operazioni amministrative necessarie per la gestione del ruppo e degli acquisti</li>
-  <li>Attenzione nei confronti dei produttori stimolando e suggerendo variazioni e interventi tesi a migliorare la qualità del prodotto, dell’ambiente etc</li>
-</ul>
-
-<h2>Art.4 Organizzazione</h2>
-
-<p>
-Per la realizzazione delle proprie attività il Gas si organizza attraverso:
-</p>
-
-<p>
-<b><u>Iscritti</u></b> &rarr; E’ iscritto chiunque aderisce all’attività di gruppo di acquisto nel rispetto del
-presente regolamento. Per evitare che il gas si trasformi in un supermercato a tutti i
-partecipanti, dopo un periodo di 12 mesi dall’ingresso, necessario per conoscere i
-meccanismi di funzionamento e gli altri iscritti, viene proposto di contribuire alla vita
-associativa tenendo in considerazione le attitudini e la disponibilità di tempo di ciascuno.
-</p>
-
-<p>
-Non è necessario che tutti s’impegnino allo stesso modo, ma ognuno deve farlo secondo
-le proprie possibilità. Ciascun iscritto, salvo casi eccezionali, può ricoprire un solo
-incarico tra quelli elencati nel presente Regolamento in modo da favorire il più ampio
-coinvolgimento possibile.
-</p>
-
-<p>
-Le cariche di seguito elencate hanno durata biennale rinnovabile e vengono decise
-durante l’incontro mensile, dai membri partecipanti, per votazione a maggioranza e
-comunicate a tutti gli associati dal Segretario con invio del verbale.
-</p>
-
-<p>
-<b><u>Nucleo Organizzativo Gas Malatesta (NOGM)</u></b> &rarr; costituisce la struttura organizzativa e
-di coordinamento che si occupa delle seguenti attività:
-<ul>
-  <li>Organizzazione incontri mensili ed eventi</li>
-  <li>Gestione dei rapporti con i gasisti (nuovi o già iscritti)</li>
-  <li>Gestione dei rapporti con i referenti di prodotto</li>
-  <li>Gestione dei rapporti con eventuali nuovi fornitori</li>
-</ul>
-</p>
-
-<p>
-Per la gestione delle attività previste in carico al NOGM è necessario che lo stesso sia
-composto sempre da almeno 4 persone. Un membro è delegato alla visualizzazione dei
-movimenti di c/c.
-</p>
-
-Referenti di prodotto &rarr; Ad ogni produttore corrisponde un referente all’interno del
-gruppo, il quale ha il compito di mantenere i contatti con il produttore stesso, gestire
-l’ordine di acquisto (aggiornamento listino, apertura e chiusura ed invio al produttore
-dell’ordine, consegna ai gasisti dei prodotti acquistati, gestione delle eventuali rettifiche
-sul borsellino elettronico e di tutte le altre eventuali problematiche inerenti l’ordine.
-
-Segretario &rarr; si occupa della redazione dei verbali relativi alle riunioni mensili e della
-corretta tenuta del Libro Soci provvedendo, in particolare alla gestione del tesseramento
-annuale in collaborazione con i Tesorieri per la parte economica ed in collaborazione con
-il NOGM per la verifica dei criteri di esclusione. Inoltre tiene i rapporti con il Cdr
-dell’associazione Magazzino parallelo;
-
-Gruppo dei Tesorieri &rarr; si occupano della gestione della contabilità con riferimento a:
-
-<ul>
-  <li>pagamento delle fatture ai vari fornitori con archiviazione di copia in apposito libro;</li>
-  <li>accredito dei versamenti dei gasisti sulla prepagata;</li>
-  <li>ritiro della quota annuale di iscrizione al gas che verrà decisa dai partecipanti alla riunione mensile del mese di Novembre;</li>
-  <li>redazione di un breve bilancio di fine esercizio da consegnare al Cdr del Magazzino parallelo;</li>
-  <li>predisposizione di un documento annuale da far sottoscrivere a ciascun gasista con il riepilogo degli ordini effettuati;</li>
-</ul>
-
-Per la numerosità delle attività in carico tale gruppo deve essere formato sempre da un
-minimo di 3 persone che risulteranno anche delegate ad operare sul c/c intestato al Gas.
-Gruppo degli Informatici &rarr; cura la manutenzione del sito sul quale vengono gestiti gli
-ordini e degli altri strumenti di comunicazione che il gas tempo per tempo deciderà di
-adottare.
-
-Riunioni mensili &rarr; costituiscono un fondamentale momento di conoscenza ed
-aggregazione dei gasisti e per tale motivo tutti gli iscritti sono caldamente invitati a
-parteciparvi. L’ordine del giorno viene inviato a tutti gli iscritti con congruo preavviso.
-Generalmente si alternano riunioni con i singoli produttori per rinsaldare il legame
-“solidale” e conoscere i progetti attuali e futuri ad altre riunioni organizzative per valutare
-la qualità delle relazioni con i diversi produttori nonché per valutare eventuali nuove
-referenze da attivare.
-
-Gruppo di accoglienza &rarr; è incaricato di presentare il funzionamento del gas alle
-persone interessate che fanno richiesta di ingresso illustrando il presente Regolamento.
-
-<h2>Art. 5 - Limitazioni di responsabilità degli aderenti e dell’associazione</h2>
-
-Fermo restando che i compiti assunti dagli aderenti devono essere portati a termine dagli
-stessi con diligenza e secondo le regole della correttezza, si considera il carattere
-amichevole e volontario delle attività svolte dal gruppo di acquisto. Gli aderenti si
-impegnano a dirimere bonariamente eventuali controversie tra loro insorte. Nella
-denegata ipotesi in cui ciò non sia possibile, sarà fatto ricorso all’Autorità giudiziaria
-competente. In ogni caso gli aderenti al GAS e l’Associazione “Magazzino Parallelo” sono
-esonerati da ogni responsabilità per i danni cagionati da vizi dei prodotti acquistati o
-dalla prestazione di altri servizi relativi al GAS.
+<h2>Art. 5 — Limitazioni di responsabilità degli aderenti e dell'associazione</h2>
+<p>[Da definire: responsabilità per vizi dei prodotti, gestione delle
+controversie tra aderenti.]</p>
 
 <h1>Parte Operativa</h1>
 
-<h2>Art.6 Iscrizione al Gas</h2>
+<h2>Art. 6 — Iscrizione</h2>
+<p>[Da definire: modalità di richiesta di iscrizione, eventuale periodo di
+prova, requisiti di adesione (es. tessera di un ente terzo, se
+applicabile — vedi <code>associazione.regole.tessera_ente_terzo</code> in
+configurazione).]</p>
 
-Ciascuna persona interessata ad iscriversi invia una richiesta al gruppo di accoglienza e
-si accorda per un incontro di presentazione; successivamente, dopo aver effettuato il
-tesseramento ARCI (con qualsiasi realtà associativa, non necessariamente con il
-Magazzino Parallelo), sottoscrive la tessera del Gas versando la quota che verrà fissata di
-anno in anno durante apposita riunione mensile. La tessera ha validità a partire dalla
-data di sottoscrizione fino al 31 dicembre dell’anno solare in corso al momento
-dell’iscrizione.
-
-<h2>Art.7 Ricarica borsellino elettronico</h2>
-
-Per il pagamento dei prodotti, viene utilizzato un borsellino elettronico ricaricabile,
-gestito tramite internet, sul quale vengono addebitati dai referenti gli importi degli
-acquisti effettuati, ed i cui movimenti sono consultabili personalmente in ogni momento,
-La ricarica del proprio borsellino, viene effettuata tramite un versamento sul c/c del
-GAS. Non è possibile effettuare acquisti per importi superiori al credito residuo
-disponibile
-
-<h2>Art. 8 Rinnovo annuale dell’adesione</h2>
-
-Entro il 31 Gennaio di ciascun anno ogni iscritto è tenuto a rinnovare la propria adesione
-versando la quota annuale al Tesoriere previa rinnovo del tesseramento ARCI.
-
-<h2>Art.9 Esclusione dal Gas</h2>
-
-Le motivazioni che possono portare all’esclusione dal gas sono le seguenti:
-
-<dl>
-  <dt>Inattività</dt>
-  <dd>si considera inattivo colui che non effettua acquisti per 12 mesi;</dd>
-  <dt>Indisponibilità</dt> <dd> dopo 12 mesi dall’ingresso il nuovo iscritto viene invitato ad
-assumere un incarico operativo tra quelli riportati nell’articolo 4 del presente
-regolamento. Si considera indisponibile un membro che dopo 24 mesi dall’ingresso
-nell’associazione non ha contribuito in alcun modo al funzionamento della stessa.</dd>
-</dl>
-
-La valutazione circa la sussistenza delle cause di esclusione viene effettuata dal NOGM e
-dal Segretario, annualmente, in fase di rinnovo del tesseramento, ed è portata a
-conoscenza dell'assemblea che voterà il mancato rinnovo a maggioranza.
-
-Gli iscritti che dovessero subire l’esclusione hanno diritto al rimborso del credito residuo
-presente sul borsellino elettronico entro 6 mesi dalla data di comunicazione
-dell’esclusione.
-
-<h2>Art. 10 - Selezione dei prodotti e dei fornitori</h2>
-
-La selezione dei prodotti e/o servizi e dei relativi fornitori viene effettuata in base ai
-seguenti criteri:
-
-<h3>Preferenza per prodotti locali</h3>
-
-• i trasporti: ridurre l’inquinamento, il consumo di energia ed il traffico per il trasporto della merce;
-• la conoscenza: ricerca di un contatto diretto con i produttori, avere la possibilità di visitare l’azienda e conoscere i modi di produzione, in particolare per la questione della certificazione del biologico: la conoscenza e la fiducia possono valere più di un certificato?
-• la cultura: preferire prodotti e tecniche di coltivazione propri della nostra tradizione culturale;
-Eccezioni: 1) produttori etici svantaggiati, sebbene lontani (es. commercio equo-solidale); 2) produttori ad alta valenza etica; 3) nel caso il costo del prodotto locale sia troppo elevato rispetto ai normali standard.
-
-<h3>Piccoli produttori</h3>
-
-• conoscenza: il piccolo produttore si può conoscere più facilmente, si può creare un contatto diretto;
-• occupazione: i piccoli produttori sono, in generale, ad elevata intensità di manodopera;occupazione;
-• emergenza-sostegno: aiutare piccoli produttori svantaggiati e penalizzati dalla concorrenza delle grandi aziende. Attenzione rivolta anche a produttori che,rispondendo agli altri principi del Gas, si trovassero in difficoltà in una stagione.
-
-<h3>Prodotti biologici ed ecologici</h3>
-
-• certificazione biologica : la certificazione è da considerarsi una garanzia. La NON – CERTIFICAZIONE è accettabile se c’è una conoscenza diretta con il produttore (e quindi un rapporto di fiduci e se si possiede una reale competenza nel valutare i metodi di produzione. Anche per la certificazione di LOTTA INTEGRATA è fondamentale una approfondita ricerca e conoscenza da parte di competenti nel settore;
-• basso impatto ambientale: per quei prodotti per i quali non c’è un sistema di certificazione biologica comunque preferire quelli a minor impatto ecologico;
-• imballaggi: se il prodotto locale può contribuire alla riduzione dell’imballaggio, quello proveniente da lontano lo può richiedere: scegliere comunque quelli con minori imballaggi
-
-<h3>Prodotti Ottenuti nel rispetto della legalità</h3>
-
-• E’ fondamentale che i prodotti acquistati provengano da aziende che operano nel rispetto della Legge.
-
-<h3>Il prezzo</h3>
-
-• il Gas non viene inteso semplicemente come strumento per abbattere i costi. Si riconosce che “la qualità va giustamente pagata“, da combinare comunque con una sostenibilità del prezzo rispetto alle possibilità/propensioni economiche delle famiglie.
-
-<h3>Il gusto</h3>
-
-• Scegliere prodotti che soddisfino il palato. Protagonista deve essere il gusto e non l’occhio.
-
-Prodotti, servizi, fornitori ed i motivi della selezione sono oggetto di discussione e
-valutazione nel corso delle riunioni del GAS.
-
-Almeno una volta ogni 3 anni il Gas incontra i suoi produttori per mantenere le relazioni
-di cooperazione e per conoscere l’evoluzione dell’attività del fornitore.
-
-Compatibilmente con le forze disponibili i membri del gas si impegnano a mettere a
-disposizione le proprie competenze per monitorare il rispetto dei principi sopra elencati.
-Sarebbe auspicabile che tale percorso generasse quanto prima un gruppo qualità che in
-maniera strutturata ed oggettiva valuti i singoli fornitori.
-
-<h2>Art. 11 - Calendario degli ordini</h2>
-
-Il calendario degli ordini viene definito sulla base dei volumi degli stessi, delle condizioni
-di spedizione e della disponibilità del referente ed è pubblicato sul sito. Eventuali
-modifiche alla frequenza delle ordinazioni vengono proposte a NOGM che ne valuta,
-insieme al referente, la fattibilità.
-
-<h2>Art. 12 - Effettuazione degli ordini</h2>
-
-Gli ordini vengono effettuati via Internet sul sito www.gasmalatesta.net a cui tutti i
-partecipanti al GAS sono registrati. Tramite lo stesso programma, i referenti di ciascun
-fornitore inseriscono i prodotti ordinabili e gestiscono i periodi in cui è possibile fare le
-ordinazioni. Al momento dell’apertura dell’ordine il referente invia a tutti una mail
-indicando la data di scadenza dell’ordine e la data di ritiro. Al termine del periodo
-d'ordine il referente estrae l'ordine e lo invia al fornitore. Eventuali modifiche della data
-di ritiro devono essere comunicate tempestivamente dal referente.
-Se la somma degli importi dei singoli ordini non supera la quota minima richiesta dal
-fornitore l’ordine può essere annullato.
-
-<h2>Art. 13 - Distribuzione dei prodotti</h2>
-
+<h2>Art. 7 — Ricarica borsellino elettronico</h2>
 <p>
-Il referente si preoccupa di verificare all’arrivo della merce ordinata la congruenza con
-l’ordine effettuato e segue la distribuzione dei prodotti ai gasisti.
-Ogni aderente è tenuto al ritiro della merce entro l’ora e il giorno stabilito. Qualora fosse
-impossibilitato, può chiedere aiuto ad un altro aderente, altrimenti è tenuto ad avvisare
-di tale impossibilità.
+Per il pagamento dei prodotti viene utilizzato un borsellino elettronico
+ricaricabile, gestito tramite il sito, sul quale vengono addebitati gli
+importi degli acquisti effettuati. Non è possibile effettuare acquisti per
+importi superiori al credito residuo disponibile.
 </p>
 
+<h2>Art. 8 — Rinnovo annuale dell'adesione</h2>
+<p>[Da definire: scadenza e modalità di rinnovo della quota associativa.]</p>
+
+<h2>Art. 9 — Esclusione</h2>
+<p>[Da definire: motivazioni e procedura di esclusione, rimborso del
+credito residuo.]</p>
+
+<h2>Art. 10 — Selezione dei prodotti e dei fornitori</h2>
+<p>[Da definire: criteri di selezione (es. prossimità, piccoli produttori,
+metodi di produzione, prezzo equo).]</p>
+
+<h2>Art. 11 — Calendario degli ordini</h2>
+<p>[Da definire: come e da chi viene stabilito il calendario degli
+ordini.]</p>
+
+<h2>Art. 12 — Effettuazione degli ordini</h2>
 <p>
-In caso di mancato ritiro della merce al momento stabilito, non è garantita la
-conservazione della stessa per un tempo ulteriore, ed un ritiro in un secondo momento.
-In questo caso l’importo della merce regolarmente arrivata verrà comunque addebitato
-sul borsellino elettronico dell’aderente.
+Gli ordini vengono effettuati tramite il sito, a cui tutti i partecipanti
+sono registrati. I referenti di ciascun fornitore inseriscono i prodotti
+ordinabili e gestiscono i periodi in cui è possibile ordinare.
 </p>
 
-<h2>Art. 14 - Modifiche al regolamento</h2>
+<h2>Art. 13 — Distribuzione dei prodotti</h2>
+<p>[Da definire: modalità e tempi di ritiro, cosa succede in caso di
+mancato ritiro.]</p>
 
-<p>
-Le modifiche al presente Regolamento devono essere preventivamente comunicate
-nell’ordine del giorno della riunione mensile in cui verranno discusse e devono essere
-approvate con il voto favorevole della metà + uno dei presenti.
-Le modifiche dovranno, una volta approvate, essere portate all’approvazione del Cdr
-dell’Associazione Magazzino Parallelo.
-</p>
+<h2>Art. 14 — Modifiche al regolamento</h2>
+<p>[Da definire: procedura e maggioranza richiesta per modificare il
+regolamento.]</p>
 
 {% endblock %}
-
-

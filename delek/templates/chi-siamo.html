@@ -1,7 +1,15 @@
 {% extends 'base.html' %}
 
+{#
+  Pagina "Chi Siamo": i primi paragrafi sono generici (descrivono cosa
+  significa essere un GAS) e possono restare. L'ultimo paragrafo prima del
+  link alla rete GAS è invece un segnaposto: va sostituito con la storia
+  fondativa reale dell'associazione (dove/quando è nata, eventuale ente
+  ospitante, link al Regolamento).
+#}
+
 {% block header %}
-  <h1>{% block title %}G.A.S. Malatesta, Chi Siamo{% endblock %}</h1>
+  <h1>{% block title %}{{ associazione.identita.nome_breve }}, Chi Siamo{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -26,7 +34,11 @@ I GAS nascono dall’esigenza di cercare una alternativa ad un modo di consumare
 </p>
 
 <p>
-Da queste considerazioni è nato a Cesena il GAS "Dai GAS Malatesta". Un gruppo di famiglie e Amici che ha deciso di fare suoi i principi ispiratori di un Gruppo di Acquisto Solidale. Da giugno 2013 il GAS ha deciso di costituirsi in Associazione: il successo dell’iniziativa comporta infatti acquisti annuali di importo economico non più compatibile con un gruppo informale. Per evitare burocrazie eccessive abbiamo comunque fatto una scelta sobria: non costituire una associazione ex novo, ma diventare un sottogruppo del Circolo Magazzino Parallelo che già ospita i nostri incontri da alcuni anni. Potete trovare sul sito il Regolamento del nostro GAS.
+<!-- SEGNAPOSTO: sostituire con la storia fondativa reale di
+     {{ associazione.identita.nome_breve }} (dove e quando è nato, chi lo ha
+     fondato, eventuale ente ospitante). -->
+Da queste considerazioni è nato {{ associazione.identita.nome_breve }}. Potete trovare
+sul sito il <a href="{{ url_for('regolamento') }}">Regolamento</a> della nostra associazione.
 </p>
 
 <p>

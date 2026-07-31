@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from functools import wraps
 
-from flask import (flash, g, redirect, url_for)
+from flask import (current_app, flash, g, redirect, url_for)
 
 from delek.controller.auth import get_utente_by_id
 
@@ -471,9 +471,11 @@ def sollecito(func):
         for obbligatorio in [utente['nome'], utente['cognome'],
                              utente['email'], utente['cf']]:
             if not obbligatorio:
+                nome_associazione = current_app.config['ASSOCIAZIONE'][
+                    'identita']['nome']
                 flash("""È richiesto compilare i campi: nome, cognome, email e
-                codice fiscale, ai fini di redigere il libro soci della nuova
-                associazione Gas Malatesta APS""", 'warning')
+                codice fiscale, ai fini di redigere il libro soci della
+                {0}""".format(nome_associazione), 'warning')
                 return redirect(url_for('auth.info_utente'))
         return func(*args, **kwargs)
     return decorated_function

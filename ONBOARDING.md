@@ -1,0 +1,84 @@
+# Attivare una nuova istanza per un GAS
+
+Checklist per configurare DDGAS per una nuova associazione. Ogni istanza è
+un deploy a sé (un `associazione.yaml`, un DB, un hosting): non c'è
+multi-tenancy a runtime, l'hosting/provider resta una scelta del singolo
+cliente.
+
+## 1. Dati da richiedere al cliente
+
+**Identità e dati pubblici** (vanno in `config/associazione.yaml`):
+
+- Nome completo e nome breve dell'associazione
+- Tagline/sottotitolo
+- Indirizzo e codice fiscale (partita IVA se presente)
+- Colore primario del brand (hex)
+- Logo (immagine, va in `delek/static/`)
+- Email di contatto generale e tecnica
+- Dati bancari: IBAN, intestazione conto, nome banca
+- Quota associativa annuale
+- Se è richiesta una tessera di un ente terzo (es. ARCI) per l'iscrizione,
+  e il nome dell'ente
+
+**Contenuti testuali** (documenti, non dati strutturati — chiedere i file
+o il testo già scritto dal cliente, non improvvisarli):
+
+- Statuto/Regolamento associativo completo → `delek/templates/regolamento.html`
+  (attualmente un segnaposto con indice esemplificativo, da sostituire
+  per intero)
+- Testo di presentazione "Chi Siamo" (storia fondativa, dove/quando è
+  nata l'associazione) → paragrafo finale di `delek/templates/chi-siamo.html`
+- Dettagli operativi dei turni di presidio/consegna (orari, indirizzo
+  email per segnalazioni, indicazioni sulla sede) → `delek/templates/presidi/vademecum.html`,
+  se l'associazione usa la funzionalità Presidi
+
+**Pagamenti** (opzionali, il modulo Ricariche resta disattivato finché
+non sono configurati — vedi `PAGAMENTI_ABILITATI`/`SATISPAY_ABILITATO`
+in `DEV.md`):
+
+- Vuole abilitare le ricariche con carta (Stripe)? Serve un account Stripe
+  del cliente (o gestito per suo conto)
+- Vuole abilitare anche Satispay?
+- Chi si fa carico dell'eventuale commissione del gateway (vedi TODO.md,
+  ancora da implementare)
+
+## 2. File da modificare per una nuova istanza
+
+- `config/associazione.yaml` — tutti i dati pubblici sopra
+- `delek/static/<logo>` — sostituire l'immagine, aggiornare
+  `branding.logo` in `associazione.yaml` con il nome file
+- `delek/static/favicon.ico` — sostituire (non è configurabile via yaml)
+- `delek/templates/regolamento.html` — sostituire il segnaposto
+- `delek/templates/chi-siamo.html` — sostituire il paragrafo finale
+  (segnato con un commento `<!-- SEGNAPOSTO -->`)
+- `delek/templates/presidi/vademecum.html` — adattare se si usano i
+  Presidi
+
+## 3. Setup DB
+
+```
+createdb <nome_db>
+psql <nome_db> -f data/db/pg/schema.sql
+psql <nome_db> -f data/db/pg/bootstrap.sql
+```
+
+`bootstrap.sql` crea solo i dati minimi richiesti dal codice (tipologie di
+movimento, ruoli), nessun dato reale.
+
+Dopo il primo avvio, va creato a mano il primo utente moderatore (via
+`/auth/register` + una promozione a ruolo `moderatore` fatta direttamente
+in DB, visto che nessun utente ha ancora i permessi per farlo da
+interfaccia) e, se si useranno i tesseramenti, un utente `FCA` (fondo
+cassa associazione) che riceve gli accrediti delle quote — vedi
+`effettua_tesseramento()` in `auth.py`.
+
+## 4. Variabili d'ambiente
+
+Vedi `DEV.md` per l'elenco completo (`SECRET_KEY`, `DATABASE_URL`,
+`SENDGRID_API_KEY`/`SENDGRID_FROM_EMAIL`, `STRIPE_SECRET_KEY`/
+`STRIPE_WEBHOOK_SECRET`, `SATISPAY_KEY_ID`/`SATISPAY_PRIVATE_KEY`).
+
+## 5. Deploy
+
+Il deploy (Heroku, Docker o altro) resta una scelta del cliente/provider:
+vedi `DEV.md` per le istruzioni Heroku attualmente documentate.
