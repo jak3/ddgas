@@ -79,16 +79,19 @@ def create(id_produttore):
 
         dbi = get_db()
 
+        inputs = request.form.copy()
+        inputs.pop('csrf_token', None)
+
         dbi.execute(
             """
                 INSERT INTO listino_{idp} ({column_names})
                 VALUES ({placeholders})
             """.format(
                 idp=id_produttore,
-                column_names=','.join(request.form.keys()),
-                placeholders=','.join(['%s' for _ in enumerate(request.form)])
+                column_names=','.join(inputs.keys()),
+                placeholders=','.join(['%s' for _ in enumerate(inputs)])
             ),
-            tuple(request.form.values())
+            tuple(inputs.values())
         )
         flash('Aggiunta prodotto avvenuta con successo', 'success')
 

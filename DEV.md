@@ -68,6 +68,45 @@ export SECRET_KEY=dev
 source env/bin/activate
 flask run
 ```
+
+## Ricariche (Stripe, Satispay)
+
+Il blueprint `pagamenti` (`delek/controller/pagamenti.py`) viene registrato
+solo se `STRIPE_SECRET_KEY` è impostata (`PAGAMENTI_ABILITATI`): finché non
+è configurata, la voce Ricarica sparisce dalla UI invece di rompere ogni
+pagina con un BuildError su `url_for('pagamenti.*')`.
+
+Variabili d'ambiente richieste per Stripe:
+
+```
+export STRIPE_SECRET_KEY=sk_test_...
+export STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+Entrambe si trovano nella dashboard Stripe (modalità Test per lo sviluppo).
+Il webhook secret è specifico dell'endpoint configurato in Stripe > Developers
+> Webhooks, puntato su `/pagamenti/webhook/stripe`; in locale, per riceverlo,
+serve un tunnel (es. `stripe listen --forward-to localhost:5000/pagamenti/webhook/stripe`
+con la Stripe CLI, che stampa il webhook secret da usare).
+
+Satispay è un metodo aggiuntivo, condivide lo stesso blueprint ma ha un
+flag separato (`SATISPAY_ABILITATO`) perché può essere pronto in un momento
+diverso da Stripe:
+
+```
+export SATISPAY_KEY_ID=...
+export SATISPAY_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
+# opzionale, default punta all'ambiente di produzione Satispay:
+export SATISPAY_BASE_URL=https://staging.authservices.satispay.com/g_business/v1
+```
+
+Si ottengono scambiando una chiave RSA generata da noi con il codice di
+attivazione (dashboard Satispay) via `POST /authentication_keys` — vedi
+https://developers.satispay.com/docs/authentication. La callback S2S di
+Satispay (`/pagamenti/webhook/satispay`) non è raggiungibile da un tunnel
+verso `127.0.0.1`: per testarla in locale va simulata a mano (GET con
+`?payment_id=...`) dopo aver creato un pagamento vero in sandbox.
+
 ## PG
 
 ```

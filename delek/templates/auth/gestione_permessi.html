@@ -28,7 +28,7 @@
             <li>
               <form method="post" style="display: inline"
                     action="{{ url_for('auth.remove_role', id_ruolo=ruolo.id_ruolo, id_utente=utente.id) }}"
-                    onsubmit="return confirm('Rimuovere il ruolo {{ ruolo.nome }}?');">
+                    onsubmit="return confirm('Rimuovere il ruolo {{ ruolo.nome }}?');">{{ csrf_field() }}
                 <button type="submit" class="button button-xxs button-square button-error button-border" aria-label="Rimuovi Ruolo">&#128465;</button>
               </form>
             </li>
@@ -39,7 +39,7 @@
     </ul>
   {% endif %}
 
-  <form method="post">
+  <form method="post">{{ csrf_field() }}
     <p class="field">
     <label class="select" for="id_ruolo">
       <select name="id_ruolo" autocomplete="off">
@@ -70,7 +70,7 @@
             <li>
               <form method="post" style="display: inline"
                     action="{{ url_for('auth.remove_reference', id_produttore=referenza.id_produttore, id_utente=utente.id) }}"
-                    onsubmit="return confirm('Rimuovere la referenza {{ referenza.nome }}?');">
+                    onsubmit="return confirm('Rimuovere la referenza {{ referenza.nome }}?');">{{ csrf_field() }}
                 <button type="submit" class="button button-xxs button-square button-error button-border" aria-label="Rimuovi Referenza">&#128465;</button>
               </form>
             </li>
@@ -80,7 +80,7 @@
     {% endfor %}
   </ul>
   {% endif %}
-  <form method="post">
+  <form method="post">{{ csrf_field() }}
     <p class="field">
     <label class="select" for="id_produttore">
       <select name="id_produttore" autocomplete="off">
@@ -102,7 +102,7 @@
 
 <div class="box-shadow-m padding-s">
   <h3>Informazioni Personali</h3>
-  <form method="post">
+  <form method="post">{{ csrf_field() }}
     <p class="field">
       <label for="username">Username</label>
       <input name="username" id="username" value="{{ request.form.username if request.form else utente.username }}" />
@@ -157,7 +157,7 @@
 
 <hr>
 
-  <form action="{{ url_for('auth.toggle_attivo', id_utente=utente.id) }}" method="post">
+  <form action="{{ url_for('auth.toggle_attivo', id_utente=utente.id) }}" method="post">{{ csrf_field() }}
     {% if utente.attivo %}
     <input class="color-error border-color-error" type="submit" value="Disattiva"
                                                                 onclick="return confirm('Sicuro di voler disattivare {{ utente.username }}?');">

@@ -30,11 +30,14 @@ troverete le coordinate del conto.</p>
 <p>{{ associazione.identita.nome }}, {{ associazione.identita.indirizzo }} C.F. {{ associazione.identita.codice_fiscale }}</p>
 <p>Un paio di precisazioni:</p>
 <p><strong>1. COME POSSO VERSARE I SOLDI NEL CONTO CORRENTE?</strong></p>
-<p>Due possibilità:</p>
+<p>{% if config.PAGAMENTI_ABILITATI %}Tre{% else %}Due{% endif %} possibilità:</p>
 
 <ol style="list-style-type:lower-alpha">
   <li>Si fa direttamente un bonifico bancario. Troverete di seguito le coordinate. E' <strong><u>INDISPENSABILE</u></strong> specificare, nella causale del versamento, chi fa il versamento in modo che chi gestisce i conti sappia chi ha versato i soldi.</li>
   <li>Se non si ha la possibilità di fare un bonifico si chiede ad un gasista di farlo per noi.</li>
+  {% if config.PAGAMENTI_ABILITATI %}
+  <li>Dal sito, alla voce <b>Ricarica</b>, si può versare con carta di credito/debito{% if config.SATISPAY_ABILITATO %} o Satispay{% endif %}: l'importo è disponibile sul proprio credito non appena il pagamento viene confermato, senza i tempi di attesa del bonifico.</li>
+  {% endif %}
 </ol>
 
 <p>Come già specificato l'importo da versare ogni volta è a discrezione del gasista. Ci sarà chi preferisce versare 500 euro e non pensarci per un bel po' e chi preferirà versare 50 o 100 euro alla volta. Per evitare di sovraccaricare le persone che gestiscono i conti e quindi che annotano entrate e uscite sarebbe buona cosa preferire un versamento da 50 euro piuttosto che 5 versamenti da 10 euro.</p>
@@ -67,7 +70,7 @@ ed Erika (presidente dell'Associazione). Sono loro che terranno aggiornati i con
 <p>Per avere il proprio estratto conto, saldo compreso, si accede, dal sito, alla voce Cassa.</p>
 <p>Per vedere solo il saldo, basta accedere alla voce Ordina.</p>
 <p><strong>4. COSA SUCCEDE SE NON HO DISPONIBILITA' DI SOLDI NEL CONTO?</strong></p>
-<p>Se non si ha disponibilità sul conto corrente non è possibile effettuare acquisti. Se avete urgenza di comprare qualcosa e vi trovate senza disponibilità sul conto potete chiedere ad un altro gasista (via mail o a voce) di comprare a nome vostro. Oppure di farvi un prestito: dal sito, alla voce <b>Giroconto</b>, potete trasferire credito direttamente da un utente all'altro, senza bisogno di passare da chi gestisce i conti. Una volta che avrete effettuato un nuovo versamento potrete restituire il prestito allo stesso modo, con un nuovo giroconto verso chi ve lo aveva anticipato.</p>
+<p>Se non si ha disponibilità sul conto corrente non è possibile effettuare acquisti. {% if config.PAGAMENTI_ABILITATI %}La soluzione più rapida è ricaricare subito con carta{% if config.SATISPAY_ABILITATO %} o Satispay{% endif %} dalla voce <b>Ricarica</b> (vedi punto 1c). In alternativa potete{% else %}Potete{% endif %} chiedere ad un altro gasista (via mail o a voce) di comprare a nome vostro. Oppure di farvi un prestito: dal sito, alla voce <b>Giroconto</b>, potete trasferire credito direttamente da un utente all'altro, senza bisogno di passare da chi gestisce i conti. Una volta che avrete effettuato un nuovo versamento potrete restituire il prestito allo stesso modo, con un nuovo giroconto verso chi ve lo aveva anticipato.</p>
 <p><strong>IMPORTANTE:</strong> l'adesione al prepagato è condizione necessaria per poter effettuare gli acquisti.</p>
 
 {% endblock %}

@@ -7,7 +7,7 @@
 {% endblock %}
 {% block content %}
 
-<form action="{{ url_for('listini.update', id_produttore=produttore.id) }}" method="post">
+<form action="{{ url_for('listini.update', id_produttore=produttore.id) }}" method="post">{{ csrf_field() }}
   {% for prodotto in prodotti %}
   {% if loop.first or prodotto.categoria != loop.previtem.categoria %}
   <div class="border padding-xs background-light-100 font-weight-bold

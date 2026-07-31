@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="container padding-top-l">
-  <form method="post">
+  <form method="post">{{ csrf_field() }}
     <p class="field">
       <label for="categoria">Categoria</label>
       <input name="categoria" id="categoria" placeholder="Avena" type="text" list="categorie" value="{{ request.form.categoria }}" />

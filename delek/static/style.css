@@ -12,7 +12,11 @@ main { flex:85%; }
 
 @media (max-width: 480px) {
 
-  * { text-align:center; }
+  /* Solo titoli e la barra header sono centrati: testo di corpo, note,
+     indirizzi e liste restano allineati a sinistra (leggibilità su più
+     righe). Prima era '* { text-align:center }', che centrava anche
+     descrizioni/note multi-riga, più difficili da leggere così. */
+  h1, h2, h3, h4, h5, h6, header { text-align:center; }
 
   .flex {
     flex-direction: column;
@@ -32,6 +36,13 @@ main { flex:85%; }
   }
   .group ul { flex-direction:column; }
   .group ul li { padding:0.3rem; }
+
+  /* Da usare sui gruppi di soli pulsanti (niente testo/etichette lunghe da
+     spezzare): li affiancate e a capo automatico invece che una per riga,
+     per non allungare a dismisura le liste con molte azioni per voce
+     (es. produttori). Non è il default per .group perché altrove le liste
+     hanno contenuti (titoli, indirizzi) che vanno bene solo impilati. */
+  .group-wrap-mobile ul { flex-direction:row; flex-wrap:wrap; }
 }
 
 #btnmenu {display: none;}

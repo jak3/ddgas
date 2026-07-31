@@ -11,7 +11,7 @@
 {% block content %}
 <div class="container">
   <form method="post" action="{{ url_for('ordini.update', id_produttore=produttore.id) if dettaglio.scadenza else url_for('ordini.create') }}" method="post"
-        class="margin-bottom-m" >
+        class="margin-bottom-m" >{{ csrf_field() }}
     <input type="hidden" value="{{ produttore.id }}" name="id_produttore"/>
 
     {% if dettaglio.consegna and today > dettaglio.consegna %}
@@ -74,7 +74,7 @@
   {% if dettaglio.scadenza %}
 
     {% if today <= dettaglio.scadenza %}
-    <form method="post" action="{{ url_for('ordini.close', id_produttore=produttore.id) }}" method="post">
+    <form method="post" action="{{ url_for('ordini.close', id_produttore=produttore.id) }}" method="post">{{ csrf_field() }}
       <input type="submit" class="button button-border button-{{ 'error' if sicuro_close else 'grey' }}" value="Chiudi"
              name="{{ 'conferma' if sicuro_close else 'pre-conferma'}}" />
     </form>
@@ -83,7 +83,7 @@
 
     <hr class="margin-bottom-xxl">
 
-    <form method="post" action="{{ url_for('ordini.delete', id_produttore=produttore.id) }}" method="post">
+    <form method="post" action="{{ url_for('ordini.delete', id_produttore=produttore.id) }}" method="post">{{ csrf_field() }}
       <input type="submit" class="button button-{{ 'error' if sicuro else 'grey'}}"
                                           name="{{ 'conferma' if sicuro else 'pre-conferma'}}" value="Annulla e Cancella TUTTI gli ordini" />
     </form>

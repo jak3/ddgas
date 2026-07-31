@@ -14,7 +14,7 @@
   <p>Attenzione, compilando il modulo qui sotto effettuerai SOLO un pre-iscrizione
   quindi non avrai ancora la possibilità di accedere a tutte le funzionalità del sito.</p>
 
-  <form method="post">
+  <form method="post">{{ csrf_field() }}
     <p class="field">
       <label for="email">Email</label>
       <input type="email" name="email" id="email" placeholder="Email" required />

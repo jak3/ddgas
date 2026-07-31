@@ -22,7 +22,7 @@ effettivo che ogni gasista ha speso, solo se non corrisponde al <b>Totale Pre
 Rettifica</b>, altrimenti lasciare il valore '0,00'. <u>Sarà presente un
 passaggio intermedio per verificare gli importi.</u></p>
 
-<form action="{{ url_for('ordini.rettifica_ordine', id_produttore=produttore.id) }}" method="post">
+<form action="{{ url_for('ordini.rettifica_ordine', id_produttore=produttore.id) }}" method="post">{{ csrf_field() }}
   {% for extra in extras %}
   <ul style="list-style: none /*'\1F464'*/ inside">
     <li class="border no-margin-left">

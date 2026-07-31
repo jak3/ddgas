@@ -5,7 +5,7 @@
     <ul>
       <li><h1>{% block title %}Prodotti {{ produttore.nome.capitalize() }}{% endblock %}</h1></li>
       <li>
-        <div class="group group-xxs">
+        <div class="group group-xxs group-wrap-mobile">
           <ul>
       {% if prodotti %}
             <li><a id="btn-nascondi" class="display-none button button-warning button-border" onclick="toggleNonDisponibili()">Nascondi Prodotti Non Disponibili</a></li>

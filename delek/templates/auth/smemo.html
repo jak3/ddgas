@@ -9,7 +9,7 @@
 all'username inserito). Se i dati saranno corretti, ti verrà inviato un
 messaggio di posta con la nuova password. Se non ricordi nemmeno questi dati
 contattare un amministratore.</p>
-  <form method="post">
+  <form method="post">{{ csrf_field() }}
     <p class="field">
       <input name="username" placeholder="Username" required />
     </p>

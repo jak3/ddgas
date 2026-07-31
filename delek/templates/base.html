@@ -67,6 +67,9 @@ function hideShowMenu() {
             <li class="no-margin"><a href="{{ url_for('auth.tesseramenti') }}">Tesseramenti</a></li>
             {% endif %}
             <hr>
+            {% if config.PAGAMENTI_ABILITATI %}
+            <li class="no-margin"><a href="{{ url_for('pagamenti.ricarica') }}">Ricarica</a></li>
+            {% endif %}
             {% if 'moderatore' in g.ruoli or 'tesoriere' in g.ruoli %}
             <li class="no-margin"><a href="{{ url_for('movimenti.handle') }}">Cassa</a></li>
             <li class="no-margin"><a href="{{ url_for('ordini.chiusi') }}">Ordini Chiusi</a></li>
@@ -84,6 +87,14 @@ function hideShowMenu() {
           <header>
             {% block header %}{% endblock %}
           </header>
+          {% if saldo_basso is not none %}
+          <div class="padding-top-s">
+            <p class="background-warning color-white padding-xs">
+              Credito basso: {{ '%.2f' % saldo_basso }} &euro;.
+              <a class="color-white" href="{{ url_for('pagamenti.ricarica') }}"><u>Ricarica ora</u></a>
+            </p>
+          </div>
+          {% endif %}
           {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
           <div class="padding-top-s">

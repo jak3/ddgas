@@ -20,7 +20,7 @@ from delek.controller.produttori import get_storico_ordini
 from delek.controller.auth import (
     login_required, is_ruolo, get_utenti, get_utente_by_id
 )
-from delek.controller.db import get_db
+from delek.controller.db import get_db, atomic
 
 bp = Blueprint('movimenti', __name__, url_prefix='/movimenti')
 
@@ -115,8 +115,8 @@ def get_totale_tutti_ordini_in_corso():
 def insert_movimento(movimento: dict):
     """ Wrap per inserire un movimento """
     cp_movimento = movimento.copy()
-    if 'verso_id' in cp_movimento.keys():
-        del cp_movimento['verso_id']
+    for campo_non_colonna in ('verso_id', 'csrf_token'):
+        cp_movimento.pop(campo_non_colonna, None)
     get_db().execute("""
             INSERT INTO movimenti {column_names} VALUES ({placeholders})
         """.format(column_names=str(tuple(cn for cn in cp_movimento)
@@ -181,20 +181,22 @@ def _handle(inputs):
                 )
                 }
 
-        insert_movimento(inputs)
+        if (int(inputs['tipologia']) == tipologie['giroconto'] and
+                inputs['per_id_utente'] == inputs['verso_id']):
+            return {'error_msg':
+                    u'Un giroconto necessita di due utenti diversi'
+                    }
 
-        if int(inputs['tipologia']) == tipologie['giroconto']:
-            if inputs['per_id_utente'] != inputs['verso_id']:
+        with atomic():
+            insert_movimento(inputs)
+
+            if int(inputs['tipologia']) == tipologie['giroconto']:
                 # In (2) vedi sopra
                 insert_movimento(inputs | {
                     'per_id_utente': inputs['verso_id'],
                     # Devo fare nuovamente -1* in quanto avevo cambiato segno
                     'importo': -1 * float(inputs['importo'])
                 })
-            else:
-                return {'error_msg':
-                        u'Un giroconto necessita di due utenti diversi'
-                        }
 
         return {}
 
@@ -249,36 +251,50 @@ def giroconto_utente():
         inputs = dict(request.form) | {
             'tipologia': 3,
             'per_id_utente': g.user['id']}
-        dauser = get_utente_by_id(inputs['per_id_utente'])['username']
-        auser = get_utente_by_id(inputs['verso_id'])['username']
-        inputs['descrizione'] = f'[Giroconto da {dauser} verso {auser}] ' + \
-            inputs['descrizione']
 
-        error = check_inputs_movimento(inputs)
-
-        if not error and float(inputs['importo']) < 0:
-            # Un importo negativo qui invertirebbe il verso del giroconto:
-            # chi lo invia riceverebbe credito e il destinatario verrebbe
-            # addebitato a sua insaputa.
-            error = {'error_msg': 'Importo negativo non valido'}
-
-        if not error:
-            saldo = float(get_totale_utente(inputs['per_id_utente']))
-            if saldo < float(inputs['importo']):
-                error = {'error_msg':
-                         'Non presenti abbastanza soldi nel portafoglio'}
-
-        if not error:
-            # Negativo per chi esegue
-            insert_movimento(inputs | {
-                'importo': -1 * float(inputs['importo'])
-            })
-            # Positivo per chi riceve
-            insert_movimento(inputs | {
-                'per_id_utente': inputs['verso_id'],
-            })
-            flash('Giroconto avvenuto con successo', 'success')
+        # Precondizione da controllare prima di leggere verso_id: senza,
+        # una select senza scelta esplicita punterebbe silenziosamente al
+        # primo utente della lista, inviando credito alla persona sbagliata.
+        if '- - -' in inputs.get('verso_id', '- - -'):
+            error = {'error_msg':
+                     "Selezionare l'utente verso cui effettuare il"
+                     ' giroconto'}
         else:
+            dauser = get_utente_by_id(inputs['per_id_utente'])['username']
+            auser = get_utente_by_id(inputs['verso_id'])['username']
+            inputs['descrizione'] = (
+                f'[Giroconto da {dauser} verso {auser}] '
+                + inputs['descrizione'])
+
+            error = check_inputs_movimento(inputs)
+
+            if not error and float(inputs['importo']) < 0:
+                # Un importo negativo qui invertirebbe il verso del giroconto:
+                # chi lo invia riceverebbe credito e il destinatario verrebbe
+                # addebitato a sua insaputa.
+                error = {'error_msg': 'Importo negativo non valido'}
+
+            if not error:
+                saldo = float(get_totale_utente(inputs['per_id_utente']))
+                if saldo < float(inputs['importo']):
+                    error = {'error_msg':
+                             'Non presenti abbastanza soldi nel portafoglio.'
+                             ' Vai alla voce Ricarica per accreditare con'
+                             ' carta.'}
+
+            if not error:
+                with atomic():
+                    # Negativo per chi esegue
+                    insert_movimento(inputs | {
+                        'importo': -1 * float(inputs['importo'])
+                    })
+                    # Positivo per chi riceve
+                    insert_movimento(inputs | {
+                        'per_id_utente': inputs['verso_id'],
+                    })
+                flash('Giroconto avvenuto con successo', 'success')
+
+        if error:
             flash(error['error_msg'], 'warning')
 
     return render_template('movimenti/girocontoa.html',

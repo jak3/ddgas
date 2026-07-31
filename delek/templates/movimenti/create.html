@@ -66,7 +66,7 @@
 
 <h3>Creazione Nuovo Movimento</h3>
 <p> Tipo movimento:</p>
-<form action="{{ url_for('movimenti.handle') }}" method="post">
+<form action="{{ url_for('movimenti.handle') }}" method="post">{{ csrf_field() }}
   <div class="field">
     <label class="select" for="select">
       <select name="tipologia" id="select-move-type" onchange="mostraUtenteVerso()">

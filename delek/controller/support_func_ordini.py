@@ -169,7 +169,8 @@ def _check_inputs_vincoli(id_produttore, inputs):
         )
     ]):
         return {'error_msg':
-                'Credito insufficente per coprire tutti gli ordini'}
+                'Credito insufficente per coprire tutti gli ordini.'
+                ' Vai alla voce Ricarica per accreditare con carta.'}
 
     for i, prodotto in enumerate(get_prodotti(id_produttore,
                                               disponibile=True)):

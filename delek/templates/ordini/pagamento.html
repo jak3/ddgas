@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<form method="post">
+<form method="post">{{ csrf_field() }}
   <div class="group group-space-between border padding-m">
     <ul>
       <li class="field">

@@ -25,7 +25,7 @@
     {% endfor %}
   </ul>
   {% endif %}
-  <form method="post">
+  <form method="post">{{ csrf_field() }}
     <p class="field">
     <label class="select" for="id_utente">
       <select name="id_utente" autocomplete="off">
@@ -46,7 +46,7 @@
 
 <div class="box-shadow-m padding-s">
   <h3>Informazioni Produttore</h3>
-  <form method="post">
+  <form method="post">{{ csrf_field() }}
     <p class="field">
       <label for="nome">Nome</label>
       <input name="nome" id="nome" placeholder="Inserire il Nome"
@@ -118,7 +118,7 @@
     </p>
   </form>
   <hr>
-  <form action="{{ url_for('produttori.toggle_attivo', id_produttore=produttore.id) }}" method="post">
+  <form action="{{ url_for('produttori.toggle_attivo', id_produttore=produttore.id) }}" method="post">{{ csrf_field() }}
     {% if produttore.attivo %}
     <input class="color-error border-color-error" type="submit" value="Disattiva"
                                                                 onclick="return confirm('Sicuro di voler disattivare il produttore?');">

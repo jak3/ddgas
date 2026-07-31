@@ -73,7 +73,7 @@
           <ul>
             <li><h2 id="nomepi-{{produttore.id}}">{{ '(inattivo) ' if not produttore.attivo }}{{ produttore.nome }}</h2></li>
             <li>
-              <div class="group group-m">
+              <div class="group group-m group-wrap-mobile">
                 <ul>
                   {% if g.user %}
                   <li><button id="btn-contatti-{{ produttore.id }}" class="button button-xxs

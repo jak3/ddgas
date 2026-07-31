@@ -300,6 +300,7 @@ def create():
                             id_produttore=request.form['id_produttore']))
 
             inputs = request.form.copy()
+            inputs.pop('csrf_token', None)
             if inputs['minimo_ordine'] == '':
                 inputs['minimo_ordine'] = 0
             inputs['scadenza'] = str(datetime.fromisoformat(inputs['scadenza'])
@@ -379,6 +380,7 @@ def update(id_produttore):
 
         if not error:
             inputs = request.form.copy()
+            inputs.pop('csrf_token', None)
             if 'minimo_ordine' in inputs and inputs['minimo_ordine'] == '':
                 inputs['minimo_ordine'] = 0
             if 'scadenza' in request.form:

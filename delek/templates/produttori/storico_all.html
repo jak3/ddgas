@@ -13,7 +13,7 @@
 {% block content %}
 Selezionare la data di consegna per l'ordine di cui si vuole visionare lo storico:
 
-<form method="post">
+<form method="post">{{ csrf_field() }}
   <p class="field">
   <label class="select" for="consegna">
     <select name="consegna" autocomplete="off" onchange="this.form.submit()">
@@ -33,7 +33,7 @@ Selezionare la data di consegna per l'ordine di cui si vuole visionare lo storic
 
 {% if ordini %}
 <form action="{{ url_for('movimenti.aggiusta_ordine_chiuso') }}"
-      method="post" accept-charset="utf-8" class="border border-radius padding-m">
+      method="post" accept-charset="utf-8" class="border border-radius padding-m">{{ csrf_field() }}
   <input type="hidden" value="{{id_produttore}}" name="id_produttore"/>
   <input type="hidden" value="{{data}}" name="data"/>
 

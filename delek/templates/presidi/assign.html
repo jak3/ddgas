@@ -6,7 +6,7 @@
 
 {% block content %}
 <p>Seleziona l'Utente da assegnare:</p>
-  <form method="post">
+  <form method="post">{{ csrf_field() }}
     <p class="field">
     <label class="select" for="id_utente">
       <select name="id_utente" autocomplete="off">

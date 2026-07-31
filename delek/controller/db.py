@@ -1,4 +1,6 @@
 """ Gestione del DB """
+from contextlib import contextmanager
+
 from psycopg2 import connect
 from psycopg2.extras import DictCursor
 from psycopg2.extensions import AsIs
@@ -24,6 +26,26 @@ def get_db():
         g.db = conn.cursor()
 
     return g.db
+
+
+@contextmanager
+def atomic():
+    """ Esegue un blocco di query come un'unica transazione: o vanno tutte a
+    buon fine, o nessuna viene applicata. Da usare solo attorno a sequenze
+    di scritture che devono riuscire/fallire insieme (es. le due righe di
+    un movimento in partita doppia) — il resto dell'app resta in
+    autocommit, non va cambiato il default globale della connessione. """
+    dbi = get_db()
+    conn = dbi.connection
+    conn.autocommit = False
+    try:
+        yield dbi
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.autocommit = True
 
 
 def close_db(error=None):

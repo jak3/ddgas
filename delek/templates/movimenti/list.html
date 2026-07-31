@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-<form action="{{ url_for('movimenti.list_movimenti') }}" method="post">
+<form action="{{ url_for('movimenti.list_movimenti') }}" method="post">{{ csrf_field() }}
 
   <div class="group group-xs group-column">
     <ul>

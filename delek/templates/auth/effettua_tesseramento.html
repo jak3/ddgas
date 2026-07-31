@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<form action="{{ url_for('auth.effettua_tesseramento') }}" method="post">
+<form action="{{ url_for('auth.effettua_tesseramento') }}" method="post">{{ csrf_field() }}
   {% if associazione.regole.tessera_ente_terzo.richiesta %}
   <p class="field">
   <label for="codice_arci">Codice Tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }}</label>

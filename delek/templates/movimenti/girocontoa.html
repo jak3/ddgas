@@ -7,7 +7,7 @@
 
 {% block content %}
 <h3>Effettua Giroconto</h3>
-<form action="{{ url_for('movimenti.giroconto_utente') }}" method="post">
+<form action="{{ url_for('movimenti.giroconto_utente') }}" method="post">{{ csrf_field() }}
 
   <div class="field">
    <label class="">Valore in Euro</label>
@@ -24,6 +24,7 @@
     <p>Verso l'utente<span id="no-js-span"><i> (da compilare solo per i Giroconti)</i></span>:</p>
     <label class="select" for="select-verso">
       <select name="verso_id" id="select-verso" autocomplete="off">
+        <option selected>- - -</option>
         {% for utente in utenti %}
         <option value="{{ utente.id }}">{{ [utente.username, '(', utente.nome or '', utente.cognome or '', ')'] | join(' ') }}</option>
         {% endfor %}

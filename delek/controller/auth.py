@@ -21,7 +21,7 @@ from delek.model.checks import (
     check_inputs_smemo
 )
 
-from delek.controller.db import get_db
+from delek.controller.db import get_db, atomic
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -839,7 +839,8 @@ def effettua_tesseramento():
     row = dbi.fetchone()
     totale = row['totale'] if row[0] else 0
     if totale < campagna['quota']:
-        flash('Credito insufficente per effettuare il tesseramento', 'warning')
+        flash('Credito insufficente per effettuare il tesseramento.'
+              ' Vai alla voce Ricarica per accreditare con carta.', 'warning')
         return render_template('auth/effettua_tesseramento.html',
                                campagna=campagna)
 
@@ -849,16 +850,23 @@ def effettua_tesseramento():
                   'Tesseramento {0:n}/{1:n}'.format(int(campagna['anno']),
                                                     int(campagna['anno'] + 1)),
                   'effettuato_il': datetime.now()}
-        # Tolgo l'importo (valore negativo) per i gasisti
-        _insert_movimento(inputs | {
-            'per_id_utente': id_utente,
-            'importo': -1 * float(campagna['quota'])
-        })
+
         dbi.execute("SELECT id FROM utenti WHERE username = 'FCA'")
         fca_user = dbi.fetchone()
 
-        if fca_user:
-            # Usa l'utente FCA
+        if not fca_user:
+            flash('Impossibile completare il tesseramento: utente FCA non'
+                  ' configurato. Contattare un amministratore.', 'warning')
+            return render_template('auth/effettua_tesseramento.html',
+                                   campagna=campagna)
+
+        with atomic():
+            # Tolgo l'importo (valore negativo) per i gasisti
+            _insert_movimento(inputs | {
+                'per_id_utente': id_utente,
+                'importo': -1 * float(campagna['quota'])
+            })
+            # Accredito al fondo cassa (FCA)
             _insert_movimento(inputs | {
                 'per_id_utente': fca_user['id'],
                 'importo': float(campagna['quota'])

@@ -1,9 +1,12 @@
 venv/
+env/
 
 *.pyc
 __pycache__/
 
 instance/
+
+.claude/
 
 .pytest_cache/
 .coverage

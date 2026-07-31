@@ -67,26 +67,34 @@ def check_valid_date(date_text) -> dict:
 
 def _check(checks, inputs) -> dict:
 
-    for (what, check_object) in inputs.items():
+    for (what, checker) in checks.items():
+        check_object = inputs.get(what)
+
         if isinstance(check_object, list):
             for (idx, input_value) in enumerate(check_object):
-                if not fullmatch(checks[what].regex, input_value):
+                if not fullmatch(checker.regex, input_value):
                     return {
-                            'error_msg': checks[what].error_msg,
+                            'error_msg': checker.error_msg,
                             'id': str(idx),
                             'input_value': input_value,
                         }
-        elif isinstance(check_object, str):
-            if not checks[what].could_be_empty and not check_object:
+        else:
+            check_object = check_object or ''
+            if not isinstance(check_object, str):
+                # Alcuni chiamanti (es. giroconto_utente) costruiscono
+                # 'inputs' iniettando valori non-stringa (es. tipologia
+                # intera): fullmatch() richiede str, non deve esplodere.
+                check_object = str(check_object)
+            if not checker.could_be_empty and not check_object:
                 return {
                         'error_msg':
                                 "Il campo '" + what + "' non può essere vuoto",
                         'id': '0',
                         'input_value': check_object
                 }
-            if check_object and not fullmatch(checks[what].regex, check_object):
+            if check_object and not fullmatch(checker.regex, check_object):
                 return {
-                        'error_msg': checks[what].error_msg,
+                        'error_msg': checker.error_msg,
                         'id': '0',
                         'input_value': check_object,
                 }

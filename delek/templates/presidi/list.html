@@ -5,7 +5,7 @@
   <ul>
     <li><h1>{% block title %}Elenco Presidi{% endblock %}</h1></li>
     <li><a href="{{ url_for('presidi.vademecum') }}"><i>Vademecum</i></a></li>
-    <li><form action="{{ url_for('presidi.create') }}" method="post"><div class="group group-m">
+    <li><form action="{{ url_for('presidi.create') }}" method="post">{{ csrf_field() }}<div class="group group-m">
         <ul>
             <li><input type="date" value="{{ request.form.giorno | data_input if request.form }}" name="giorno" id="giorno" required/></li>
 {% if 'moderatore' in g.ruoli or 'presidi' in g.ruoli %}

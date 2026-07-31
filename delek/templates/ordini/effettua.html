@@ -33,7 +33,7 @@
     format(totale_ordine) }} &euro; </span>.</strong></p>
 {% endif %}
 
-<form method="post" accept-charset="utf-8">
+<form method="post" accept-charset="utf-8">{{ csrf_field() }}
   {% for prodotto in prodotti %}
 
   {% if loop.changed(prodotto.categoria) %}

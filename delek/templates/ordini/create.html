@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="container">
-  <form method="post">
+  <form method="post">{{ csrf_field() }}
 
     <div class="field">
       <strong>Produttore</strong>

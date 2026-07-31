@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-<form action="{{ url_for('movimenti.rettifica_utente') }}" method="post">
+<form action="{{ url_for('movimenti.rettifica_utente') }}" method="post">{{ csrf_field() }}
 
   <div id="select-per-utente" class="field">
     <p>Per l'utente:</p>

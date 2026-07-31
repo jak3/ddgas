@@ -18,7 +18,7 @@
     disponibili, nota);</li>
 </ol>
 
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data">{{ csrf_field() }}
   <div class="field">
     <p>Allega il file da importare:</p>
   </div>

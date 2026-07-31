@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS ricariche_esterne;
 DROP TABLE IF EXISTS nuovi_utenti;
 DROP TABLE IF EXISTS referenze;
 DROP TABLE IF EXISTS arruolati;
@@ -99,6 +100,25 @@ CREATE TABLE movimenti (
   effettuato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (per_id_utente) REFERENCES utenti (id),
   FOREIGN KEY (tipologia) REFERENCES tipologie_movimenti (id)
+);
+
+-- Traccia le ricariche avviate tramite un gateway di pagamento esterno
+-- (Stripe, Satispay, PayPal, ...). provider_ref è l'id che il gateway
+-- assegna all'operazione (es. Stripe Checkout Session id): la UNIQUE su
+-- (provider, provider_ref) è quello che garantisce che una notifica/webhook
+-- duplicata non accrediti due volte lo stesso pagamento.
+CREATE TABLE ricariche_esterne (
+  id SERIAL PRIMARY KEY,
+  provider VARCHAR(40) NOT NULL,
+  provider_ref TEXT NOT NULL,
+  id_utente INTEGER NOT NULL,
+  importo NUMERIC(7, 2) NOT NULL,
+  stato VARCHAR(20) NOT NULL DEFAULT 'creato',
+  id_movimento INTEGER,
+  creato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_utente) REFERENCES utenti (id),
+  FOREIGN KEY (id_movimento) REFERENCES movimenti (id),
+  UNIQUE (provider, provider_ref)
 );
 
 CREATE TABLE presidi (
