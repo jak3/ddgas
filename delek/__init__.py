@@ -109,9 +109,12 @@ def create_app(local=False):
             'require')
     else:
         # DELEK_LOCAL_DB permette ai test di puntare a un DB usa-e-getta
-        # (es. delek_test) senza toccare il delek di sviluppo.
+        # (es. delek_test) senza toccare il delek di sviluppo. DELEK_DB_HOST
+        # di default resta 127.0.0.1 (sviluppo locale nativo); in Docker
+        # Compose l'app deve invece raggiungere il servizio 'db' per nome.
         dbparams = "dbname=%s host=%s" % (
-            os.environ.get('DELEK_LOCAL_DB', 'delek'), '127.0.0.1')
+            os.environ.get('DELEK_LOCAL_DB', 'delek'),
+            os.environ.get('DELEK_DB_HOST', '127.0.0.1'))
 
     app.config.from_mapping(
         DB_PARAMS=dbparams,

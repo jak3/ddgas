@@ -1,0 +1,55 @@
+# Ambiente di sviluppo/test locale, non pensato per la produzione (vedi
+# DEV.md per il deploy Heroku). Avvio:
+#
+#   docker compose up
+#   docker compose exec app flask create-admin
+#
+# Il DB parte già popolato con dati di test (utenti mode/refe/teso/...,
+# alcuni produttori) da data/db/pg/dev_data.sql: le password sono negli
+# hash in quel file, non documentate qui di proposito (solo per test
+# locale, mai per un'istanza esposta).
+#
+# `docker compose down -v` cancella il volume del DB e riparte da zero
+# alla prossima `up` (utile per testare da capo una configurazione).
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: delek
+      POSTGRES_USER: delek
+      POSTGRES_PASSWORD: delek
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./data/db/pg/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./data/db/pg/bootstrap.sql:/docker-entrypoint-initdb.d/02-bootstrap.sql:ro
+      - ./data/db/pg/dev_data.sql:/docker-entrypoint-initdb.d/03-dev-data.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U delek"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    environment:
+      FLASK_APP: "delek:create_app(True)"
+      SECRET_KEY: dev
+      DELEK_LOCAL_DB: delek
+      DELEK_DB_HOST: db
+      # psycopg2/libpq leggono PGUSER/PGPASSWORD come fallback: DB_PARAMS
+      # (delek/__init__.py, ramo locale) specifica solo dbname/host.
+      PGUSER: delek
+      PGPASSWORD: delek
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

@@ -10,10 +10,11 @@ from delek import create_app
 TEST_DB = 'delek_test'
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCHEMA_SQL = os.path.join(ROOT, 'data', 'db', 'pg', 'schema.sql')
+DB_HOST = os.environ.get('DELEK_DB_HOST', '127.0.0.1')
 
 
 def _connect(dbname):
-    conn = psycopg2.connect(dbname=dbname, host='127.0.0.1')
+    conn = psycopg2.connect(dbname=dbname, host=DB_HOST)
     conn.autocommit = True
     return conn
 

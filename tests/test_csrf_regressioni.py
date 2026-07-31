@@ -7,11 +7,11 @@ csrf_token (CSRF resta attivo, non viene disabilitato) proprio per
 riprodurre le condizioni reali. """
 import psycopg2
 
-from tests.conftest import TEST_DB, get_csrf_token
+from tests.conftest import DB_HOST, TEST_DB, get_csrf_token
 
 
 def _connect():
-    conn = psycopg2.connect(dbname=TEST_DB, host='127.0.0.1')
+    conn = psycopg2.connect(dbname=TEST_DB, host=DB_HOST)
     conn.autocommit = True
     return conn
 

@@ -69,6 +69,26 @@ source env/bin/activate
 flask run
 ```
 
+## Docker (ambiente locale)
+
+Alternativa a Postgres installato nativamente (vedi sezione PG sotto, che
+su alcune distro richiede build da sorgente): `docker-compose.yml` avvia
+app + Postgres già inizializzato con schema e dati di test.
+
+```
+docker compose up
+docker compose exec app flask create-admin
+```
+
+Il DB è già popolato da `data/db/pg/dev_data.sql` (utenti di test
+mode/refe/teso/..., alcuni produttori). `docker compose down -v` cancella
+il volume e riparte da zero alla `up` successiva. Per lanciare i test
+dentro il container: `docker compose exec -e DELEK_DB_HOST=db app python -m pytest`.
+
+Pensato solo per sviluppo/test locale, non per il deploy in produzione
+(quello resta Heroku, vedi sotto — valutare un'immagine di produzione è
+un lavoro separato, non ancora fatto).
+
 ## Ricariche (Stripe, Satispay)
 
 Il blueprint `pagamenti` (`delek/controller/pagamenti.py`) viene registrato
