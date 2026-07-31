@@ -13,7 +13,8 @@ cliente.
 - Tagline/sottotitolo
 - Indirizzo e codice fiscale (partita IVA se presente)
 - Colore primario del brand (hex)
-- Logo (immagine, va in `delek/static/`)
+- Logo e favicon (immagini, vanno in `delek/static/`; finché non forniti
+  restano i placeholder generici di default)
 - Email di contatto generale e tecnica
 - Dati bancari: IBAN, intestazione conto, nome banca
 - Quota associativa annuale
@@ -45,9 +46,11 @@ in `DEV.md`):
 ## 2. File da modificare per una nuova istanza
 
 - `config/associazione.yaml` — tutti i dati pubblici sopra
-- `delek/static/<logo>` — sostituire l'immagine, aggiornare
-  `branding.logo` in `associazione.yaml` con il nome file
-- `delek/static/favicon.ico` — sostituire (non è configurabile via yaml)
+- `delek/static/<logo>` — aggiungere l'immagine reale, aggiornare
+  `branding.logo` in `associazione.yaml` con il nome file (di default punta
+  a `logo-placeholder.svg`, un segnaposto generico)
+- `delek/static/<favicon>` — stesso discorso per `branding.favicon`
+  (default `favicon-placeholder.svg`)
 - `delek/templates/regolamento.html` — sostituire il segnaposto
 - `delek/templates/chi-siamo.html` — sostituire il paragrafo finale
   (segnato con un commento `<!-- SEGNAPOSTO -->`)

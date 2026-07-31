@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Favicon placeholder">
+  <rect x="6" y="14" width="20" height="14" rx="1" fill="#555555"/>
+  <path d="M9 14 L11 6 M23 14 L21 6" stroke="#555555" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <line x1="10" y1="20" x2="22" y2="20" stroke="#f2f2f2" stroke-width="1.5"/>
+</svg>

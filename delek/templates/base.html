@@ -9,7 +9,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/turretcss/dist/turretcss.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename=associazione.branding.favicon) }}">
     <style>
       :root { --brand-color: {{ associazione.branding.colore_primario }}; }
       .background-red-gas { background-color: var(--brand-color); }

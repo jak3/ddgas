@@ -18,7 +18,11 @@ identita:
 
 branding:
   colore_primario: "#aa0033"
-  logo: "cestino.jpg"
+  # Placeholder generico: sostituire con il logo reale dell'associazione
+  # (basta cambiare il nome file qui sotto e aggiungere l'immagine in
+  # delek/static/).
+  logo: "logo-placeholder.svg"
+  favicon: "favicon-placeholder.svg"
 
 contatti:
   email: "infogas@googlegroups.com"
