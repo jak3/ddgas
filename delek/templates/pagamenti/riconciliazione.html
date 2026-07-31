@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Riconciliazione Pagamenti{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<p>Ricariche Stripe rimaste in stato <b>creato</b> da più di un'ora: la
+sessione è stata avviata ma non è mai arrivata una notifica di conferma o
+scadenza. Lo stato mostrato è letto adesso direttamente da Stripe.</p>
+
+{% for riga in sospese %}
+<div class="border group group-m group-stretch margin-top-xxs margin-bottom-xxs padding-xxs">
+  <ul class="{{ loop.cycle('','background-light-50') }}">
+    <li class="no-padding">{{ riga.creato_il | data }}</li>
+    <li class="no-padding">
+      <p class="no-padding no-margin">{{ riga.username }}</p>
+    </li>
+    <li class="no-padding"><b>{{ "%.2f €" | format(riga.importo) }}</b></li>
+    <li class="no-padding">
+      <p class="no-padding no-margin">Stripe: <b>{{ riga.stato_stripe }}</b>
+        {% if riga.pagamento_stripe %}({{ riga.pagamento_stripe }}){% endif %}</p>
+    </li>
+    <li class="no-padding">
+      <form method="post" style="display: inline"
+            action="{{ url_for('pagamenti.riconciliazione_sincronizza') }}">{{ csrf_field() }}
+        <input type="hidden" name="provider_ref" value="{{ riga.provider_ref }}">
+        <button type="submit" class="button button-warning button-border">Sincronizza</button>
+      </form>
+    </li>
+  </ul>
+</div>
+{% else %}
+<p>Nessuna ricarica sospesa da riconciliare.</p>
+{% endfor %}
+{% endblock %}

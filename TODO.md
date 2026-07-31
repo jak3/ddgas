@@ -86,6 +86,36 @@ Elenco di quanto già sistemato e di quanto resta da valutare.
     27 template) con uno script mirato sul tag `<form ...method="post"...>`
     per gestire anche i tag multi-riga.
 
+11. **Gestione rimborsi/pagamenti falliti Stripe** — `pagamenti.py` gestiva
+    solo `checkout.session.completed`: un rimborso o un pagamento mai
+    portato a termine dopo la creazione della sessione lasciavano
+    `ricariche_esterne`/`movimenti` scollegati dalla realtà (credito mai
+    revocato, o riga `creato` per sempre orfana).
+    → Aggiunta `annulla_pagamento()`, gemella idempotente di
+    `conferma_pagamento()`: su `charge.refunded` (rimborso totale) storna il
+    versamento con una `rettifica` (tipologia 5) di importo negativo e segna
+    `ricariche_esterne.stato = 'rimborsato'`; su `checkout.session.expired`
+    (sessione creata mai pagata) segna `stato = 'fallito'` senza toccare
+    `movimenti`, visto che nessun accredito era mai avvenuto. I rimborsi
+    parziali non vengono stornati in automatico (l'evento Stripe riporta
+    l'importo cumulativo, non l'incremento): restano da compensare a mano,
+    annotato nel codice.
+
+12. **Pagina di riconciliazione pagamenti Stripe** — nessun controllo
+    confrontava le sessioni Stripe con lo stato di `ricariche_esterne`: un
+    webhook mai consegnato (URL irraggiungibile, secret sbagliato, downtime)
+    lasciava un socio addebitato lato Stripe ma senza credito a bilancio,
+    senza alcun modo automatico per accorgersene.
+    → Aggiunta `/pagamenti/riconciliazione` (moderatore/tesoriere), che
+    elenca le righe `ricariche_esterne` rimaste in stato `creato` da più di
+    un'ora e ne mostra lo stato letto live dall'API Stripe (fonte
+    autoritativa, non duplicata in locale); bottone "Sincronizza" per riga
+    che richiama `conferma_pagamento()`/`annulla_pagamento()` a seconda
+    dell'esito reale, così resta idempotente e coerente col webhook. Non è
+    un job schedulato (nessuna infrastruttura di scheduling nell'app, solo
+    dyno `web` in `Procfile`): è una pagina da controllare manualmente,
+    sufficiente al volume di pagamenti attuale.
+
 ## Da valutare prima di andare in produzione
 
 - **Stripe: passare da secret key a Restricted API Key (RAK).** Per ora in

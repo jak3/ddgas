@@ -1,12 +1,12 @@
 """ Ricariche del proprio conto tramite gateway di pagamento esterni.
 
-Le funzioni registra_pagamento_creato()/conferma_pagamento() sono
-provider-agnostiche e vanno riusate da qualunque nuovo adattatore (Satispay,
-PayPal, ...): tengono traccia dello stato in ricariche_esterne e
-garantiscono che una stessa notifica ricevuta più volte dal gateway non
-accrediti due volte lo stesso pagamento. La parte sotto "Stripe" è invece
-specifica di quel provider (creazione della sessione di pagamento e verifica
-della firma del webhook).
+Le funzioni registra_pagamento_creato()/conferma_pagamento()/
+annulla_pagamento() sono provider-agnostiche e vanno riusate da qualunque
+nuovo adattatore (Satispay, PayPal, ...): tengono traccia dello stato in
+ricariche_esterne e garantiscono che una stessa notifica ricevuta più volte
+dal gateway non accrediti (o storni) due volte lo stesso pagamento. La
+parte sotto "Stripe" è invece specifica di quel provider (creazione della
+sessione di pagamento e verifica della firma del webhook).
 """
 import base64
 import hashlib
@@ -23,7 +23,7 @@ from flask import (
     Blueprint, abort, flash, g, redirect, render_template, request, url_for
 )
 
-from delek.controller.auth import login_required
+from delek.controller.auth import login_required, is_ruolo
 from delek.controller.db import get_db, atomic
 from delek.controller.movimenti import insert_movimento
 from delek.extensions import csrf
@@ -75,6 +75,49 @@ def conferma_pagamento(provider, provider_ref):
             UPDATE ricariche_esterne SET stato = 'completato'
             WHERE provider = %s AND provider_ref = %s
             """, (provider, provider_ref))
+
+    return True
+
+
+def annulla_pagamento(provider, provider_ref, motivo):
+    """ Gemella di conferma_pagamento(), per i due casi in cui un pagamento
+    tracciato non va a buon fine: un rimborso dopo l'accredito (stato
+    'completato' -> 'rimborsato', con uno storno registrato in movimenti) o
+    un pagamento mai arrivato a completamento (stato 'creato' -> 'fallito',
+    nessun movimento da stornare perché non ne era mai stato creato uno).
+    Idempotente come conferma_pagamento(): un pagamento già rimborsato/
+    fallito, o mai tracciato, non viene ritoccato. Ritorna True se ha agito
+    ora, False altrimenti. """
+    dbi = get_db()
+
+    with atomic():
+        dbi.execute("""
+            SELECT * FROM ricariche_esterne
+            WHERE provider = %s AND provider_ref = %s
+            FOR UPDATE
+            """, (provider, provider_ref))
+        pagamento = dbi.fetchone()
+
+        if not pagamento or pagamento['stato'] not in ('creato', 'completato'):
+            return False
+
+        if pagamento['stato'] == 'completato':
+            nuovo_stato = 'rimborsato'
+            insert_movimento({
+                'tipologia': 5,  # rettifica
+                'per_id_utente': pagamento['id_utente'],
+                'descrizione': '[Ricarica {0}] Storno per {1}'.format(
+                    provider, motivo),
+                'importo': -float(pagamento['importo']),
+            })
+        else:
+            nuovo_stato = 'fallito'
+
+        dbi.execute("""
+            UPDATE ricariche_esterne
+            SET stato = %s
+            WHERE provider = %s AND provider_ref = %s
+            """, (nuovo_stato, provider, provider_ref))
 
     return True
 
@@ -156,7 +199,98 @@ def webhook_stripe():
     if event['type'] == 'checkout.session.completed':
         conferma_pagamento('stripe', event['data']['object']['id'])
 
+    elif event['type'] == 'checkout.session.expired':
+        # Sessione creata (riga 'creato' in ricariche_esterne) ma mai
+        # portata a termine dall'utente: niente da stornare, solo da
+        # marcare come fallita per non lasciarla 'creato' per sempre.
+        annulla_pagamento('stripe', event['data']['object']['id'],
+                          'sessione scaduta senza pagamento')
+
+    elif event['type'] == 'charge.refunded':
+        charge = event['data']['object']
+        if charge.get('refunded'):
+            # Rimborso totale. Un rimborso parziale (refunded=False ma
+            # amount_refunded>0) non viene stornato automaticamente: qui
+            # arriverebbe solo l'importo cumulativo rimborsato finora, non
+            # l'incremento, quindi andrebbe gestito a mano con una
+            # rettifica su movimenti.
+            sessioni = stripe.checkout.Session.list(
+                payment_intent=charge['payment_intent'], limit=1)
+            if sessioni.data:
+                annulla_pagamento('stripe', sessioni.data[0].id,
+                                  'rimborso Stripe')
+
     return '', 200
+
+
+@bp.route('/riconciliazione')
+@login_required
+@is_ruolo(['moderatore', 'tesoriere'])
+def riconciliazione():
+    """ Pagina di controllo per le ricariche Stripe rimaste 'creato' oltre
+    una finestra ragionevole: un webhook mai consegnato (URL irraggiungibile,
+    secret sbagliato, downtime) lascerebbe altrimenti la riga silenziosamente
+    disallineata da Stripe, senza nessun modo automatico di accorgersene.
+    Lo stato mostrato per ogni riga è letto live dall'API Stripe (unica
+    fonte autoritativa), non duplicato in locale. """
+    dbi = get_db()
+    dbi.execute("""
+        SELECT ricariche_esterne.*, utenti.username
+        FROM ricariche_esterne
+        INNER JOIN utenti ON utenti.id = ricariche_esterne.id_utente
+        WHERE ricariche_esterne.provider = 'stripe'
+          AND ricariche_esterne.stato = 'creato'
+          AND ricariche_esterne.creato_il < NOW() - INTERVAL '1 hour'
+        ORDER BY ricariche_esterne.creato_il
+        """)
+
+    sospese = []
+    for riga in dbi.fetchall():
+        riga = dict(riga)
+        try:
+            sessione = stripe.checkout.Session.retrieve(riga['provider_ref'])
+            riga['stato_stripe'] = sessione.status
+            riga['pagamento_stripe'] = sessione.payment_status
+        except stripe.error.StripeError:
+            riga['stato_stripe'] = 'errore lettura da Stripe'
+            riga['pagamento_stripe'] = None
+        sospese.append(riga)
+
+    return render_template('pagamenti/riconciliazione.html', sospese=sospese)
+
+
+@bp.route('/riconciliazione/sincronizza', methods=('POST',))
+@login_required
+@is_ruolo(['moderatore', 'tesoriere'])
+def riconciliazione_sincronizza():
+    """ Rilegge lo stato autoritativo da Stripe per una singola riga sospesa
+    e applica l'accredito o l'annullamento di conseguenza, invece di
+    aspettare (o inseguire) un webhook che potrebbe non essere mai arrivato.
+    Riusa conferma_pagamento()/annulla_pagamento(), quindi resta idempotente
+    e coerente con quanto farebbe il webhook stesso. """
+    provider_ref = request.form['provider_ref']
+    sessione = stripe.checkout.Session.retrieve(provider_ref)
+
+    if sessione.payment_status == 'paid':
+        if conferma_pagamento('stripe', provider_ref):
+            flash('Ricarica {0} accreditata manualmente'
+                  .format(provider_ref), 'success')
+        else:
+            flash('Ricarica {0} già gestita o non tracciata'
+                  .format(provider_ref), 'warning')
+    elif sessione.status == 'expired':
+        if annulla_pagamento('stripe', provider_ref,
+                             'sessione scaduta (sincronizzazione manuale)'):
+            flash('Ricarica {0} marcata come non riuscita'
+                  .format(provider_ref), 'success')
+        else:
+            flash('Ricarica {0} già gestita o non tracciata'
+                  .format(provider_ref), 'warning')
+    else:
+        flash('Ricarica {0} ancora in corso lato Stripe, nessuna azione'
+              .format(provider_ref), 'warning')
+
+    return redirect(url_for('pagamenti.riconciliazione'))
 
 
 # --- Satispay -----------------------------------------------------------
