@@ -1,5 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Favicon placeholder">
-  <rect x="6" y="14" width="20" height="14" rx="1" fill="#555555"/>
-  <path d="M9 14 L11 6 M23 14 L21 6" stroke="#555555" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-  <line x1="10" y1="20" x2="22" y2="20" stroke="#f2f2f2" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Favicon placeholder: cesta di prodotti">
+  <circle cx="16" cy="10" r="4.5" fill="#e08e45"/>
+  <path d="M10 15 Q7 10 12 8" fill="none" stroke="#a56a3a" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M22 15 Q25 10 20 8" fill="none" stroke="#a56a3a" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M9 15 L23 15 L20.5 26 Q16 28 11.5 26 Z" fill="#c98a4f"/>
+  <rect x="8" y="13.5" width="16" height="3" rx="1.5" fill="#a56a3a"/>
 </svg>

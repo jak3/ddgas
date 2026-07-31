@@ -1,23 +1,27 @@
 # Configurazione dell'associazione che usa questa istanza.
-# Per personalizzare il prodotto per un nuovo GAS: modificare i valori qui
-# sotto (e il logo in delek/static/) e ridistribuire. Nessuna modifica al
-# codice dovrebbe essere necessaria per questi dati.
+#
+# ATTENZIONE: i valori sotto sono un ESEMPIO segnaposto, non dati reali di
+# nessuna associazione — vanno sostituiti per intero prima di andare in
+# produzione. Per personalizzare il prodotto per un nuovo GAS: modificare i
+# valori qui sotto (e logo/favicon in delek/static/, vedi ONBOARDING.md) e
+# ridistribuire. Nessuna modifica al codice dovrebbe essere necessaria per
+# questi dati.
 #
 # Attenzione: qui vanno solo dati pubblici. Chiavi/segreti (Stripe, Satispay,
 # PayPal, SendGrid, credenziali DB...) restano variabili d'ambiente, mai in
 # questo file.
 
 identita:
-  nome: "Associazione Gas Malatesta APS"
-  nome_breve: "GAS Malatesta"
-  tagline: "Gruppo di acquisto solidale di Cesena"
-  slug: "gas-malatesta"
-  indirizzo: "via Termoli 301, 47521 Cesena"
-  codice_fiscale: "90085730407"
+  nome: "Nome Associazione APS"
+  nome_breve: "Il Tuo GAS"
+  tagline: "Gruppo di acquisto solidale"
+  slug: "il-tuo-gas"
+  indirizzo: "Via Esempio 1, 00000 Città (XX)"
+  codice_fiscale: "00000000000"
   partita_iva: null
 
 branding:
-  colore_primario: "#aa0033"
+  colore_primario: "#2f6f4f"
   # Placeholder generico: sostituire con il logo reale dell'associazione
   # (basta cambiare il nome file qui sotto e aggiungere l'immagine in
   # delek/static/).
@@ -25,22 +29,23 @@ branding:
   favicon: "favicon-placeholder.svg"
 
 contatti:
-  email: "infogas@googlegroups.com"
-  email_tecnico: "malatech@googlegroups.com"
+  email: "info@esempio.org"
+  email_tecnico: "tecnico@esempio.org"
 
 bancari:
-  iban: "IT04K0707023900000000417760"
-  intestazione: "Associazione Gas Malatesta APS"
-  banca: "Banca di Credito Cooperativo Romagnolo BCC di Cesena e Gatteo Società Cooperativa"
+  iban: "IT00X0000000000000000000000"
+  intestazione: "Nome Associazione APS"
+  banca: "Nome Banca"
 
 regole:
-  quota_associativa_annuale: 5
+  quota_associativa_annuale: 20
   # Il tesseramento gestito dall'app (pagamento quota, movimento in cassa)
   # è sempre e solo l'adesione all'associazione stessa. tessera_ente_terzo
   # NON fa parte di quel processo: serve solo a tracciare, come informazione
   # facoltativa, il numero di una tessera di un ente esterno (es. ARCI) che
   # il socio procura autonomamente fuori dall'app, quando lo statuto lo
-  # richiede come requisito parallelo per l'iscrizione.
+  # richiede come requisito parallelo per l'iscrizione. Disattivato di
+  # default: la maggior parte dei GAS non ha questo vincolo.
   tessera_ente_terzo:
-    richiesta: true
+    richiesta: false
     nome_ente: "ARCI"
