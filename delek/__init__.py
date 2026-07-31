@@ -102,6 +102,11 @@ def create_app(local=False):
                 return {'saldo_basso': saldo}
         return {'saldo_basso': None}
 
+    @app.context_processor
+    def inject_anno_corrente():
+        """ Per il copyright nel footer di base.html. """
+        return {'anno_corrente': datetime.now().year}
+
     if not local:
         url = urlparse(os.environ.get('DATABASE_URL'))
         dbparams = "dbname=%s user=%s password=%s host=%s sslmode=%s" % (

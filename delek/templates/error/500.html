@@ -3,5 +3,5 @@
 {% block header %}
   <h1>{% block title %}Errore ( 500 ){% endblock %}</h1>
   <h3>Sono stati riscontrati errori nell'operazione richiesta.</h3>
-  <p>Contattare <b>malatech@googlegroups.com</b> o direttamente <b>Giacomo</b>.</p>
+  <p>Contattare <b>{{ associazione.contatti.email_tecnico }}</b>.</p>
 {% endblock %}
