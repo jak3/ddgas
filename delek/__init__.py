@@ -4,13 +4,15 @@ from urllib.parse import urlparse
 
 from datetime import datetime
 
+import click
 import yaml
 from flask import (Flask, render_template, g, redirect, url_for)
 from flask_wtf.csrf import generate_csrf
 from markupsafe import Markup
+from werkzeug.security import generate_password_hash
 
 from delek.extensions import csrf
-from delek.controller.db import init_app
+from delek.controller.db import get_db, init_app
 from delek.controller.auth import bp as auth_bp
 from delek.controller.istruzioni import bp as istruzioni_bp
 from delek.controller.listini import bp as listini_bp
@@ -170,5 +172,48 @@ def create_app(local=False):
     app.register_blueprint(ruoli_bp)
     app.register_blueprint(stampa_bp)
     app.add_url_rule('/', endpoint='index')
+
+    @app.cli.command('create-admin')
+    @click.option('--username', prompt=True)
+    @click.option('--email', prompt=True)
+    @click.option('--password', prompt=True, hide_input=True,
+                  confirmation_prompt=True)
+    def create_admin(username, email, password):
+        """ Crea il primo utente con ruolo moderatore per una nuova
+        istanza (già attivo, non passa dal flusso di attivazione email).
+        Utile subito dopo aver applicato schema.sql/bootstrap.sql, quando
+        non esiste ancora nessuno con i permessi per assegnare ruoli da
+        interfaccia. """
+        dbi = get_db()
+
+        dbi.execute('SELECT id FROM utenti WHERE username = %s', (username,))
+        if dbi.fetchone():
+            click.echo("Utente '{0}' già esistente.".format(username))
+            return
+
+        dbi.execute("""
+            INSERT INTO utenti (username, password, email, attivo)
+            VALUES (%s, %s, %s, TRUE) RETURNING id
+            """, (username, generate_password_hash(password), email))
+        id_utente = dbi.fetchone()['id']
+
+        dbi.execute("SELECT id FROM ruoli WHERE ruolo = 'moderatore'")
+        ruolo = dbi.fetchone()
+        if ruolo:
+            id_ruolo = ruolo['id']
+        else:
+            dbi.execute("""
+                INSERT INTO ruoli (ruolo, descrizione) VALUES ('moderatore',
+                    'Aggiunge produttori, assegna referenti, gestisce i membri')
+                RETURNING id
+                """)
+            id_ruolo = dbi.fetchone()['id']
+
+        dbi.execute(
+            'INSERT INTO arruolati (id_ruolo, id_utente) VALUES (%s, %s)',
+            (id_ruolo, id_utente))
+
+        click.echo("Utente '{0}' creato con ruolo moderatore.".format(
+            username))
 
     return app

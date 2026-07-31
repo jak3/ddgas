@@ -65,12 +65,18 @@ psql <nome_db> -f data/db/pg/bootstrap.sql
 `bootstrap.sql` crea solo i dati minimi richiesti dal codice (tipologie di
 movimento, ruoli), nessun dato reale.
 
-Dopo il primo avvio, va creato a mano il primo utente moderatore (via
-`/auth/register` + una promozione a ruolo `moderatore` fatta direttamente
-in DB, visto che nessun utente ha ancora i permessi per farlo da
-interfaccia) e, se si useranno i tesseramenti, un utente `FCA` (fondo
-cassa associazione) che riceve gli accrediti delle quote — vedi
-`effettua_tesseramento()` in `auth.py`.
+Dopo il primo avvio, crea il primo utente moderatore con:
+
+```
+flask create-admin
+```
+
+(chiede username/email/password interattivamente; l'utente creato è già
+attivo e con ruolo moderatore, senza passare dal flusso di attivazione via
+email). Se si useranno i tesseramenti, va creato anche un utente `FCA`
+(fondo cassa associazione) che riceve gli accrediti delle quote — vedi
+`effettua_tesseramento()` in `auth.py`; nessun comando dedicato per ora,
+va fatto da interfaccia (Membri → assegna ruolo) o a mano in DB.
 
 ## 4. Variabili d'ambiente
 

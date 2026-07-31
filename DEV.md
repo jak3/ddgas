@@ -7,11 +7,6 @@
 
 ## Nuove Funzionalità
 
-- Comando CLI (`flask create-admin` o simile) per creare il primo utente
-  moderatore in una nuova istanza. Oggi va fatto a mano in DB dopo il
-  primo `/auth/register` (vedi `ONBOARDING.md`), scomodo per attivare
-  rapidamente una nuova istanza.
-
 ## Controller / Python
 
 - Uniformare e formattare codice
