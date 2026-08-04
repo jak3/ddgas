@@ -76,7 +76,7 @@ CREATE TABLE dettagli_ordini (
   id_produttore INTEGER UNIQUE NOT NULL,
   scadenza TIMESTAMPTZ NOT NULL,
   consegna TIMESTAMPTZ NOT NULL,
-  minimo_ordine NUMERIC(7, 2) DEFAULT 0,
+  minimo_ordine NUMERIC(7, 2) NOT NULL DEFAULT 0,
   nota TEXT,
   FOREIGN KEY (id_produttore) REFERENCES produttori (id)
 );

@@ -285,10 +285,10 @@ values
 
 insert into dettagli_ordini (id_produttore, scadenza, consegna, nota, minimo_ordine)
 values
-  (1, '2021-05-25', '2021-05-30', 'Ultima settimana per i lischi', NULL),
-  (2, '2021-02-25', '2021-03-21', NULL, NULL),
+  (1, '2021-05-25', '2021-05-30', 'Ultima settimana per i lischi', 0),
+  (2, '2021-02-25', '2021-03-21', NULL, 0),
   (3, '2021-02-03', '2021-02-21', 'Packaging nuovo', 400),
-  (5, '2020-08-09', '2020-10-21', NULL, NULL) ON CONFLICT DO NOTHING;
+  (5, '2020-08-09', '2020-10-21', NULL, 0) ON CONFLICT DO NOTHING;
 
 -- Le rettifiche presenti nei movimenti, sono da considerare solo nel caso un
 -- referente si sbagli durante la fase di chiusura di un ordine, in cui viene
