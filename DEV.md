@@ -4,7 +4,6 @@
 
 ## View / HTML
 
-- Uniformare movimenti/list e movimenti/list_all (il codice Ereditarietà)
 - bottone "Vedi Contatti" in list_produttori da esplicitare un pochino di che
   contatto si tratta e renderlo visibilmente più carino
 

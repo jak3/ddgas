@@ -25,21 +25,7 @@
 
   <div class="group group-xs group-column">
     <ul>
-      <li class="border-bottom">
-        <div class="group group-xs group-space-between margin-xxs">
-          <ul>
-            <li>
-              <p class="control flex">
-              <label class="control-label padding-xxs">Dal:</label><input class="no-margin" type="date" id="da_data" value="{{ request.form.da_data }}"/>
-              <label class="control-label padding-xxs">Al:</label><input class="no-margin" type="date" id="a_data" value="{{ request.form.a_data }}"/>
-              </p>
-            </li>
-            <li>
-              <button type="submit" class="button button-warning button-border">Filtra Date</button>
-            </li>
-          </ul>
-        </div>
-      </li>
+      {% include 'movimenti/_filtro_date.html' %}
       <li class="border-bottom">
         <div class="group group-xs group-space-between margin-xxs">
           <ul>
@@ -96,38 +82,10 @@
 <p>Totale portafoglio utente: <b>{{ totale_utente }} &euro;</b></p>
 {% endif %}
 
+{% set vista_completa = true %}
 {% for movimento in movimenti %}
-<div class="border group group-m group-stretch margin-top-xxs margin-bottom-xxs padding-xxs">
-  <ul class="{{ loop.cycle('','background-light-50') }}">
-    <li class="no-padding">{{ movimento.effettuato_il | data }}</li>
-    <li class="no-padding">
-      {% if movimento.nome or movimento.cognome %}
-      <p class="no-padding no-margin">{{ [movimento.nome or '', movimento.cognome or ''] | join(' ') }}</p>
-      {% endif %}
-      {% if movimento.username %}
-      <p class="no-padding no-margin">{{ ['(', movimento.username, ')'] | join(' ') }}</p>
-      {% else %}
-      <p class="no-padding no-margin">Cassa</p>
-      {% endif %}
-    </li>
-    <li class="no-padding"><b>{{ "%.2f €" | format(movimento.importo) }}</b></li>
-    <li class="no-padding">{{ movimento.descrizione if movimento.descrizione }}
-      {% if movimento.produttore %}
-      (<b> {{ movimento.produttore }} </b>)
-      {% endif %}
-    </li>
-    {% if 'tesoriere' in g.ruoli %}
-    <li class="no-padding">
-      <form method="post" style="display: inline"
-            action="{{ url_for('movimenti.delete', id_movimento=movimento.id) }}"
-            onsubmit="return confirm('Cancellare definitivamente il movimento?\n{{ movimento | movimento }}');">{{ csrf_field() }}
-        <button type="submit" class="button button-square color-error"
-                aria-label="Cancella movimento">&#128465;</button>
-      </form>
-    </li>
-    {% endif %}
-  </ul>
-</div>
+{% set riga_classe = loop.cycle('','background-light-50') %}
+{% include 'movimenti/_riga_movimento.html' %}
 {% else %}
 Non sono presenti movimenti.
 {% endfor %}

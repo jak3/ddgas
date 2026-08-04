@@ -1,0 +1,18 @@
+{# Richiede 'with context' all'include: usa request.form per ripopolare i
+   valori dopo il submit. Il <form> (action, metodo, csrf) resta a carico
+   del template chiamante, qui c'è solo il contenuto del filtro date. #}
+<li class="border-bottom">
+  <div class="group group-xs group-space-between margin-xxs">
+    <ul>
+      <li>
+        <p class="control flex">
+        <label class="control-label padding-xxs">Dal:</label><input class="no-margin" type="date" id="da_data" name="da_data" value="{{ request.form.da_data }}"/>
+        <label class="control-label padding-xxs">Al:</label><input class="no-margin" type="date" id="a_data" name="a_data" value="{{ request.form.a_data }}"/>
+        </p>
+      </li>
+      <li>
+        <button type="submit" class="button button-warning button-border">Filtra Date</button>
+      </li>
+    </ul>
+  </div>
+</li>

@@ -1,0 +1,39 @@
+{# Richiede: movimento, riga_classe (loop.cycle(...) del chiamante: 'loop'
+   non è disponibile dentro un include, va passato come variabile), e
+   opzionale vista_completa (bool, default false/undefined): mostra
+   intestatario, produttore e pulsante di cancellazione (solo tesoriere),
+   come in movimenti/list_all.html. La vista ridotta (movimenti/list.html,
+   uso personale) mostra solo data/importo/descrizione. #}
+<div class="border group group-m {{ 'group-stretch' if vista_completa }} margin-top-xxs margin-bottom-xxs padding-xxs">
+  <ul class="{{ riga_classe }}">
+    <li class="no-padding">{{ movimento.effettuato_il | data }}</li>
+    {% if vista_completa %}
+    <li class="no-padding">
+      {% if movimento.nome or movimento.cognome %}
+      <p class="no-padding no-margin">{{ [movimento.nome or '', movimento.cognome or ''] | join(' ') }}</p>
+      {% endif %}
+      {% if movimento.username %}
+      <p class="no-padding no-margin">{{ ['(', movimento.username, ')'] | join(' ') }}</p>
+      {% else %}
+      <p class="no-padding no-margin">Cassa</p>
+      {% endif %}
+    </li>
+    {% endif %}
+    <li class="no-padding"><b>{{ "%.2f €" | format(movimento.importo) }}</b></li>
+    <li class="no-padding"{% if not vista_completa %} style="flex:auto"{% endif %}>{{ movimento.descrizione if movimento.descrizione }}
+      {% if vista_completa and movimento.produttore %}
+      (<b> {{ movimento.produttore }} </b>)
+      {% endif %}
+    </li>
+    {% if vista_completa and 'tesoriere' in g.ruoli %}
+    <li class="no-padding">
+      <form method="post" style="display: inline"
+            action="{{ url_for('movimenti.delete', id_movimento=movimento.id) }}"
+            onsubmit="return confirm('Cancellare definitivamente il movimento?\n{{ movimento | movimento }}');">{{ csrf_field() }}
+        <button type="submit" class="button button-square color-error"
+                aria-label="Cancella movimento">&#128465;</button>
+      </form>
+    </li>
+    {% endif %}
+  </ul>
+</div>
