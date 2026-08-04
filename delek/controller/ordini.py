@@ -7,6 +7,7 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, send_file
 )
 
+from delek.controller.tempo import adesso, da_form
 from delek.model.checks import (
     check_inputs_ordine, check_inputs_dettagli_ordine, check_inputs_rettifiche
 )
@@ -69,7 +70,7 @@ def list_ordini():
             da_chi_ordino.append(ordine['id_produttore'])
 
     ordini_scadenza = list(
-        filter(lambda o: o['scadenza'] >= datetime.now(),
+        filter(lambda o: o['scadenza'] >= adesso(),
                dettagli_ordini))
 
     # Rimozione direttamente nel DB
@@ -77,8 +78,8 @@ def list_ordini():
 
     prossime_consegne = list(
         filter(lambda o:
-               o['scadenza'] < datetime.now() and
-               o['consegna'] >= datetime.now() and
+               o['scadenza'] < adesso() and
+               o['consegna'] >= adesso() and
                # escludo gli ordini che non hanno raggiunto il minimo d'ordine
                float(o['minimo_ordine']) <
                sum(get_spesa_totale_utenti(o['id_produttore']).values()),
@@ -95,7 +96,7 @@ def list_ordini():
         key=lambda o: o['consegna'])
 
     ordini_in_rettifica = sorted(list(
-        filter(lambda o: o['consegna'] < datetime.now() and
+        filter(lambda o: o['consegna'] < adesso() and
                (o['id_produttore'] in da_chi_ordino or
                 o['id_produttore'] in g.referenze or
                 'moderatore' in g.ruoli),
@@ -272,10 +273,10 @@ def create():
             error = {'error_msg': 'Date di scadenza e consegna richieste'}
 
         try:
-            if any(datetime.now() > d for d in [
-                (datetime.fromisoformat(request.form['scadenza'])
+            if any(adesso() > d for d in [
+                (da_form(request.form['scadenza'])
                  + timedelta(hours=22)),
-                (datetime.fromisoformat(request.form['consegna'])
+                (da_form(request.form['consegna'])
                  + timedelta(hours=19))
             ]):
                 error = {'error_msg':
@@ -303,9 +304,9 @@ def create():
             inputs.pop('csrf_token', None)
             if inputs['minimo_ordine'] == '':
                 inputs['minimo_ordine'] = 0
-            inputs['scadenza'] = str(datetime.fromisoformat(inputs['scadenza'])
+            inputs['scadenza'] = str(da_form(inputs['scadenza'])
                                      + timedelta(hours=22))
-            inputs['consegna'] = str(datetime.fromisoformat(inputs['consegna'])
+            inputs['consegna'] = str(da_form(inputs['consegna'])
                                      + timedelta(hours=19))
             dbi.execute(
                 """
@@ -360,19 +361,19 @@ def update(id_produttore):
         error = check_inputs_dettagli_ordine(request.form)
 
         try:
-            scadenza = datetime.fromisoformat(
+            scadenza = da_form(
                 request.form['scadenza']) + timedelta(hours=22)
-            consegna = datetime.fromisoformat(
+            consegna = da_form(
                 request.form['consegna']) + timedelta(hours=19)
 
             if ('scadenza' in request.form and
                     dettaglio['scadenza'] != scadenza):
-                if datetime.now() > scadenza:
+                if adesso() > scadenza:
                     error = {'error_msg':
                              'Non è consentito impostare scadenza nel passato'}
             if ('consegna' in request.form and
                     dettaglio['consegna'] != consegna):
-                if datetime.now() > consegna:
+                if adesso() > consegna:
                     error = {'error_msg':
                              'Non è consentito impostare consegna nel passato'}
         except ValueError:
@@ -411,7 +412,7 @@ def update(id_produttore):
     return render_template('ordini/update.html',
                            produttore=get_produttore(id_produttore),
                            dettaglio=dettaglio,
-                           today=datetime.today(),
+                           today=adesso(),
                            )
 
 
@@ -453,14 +454,14 @@ def close(id_produttore):
                                produttore=get_produttore(id_produttore),
                                dettaglio=_get_dettaglio(id_produttore),
                                sicuro_close=True,
-                               today=datetime.today(),
+                               today=adesso(),
                                )
 
     return render_template('ordini/update.html',
                            produttore=get_produttore(id_produttore),
                            dettaglio=_get_dettaglio(id_produttore),
                            sicuro_close=False,
-                           today=datetime.today(),
+                           today=adesso(),
                            )
 
 
@@ -477,7 +478,7 @@ def delete(id_produttore):
                                produttore=get_produttore(id_produttore),
                                dettaglio=_get_dettaglio(id_produttore),
                                sicuro=True,
-                               today=datetime.today(),
+                               today=adesso(),
                                )
 
     if 'conferma' in request.form:

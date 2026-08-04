@@ -22,9 +22,9 @@
 <p>Quando mi accorgo che i soldi stanno finendo (vedi punto 3) effettuo un altro versamento.</p>
 <p><strong>Attenzione!</strong> Ricordatevi che da quando fate il bonifico al momento nel quale troverete i soldi accreditati sul conto GAS <strong>possono passare anche diversi giorni (fino a 1 settimana)</strong> quindi calcolate bene i tempi se avete un ordine in programma.</p>
 <p>Questo è il semplice funzionamento, ovvero ciò che ogni gasista ha bisogno di sapere per aderire al prepagato. Ciò che il singolo gasista che acquista deve fare è semplicemente versare soldi nel conto corrente e sincerarsi che il suo saldo sia sempre più o meno sufficiente per far fronte ai suoi acquisti.</p>
-<p>Il gas ha un costo. Per questo motivo ogni gasista versa {{ associazione.regole.quota_associativa_annuale }} euro di quota associativa annuale. La quota associativa viene utilizzata per coprire i costi di gestione del conto, l'hosting del sito, l'acquisto di attrezzature da tenere al Magazzino Parallelo (bilancia, frigorifero, ecc).</p>
+<p>Il gas ha un costo. Per questo motivo ogni gasista versa {{ associazione.regole.quota_associativa_annuale }} euro di quota associativa annuale. La quota associativa viene utilizzata per coprire i costi di gestione del conto, l'hosting del sito, l'acquisto di attrezzature da tenere presso {{ associazione.identita.sede }} (bilancia, frigorifero, ecc).</p>
 {% if associazione.regole.tessera_ente_terzo.richiesta %}
-<p>Il Magazzino Parallelo è un circolo ARCI. Per poter accedere e per potersi iscrivere al GAS è quindi necessario avere la tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }}.</p>
+<p>Per poter accedere e per potersi iscrivere al GAS è necessario avere la tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }}.</p>
 {% endif %}
 <p>{{ associazione.identita.nome }}, {{ associazione.identita.indirizzo }} C.F. {{ associazione.identita.codice_fiscale }}</p>
 <p>Un paio di precisazioni:</p>

@@ -1,7 +1,6 @@
 """ Gestione dei Listini di ogni produttore """
 import csv
 from io import BytesIO
-from datetime import datetime
 from psycopg2.extensions import AsIs
 
 from flask import (
@@ -12,6 +11,7 @@ from delek.model.checks import check_inputs_listino
 from delek.controller.auth import login_required, is_ruolo
 from delek.controller.db import get_db
 from delek.controller.produttori import get_produttore
+from delek.controller.tempo import adesso
 
 bp = Blueprint('listini', __name__, url_prefix='/listini/<int:id_produttore>')
 
@@ -167,7 +167,7 @@ def update(id_produttore):
         """, (id_produttore,))
     ordine_aperto = dbi.fetchone()
 
-    if ordine_aperto and ordine_aperto['consegna'] > datetime.today():
+    if ordine_aperto and ordine_aperto['consegna'] > adesso():
         flash('Non è possibile modificare il listino non consegnato o aperto',
               'warning')
         return redirect(url_for('listini.list_prodotti',

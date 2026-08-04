@@ -23,6 +23,12 @@ def get_db():
             cursor_factory=DictCursor,
         )
         conn.set_session(autocommit=True)
+        # Tutte le colonne timestamptz vanno interpretate/mostrate in ora
+        # italiana, indipendentemente dal fuso del server (es. UTC su
+        # Heroku): un solo punto per tutta l'app invece di 'at time zone'
+        # sparso nelle query.
+        with conn.cursor() as cur:
+            cur.execute("SET TIME ZONE 'Europe/Rome'")
         g.db = conn.cursor()
 
     return g.db

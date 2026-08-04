@@ -1,10 +1,5 @@
 # TO DO
 
-## Fixes
-
-- SINGLE_LINE_STRING in model.checks permette stringhe vuote, disabilitare?
-- gestire tutte le date (scadenza e consegna) con `timestamp` 'with timezone'
-
 ## Nuove Funzionalità
 
 ## Controller / Python
@@ -88,6 +83,19 @@ dentro il container: `docker compose exec -e DELEK_DB_HOST=db app python -m pyte
 Pensato solo per sviluppo/test locale, non per il deploy in produzione
 (quello resta Heroku, vedi sotto — valutare un'immagine di produzione è
 un lavoro separato, non ancora fatto).
+
+## Fuso orario (scadenza, consegna, ecc)
+
+Tutte le colonne data sono `TIMESTAMPTZ`. `delek.controller.db.get_db()`
+imposta `SET TIME ZONE 'Europe/Rome'` su ogni connessione, quindi
+`CURRENT_TIMESTAMP`/`now()` lato Postgres sono già in ora italiana
+indipendentemente dal fuso del server (es. UTC su Heroku). Lato Python, usa
+sempre `delek.controller.tempo.adesso()` invece di `datetime.now()`/
+`datetime.today()`, e `tempo.da_form(...)` invece di
+`datetime.fromisoformat(...)` per i valori letti da form: entrambe
+ritornano `datetime` "aware" ancorati a Europe/Rome, indispensabile per
+confrontarli con i valori (ora aware) letti dal DB senza sollevare
+`TypeError`.
 
 ## Ricariche (Stripe, Satispay)
 

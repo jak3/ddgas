@@ -1,7 +1,6 @@
 """ Gestione dei Movimenti di ogni produttore """
 import csv
 import json
-from datetime import datetime
 from io import StringIO, BytesIO
 
 from flask import (
@@ -21,6 +20,7 @@ from delek.controller.auth import (
     login_required, is_ruolo, get_utenti, get_utente_by_id
 )
 from delek.controller.db import get_db, atomic
+from delek.controller.tempo import da_form
 
 bp = Blueprint('movimenti', __name__, url_prefix='/movimenti')
 
@@ -516,7 +516,7 @@ def aggiusta_ordine_chiuso():
         # se uguali, lascio il mondo come sta.
         nuovo_totale = (float(sum([o['importo'] for o in
                                    get_storico_ordini(id_produttore,
-                                   datetime.fromisoformat(request.form['data'])
+                                   da_form(request.form['data'])
                                                       )]
                                   )) - float(request.form['nuovo_totale']))
         if not nuovo_totale:

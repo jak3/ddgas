@@ -19,6 +19,10 @@ identita:
   indirizzo: "Via Esempio 1, 00000 Città (XX)"
   codice_fiscale: "00000000000"
   partita_iva: null
+  # Nome del luogo fisico di ritiro/magazzino, se ne avete uno con un nome
+  # proprio (es. "Magazzino Parallelo" per GAS Malatesta). Puo' differire
+  # dall'indirizzo legale qui sopra.
+  sede: "la sede del gas"
 
 branding:
   colore_primario: "#2f6f4f"

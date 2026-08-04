@@ -1,6 +1,5 @@
 """ Support functions to controller/ordini """
 import json
-from datetime import datetime
 from functools import wraps
 
 from flask import (current_app, flash, g, redirect, url_for)
@@ -13,6 +12,7 @@ from delek.controller.db_wrapper import (get_spesa_totale_utenti,
 
 from delek.controller.listini import get_prodotti
 from delek.controller.presidi import get_presidi
+from delek.controller.tempo import adesso
 
 
 def get_ordini_in_corso(id_produttore):
@@ -233,7 +233,7 @@ def _inserisci_rettifica(id_utente, id_produttore, importo, motivazione,
             (per_id_utente, importo, descrizione, effettuato_il)
         VALUES (%s, %s, %s, %s)
           RETURNING id
-        """, (id_utente, -float(importo), motivazione, datetime.now())
+        """, (id_utente, -float(importo), motivazione, adesso())
     )
 
     id_movimento = dbi.fetchone()['id']
@@ -370,7 +370,7 @@ def msg_presidio():
             msg = "Hai ancora un presidio da prenotare, non rimandare."
 
     imminente = [d for d in datep
-                 if -1 < (d - datetime.now()).days < 14]
+                 if -1 < (d - adesso()).days < 14]
     if imminente:
         return ' '.join([msg,
                         "Ricordati che hai un presidio",
@@ -386,7 +386,7 @@ def rimuovi_ordini_inconclusi(dettagli_ordini):
     data di scadenza """
     for dett in dettagli_ordini:
         mino = float(dett['minimo_ordine'])
-        if (dett['scadenza'] < datetime.today() and mino > 0 and mino >
+        if (dett['scadenza'] < adesso() and mino > 0 and mino >
                 sum(get_spesa_totale_utenti(dett['id_produttore']).values())):
             _delete(dett['id_produttore'])
 

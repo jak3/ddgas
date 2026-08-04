@@ -12,6 +12,9 @@ cliente.
 - Nome completo e nome breve dell'associazione
 - Tagline/sottotitolo
 - Indirizzo e codice fiscale (partita IVA se presente)
+- Nome del luogo fisico di ritiro/magazzino, se ne ha uno con un nome
+  proprio (es. "Magazzino Parallelo" per GAS Malatesta), altrimenti puo'
+  restare generico ("la sede del gas")
 - Colore primario del brand (hex)
 - Logo e favicon (immagini, vanno in `delek/static/`; finché non forniti
   restano i placeholder generici di default)

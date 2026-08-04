@@ -8,8 +8,8 @@
 <form action="{{ url_for('auth.effettua_tesseramento') }}" method="post">{{ csrf_field() }}
   {% if associazione.regole.tessera_ente_terzo.richiesta %}
   <p class="field">
-  <label for="codice_arci">Codice Tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }}</label>
-  <input type="text" id="codice_arci" name="codice_arci" />
+  <label for="codice_ente_terzo">Codice Tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }}</label>
+  <input type="text" id="codice_ente_terzo" name="codice_ente_terzo" />
   <small>Campo facoltativo: se possiedi già una tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }} (procurata autonomamente, non tramite questo sito), inserisci qui il codice solo per tenerne traccia. Non è collegato al pagamento del tesseramento qui sotto.</small>
   </p>
   {% endif %}

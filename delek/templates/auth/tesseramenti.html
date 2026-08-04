@@ -67,7 +67,7 @@
 <ul>
   <li></li>
   {% if associazione.regole.tessera_ente_terzo.richiesta %}
-  <li><a class="button button-border button-warning" href="{{ url_for('auth.list_arci') }}">Visualizza Tessere {{ associazione.regole.tessera_ente_terzo.nome_ente }}</a></li>
+  <li><a class="button button-border button-warning" href="{{ url_for('auth.list_ente_terzo') }}">Visualizza Tessere {{ associazione.regole.tessera_ente_terzo.nome_ente }}</a></li>
   {% endif %}
 </ul>
 </div>

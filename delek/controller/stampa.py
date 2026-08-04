@@ -1,6 +1,5 @@
 ''' Gestione delle stampe '''
 from io import BytesIO
-from datetime import datetime
 
 from flask import (
     Blueprint, flash, g, render_template, request, send_file
@@ -10,6 +9,7 @@ from delek.controller.auth import login_required, is_ruolo
 from delek.controller.db import get_db
 from delek.controller.db_wrapper import get_spesa_totale_utenti
 from delek.controller.produttori import get_storico_ordini, get_produttore
+from delek.controller.tempo import adesso, da_form
 
 bp = Blueprint('stampa', __name__, url_prefix='/stampa')
 
@@ -18,7 +18,7 @@ def get_date_ordine(id_produttore):
     """ Ritorna le date di scadenza e consegna dell'ordine in corso per
         id_produttore """
     get_db().execute("""
-        SELECT scadenza, consegna, now() at time zone 'Europe/Rome' as now
+        SELECT scadenza, consegna, now() as now
         FROM dettagli_ordini WHERE id_produttore = %s
         """, (id_produttore,))
 
@@ -277,7 +277,7 @@ def storico(id_produttore):
     consegna = None
     try:
         if 'data' in request.args.keys():
-            consegna = datetime.fromisoformat(request.args.get('data'))
+            consegna = da_form(request.args.get('data'))
         else:
             consegna = get_consegne(id_produttore)[0]['consegna']
     except ValueError:
@@ -301,7 +301,7 @@ def storico_tiny(id_produttore):
     consegna = None
     try:
         if 'data' in request.args.keys():
-            consegna = datetime.fromisoformat(request.args.get('data'))
+            consegna = da_form(request.args.get('data'))
         else:
             consegna = get_consegne(id_produttore)[0]['consegna']
     except ValueError:
@@ -406,7 +406,7 @@ def dettagli_in_consegna():
 
     return render_template('stampa/dettagli_in_consegna.html',
                            ordini_per_produttore=ordini_per_produttore,
-                           now=datetime.now())
+                           now=adesso())
 
 
 @bp.route('/esporta/tutti_dettagli')

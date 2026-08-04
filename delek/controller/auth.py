@@ -22,6 +22,7 @@ from delek.model.checks import (
 )
 
 from delek.controller.db import get_db, atomic
+from delek.controller.tempo import adesso
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -311,7 +312,7 @@ def is_tesserato(id_utente, giorni_esenzione=60):
         data_scadenza_campagna = campagna['data_inizio'] + timedelta(days=365)
         inizio_periodo_esenzione = data_scadenza_campagna - timedelta(days=giorni_esenzione)
 
-        if datetime.now() >= inizio_periodo_esenzione and datetime.now() < data_scadenza_campagna:
+        if adesso() >= inizio_periodo_esenzione and adesso() < data_scadenza_campagna:
             return True
 
         dbi.execute("""
@@ -463,11 +464,12 @@ def info_utente():
     if request.method == 'POST':
         _update_user(dict(request.form), g.user['id'])
 
-    get_db().execute('SELECT codice FROM codici_arci WHERE id_utente = %s',
-                     [g.user['id']])
+    get_db().execute(
+        'SELECT codice FROM codici_ente_terzo WHERE id_utente = %s',
+        [g.user['id']])
     row = get_db().fetchone()
     return render_template('auth/info_utente.html',
-                           codice_arci=row['codice'] if row else '')
+                           codice_ente_terzo=row['codice'] if row else '')
 
 
 @bp.route('/<int:id_utente>/toggle', methods=('POST',))
@@ -669,29 +671,30 @@ def reset_password():
     return render_template('auth/reset_password.html', token=token_encoded)
 
 
-@bp.route('/arci')
+@bp.route('/ente_terzo')
 @login_required
 @is_ruolo(['moderatore', 'tesseramenti'])
-def list_arci():
-    """ Visualizza tutti i codici delle tessere ARCI """
+def list_ente_terzo():
+    """ Visualizza tutti i codici delle tessere dell'ente terzo (es. ARCI),
+    vedi associazione.regole.tessera_ente_terzo """
     get_db().execute("""
         SELECT username, nome, cognome, email, telefono, codice
-        FROM utenti INNER JOIN codici_arci
+        FROM utenti INNER JOIN codici_ente_terzo
             ON utenti.id = id_utente
         ORDER BY codice
         """)
-    return render_template('auth/arci.html', utenti=get_db().fetchall())
+    return render_template('auth/ente_terzo.html', utenti=get_db().fetchall())
 
 
-@bp.route('/arci/download')
+@bp.route('/ente_terzo/download')
 @login_required
 @is_ruolo(['moderatore', 'tesseramenti'])
-def download_arci():
-    """ Scarica il csv contenente il numero della tessera ARCI e il nome
-    """
+def download_ente_terzo():
+    """ Scarica il csv contenente il numero della tessera dell'ente terzo e
+    il nome """
     get_db().execute("""
         SELECT username, nome, cognome, codice
-        FROM utenti INNER JOIN codici_arci ON utenti.id = id_utente
+        FROM utenti INNER JOIN codici_ente_terzo ON utenti.id = id_utente
         """)
     csv_out = get_db().fetchall()
     csv_out = 'cognome,nome,username,codice\n' + '\n'.join(
@@ -701,7 +704,7 @@ def download_arci():
         csv_out,
         mimetype="text/csv",
         headers={"Content-disposition":
-                 "attachment; filename=tesserati_arci_gas.csv"})
+                 "attachment; filename=tesserati_ente_terzo.csv"})
 
 
 @bp.route('/tesseramenti', methods=('GET', 'POST'))
@@ -723,27 +726,28 @@ def tesseramenti():
                 dbi.execute('SELECT data_inizio FROM campagne_tesseramenti'
                             ' ORDER BY data_inizio DESC')
                 row = dbi.fetchone()
-                data_inizio = (datetime.today() - timedelta(days=1337)
+                data_inizio = (adesso() - timedelta(days=1337)
                                if isinstance(row, type(None))
                                else row['data_inizio'])
 
-                if datetime.today() > data_inizio + timedelta(days=365):
+                if adesso() > data_inizio + timedelta(days=365):
                     dbi.execute("""
                     INSERT INTO campagne_tesseramenti (data_inizio, quota)
                     VALUES (LOCALTIMESTAMP(0), %s)
                     """, [request.form['quota']])
                     # Pulisco tutte le tessere invitando ad inserire la nuova
-                    dbi.execute('DELETE FROM codici_arci;')
+                    dbi.execute('DELETE FROM codici_ente_terzo;')
 
                     flash('Campagna tesseramenti avviata. Al prossimo login ad'
                           ' ogni utente sarà richiesto di confermare il'
                           ' pagamento per il tesseramento e la possibilità di'
-                          ' inserire il codice della tessera ARCI', 'success')
+                          ' inserire il codice della tessera dell\'ente terzo'
+                          ' (se richiesta)', 'success')
                 else:
                     flash('Non sono passati ancora 365 giorni dalla scorsa'
                           ' campagna tesseramenti. Giorni mancanti %i.' %
                           (data_inizio + timedelta(days=365) -
-                              datetime.today()).days, 'warning')
+                              adesso()).days, 'warning')
 
             if 'id' in request.form.keys():
                 dbi.execute('SELECT data_inizio FROM campagne_tesseramenti'
@@ -786,20 +790,20 @@ def tesseramenti():
                            campagne=dbi.fetchall())
 
 
-def registra_codice_arci(id_utente, codice):
-    """ Inserimento del codice della tessera ARCI """
-    get_db().execute("""INSERT INTO codici_arci (id_utente, codice)
+def registra_codice_ente_terzo(id_utente, codice):
+    """ Inserimento del codice della tessera dell'ente terzo (es. ARCI) """
+    get_db().execute("""INSERT INTO codici_ente_terzo (id_utente, codice)
                         VALUES (%s, %s)
                         ON CONFLICT (id_utente) DO UPDATE SET
                         codice = EXCLUDED.codice""",
                      (id_utente, codice))
 
 
-@bp.route('/auth/set_codice_arci', methods=['POST'])
+@bp.route('/auth/set_codice_ente_terzo', methods=['POST'])
 @login_required
-def set_codice_arci():
-    """ Inserimento o eventuale aggiornamento codice tessera ARCI """
-    registra_codice_arci(g.user['id'], request.form['codice_arci'])
+def set_codice_ente_terzo():
+    """ Inserimento o eventuale aggiornamento codice tessera ente terzo """
+    registra_codice_ente_terzo(g.user['id'], request.form['codice_ente_terzo'])
 
     return redirect(url_for('auth.info_utente'))
 
@@ -827,9 +831,9 @@ def effettua_tesseramento():
     dbi = get_db()
     campagna = get_ultima_campagna_tesseramenti()
 
-    codice_arci = request.form.get('codice_arci')
-    if codice_arci:
-        registra_codice_arci(id_utente, codice_arci)
+    codice_ente_terzo = request.form.get('codice_ente_terzo')
+    if codice_ente_terzo:
+        registra_codice_ente_terzo(id_utente, codice_ente_terzo)
 
     dbi.execute("""
             SELECT SUM(importo) as totale FROM movimenti
@@ -849,7 +853,7 @@ def effettua_tesseramento():
                   'descrizione':
                   'Tesseramento {0:n}/{1:n}'.format(int(campagna['anno']),
                                                     int(campagna['anno'] + 1)),
-                  'effettuato_il': datetime.now()}
+                  'effettuato_il': adesso()}
 
         dbi.execute("SELECT id FROM utenti WHERE username = 'FCA'")
         fca_user = dbi.fetchone()

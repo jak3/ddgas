@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS ricariche_esterne;
+DROP TABLE IF EXISTS codici_ente_terzo;
 DROP TABLE IF EXISTS nuovi_utenti;
 DROP TABLE IF EXISTS referenze;
 DROP TABLE IF EXISTS arruolati;
@@ -26,7 +27,7 @@ CREATE TABLE utenti (
 
 CREATE TABLE nuovi_utenti (
   id_utente INTEGER PRIMARY KEY,
-  data_iscrizione TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  data_iscrizione TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_utente) REFERENCES utenti (id) ON DELETE CASCADE
 );
 
@@ -72,8 +73,8 @@ CREATE TABLE referenze (
 CREATE TABLE dettagli_ordini (
   id SERIAL PRIMARY KEY,
   id_produttore INTEGER UNIQUE NOT NULL,
-  scadenza TIMESTAMP NOT NULL,
-  consegna TIMESTAMP NOT NULL,
+  scadenza TIMESTAMPTZ NOT NULL,
+  consegna TIMESTAMPTZ NOT NULL,
   minimo_ordine NUMERIC(7, 2) DEFAULT 0,
   nota TEXT,
   FOREIGN KEY (id_produttore) REFERENCES produttori (id)
@@ -97,7 +98,7 @@ CREATE TABLE movimenti (
   tipologia SMALLINT DEFAULT 4,
   importo NUMERIC(7, 2) NOT NULL,
   descrizione TEXT,
-  effettuato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  effettuato_il TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (per_id_utente) REFERENCES utenti (id),
   FOREIGN KEY (tipologia) REFERENCES tipologie_movimenti (id)
 );
@@ -115,7 +116,7 @@ CREATE TABLE ricariche_esterne (
   importo NUMERIC(7, 2) NOT NULL,
   stato VARCHAR(20) NOT NULL DEFAULT 'creato',
   id_movimento INTEGER,
-  creato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creato_il TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_utente) REFERENCES utenti (id),
   FOREIGN KEY (id_movimento) REFERENCES movimenti (id),
   UNIQUE (provider, provider_ref)
@@ -123,7 +124,7 @@ CREATE TABLE ricariche_esterne (
 
 CREATE TABLE presidi (
   id SERIAL PRIMARY KEY,
-  giorno TIMESTAMP,
+  giorno TIMESTAMPTZ,
   id_utente INTEGER,
   FOREIGN KEY (id_utente) REFERENCES utenti (id)
 );
@@ -136,7 +137,7 @@ CREATE TABLE storico_ordini (
   -- azzeramento di tutti i movimenti (esempio cambio di Conto Corrente)
   id_movimento INTEGER,
   importo NUMERIC(7, 2) NOT NULL,
-  consegna TIMESTAMP NOT NULL,
+  consegna TIMESTAMPTZ NOT NULL,
   dettaglio JSON,
   FOREIGN KEY (id_utente) REFERENCES utenti (id),
   FOREIGN KEY (id_produttore) REFERENCES produttori (id)
@@ -145,14 +146,24 @@ CREATE TABLE storico_ordini (
 CREATE TABLE pagamenti_ordini (
   id SERIAL PRIMARY KEY,
   id_produttore INTEGER NOT NULL,
-  consegna TIMESTAMP NOT NULL,
-  data_pagamento TIMESTAMP,
+  consegna TIMESTAMPTZ NOT NULL,
+  data_pagamento TIMESTAMPTZ,
   FOREIGN KEY (id_produttore) REFERENCES produttori (id),
   UNIQUE (id_produttore, consegna)
 );
 
 CREATE TABLE campagne_tesseramenti (
   id SERIAL PRIMARY KEY,
-  data_inizio TIMESTAMP NOT NULL,
+  data_inizio TIMESTAMPTZ NOT NULL,
   quota NUMERIC(7, 2) NOT NULL
+);
+
+-- Codice di una tessera di un ente terzo (es. ARCI), tracciato solo come
+-- informazione facoltativa: creata sempre, indipendentemente da
+-- associazione.regole.tessera_ente_terzo.richiesta, che controlla solo se
+-- la UI la mostra (stesso pattern di ricariche_esterne per Stripe/Satispay).
+CREATE TABLE codici_ente_terzo (
+  id_utente INTEGER PRIMARY KEY,
+  codice TEXT,
+  FOREIGN KEY (id_utente) REFERENCES utenti (id) ON DELETE CASCADE
 );

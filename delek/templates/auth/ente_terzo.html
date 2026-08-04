@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<h1>{% block title %}Tessere ARCI{% endblock %}</h1>
+<h1>{% block title %}Tessere {{ associazione.regole.tessera_ente_terzo.nome_ente }}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -12,11 +12,11 @@
   [ <b>{{ utente.codice }}</b> ] {{ utente | utente }}
 </li>
 {% else %}
-    Non sono presenti tesserati ARCI.
+    Non sono presenti tesserati {{ associazione.regole.tessera_ente_terzo.nome_ente }}.
 {% endfor %}
 </ul>
 
 <a class="button button-warning button-border" href="{{
-          url_for('auth.download_arci') }}" >Scarica Documento Riassuntivo</a>
+          url_for('auth.download_ente_terzo') }}" >Scarica Documento Riassuntivo</a>
 
 {% endblock %}

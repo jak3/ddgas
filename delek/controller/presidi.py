@@ -9,14 +9,15 @@ from flask import (
 from delek.model.checks import check_inputs_isid
 from delek.controller.auth import is_ruolo, login_required
 from delek.controller.db import get_db
+from delek.controller.tempo import FUSO, adesso, da_form
 
 bp = Blueprint('presidi', __name__, url_prefix='/presidi')
 
 
 def get_giorni_presidi(year, when=2):  # 2 = Mercoledì
     """ Ritorna tutti i mercoledi di un anno """
-    today = datetime.today()
-    day = datetime(year, 1, 1, 19)
+    today = adesso()
+    day = datetime(year, 1, 1, 19, tzinfo=FUSO)
     day += timedelta(days=when - day.weekday() if day.weekday() <= when
                      else 7 + when - day.weekday())
     while day.year == year:
@@ -143,7 +144,7 @@ def create():
         try:
             get_db().execute(
                 'INSERT INTO presidi (giorno) VALUES (%s)',
-                (datetime.fromisoformat(request.form['giorno']) +
+                (da_form(request.form['giorno']) +
                     timedelta(hours=19),)
             )
             msg = {'content': 'Inserimento avvenuto con successo',

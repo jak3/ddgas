@@ -201,7 +201,7 @@ CREATE TABLE ordine_in_corso_1 (
   id_prodotto INTEGER NOT NULL,
   colli_richiesti SMALLINT NOT NULL,
   specifica TEXT,
-  effettuato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  effettuato_il TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_utente) REFERENCES utenti (id),
   FOREIGN KEY (id_prodotto) REFERENCES listino_1 (id)
 );
@@ -212,7 +212,7 @@ CREATE TABLE ordine_in_corso_2 (
   id_prodotto INTEGER NOT NULL,
   colli_richiesti SMALLINT NOT NULL,
   specifica TEXT,
-  effettuato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  effettuato_il TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_utente) REFERENCES utenti (id),
   FOREIGN KEY (id_prodotto) REFERENCES listino_2 (id)
 );
@@ -223,7 +223,7 @@ CREATE TABLE ordine_in_corso_3 (
   id_prodotto INTEGER NOT NULL,
   colli_richiesti SMALLINT NOT NULL,
   specifica TEXT,
-  effettuato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  effettuato_il TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_utente) REFERENCES utenti (id),
   FOREIGN KEY (id_prodotto) REFERENCES listino_3 (id)
 );
@@ -234,7 +234,7 @@ CREATE TABLE ordine_in_corso_4 (
   id_prodotto INTEGER NOT NULL,
   colli_richiesti SMALLINT NOT NULL,
   specifica TEXT,
-  effettuato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  effettuato_il TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_utente) REFERENCES utenti (id),
   FOREIGN KEY (id_prodotto) REFERENCES listino_4 (id)
 );
@@ -246,7 +246,7 @@ CREATE TABLE ordine_in_corso_5 (
   colli_richiesti SMALLINT NOT NULL,
   specifica TEXT,
   -- Utilizzato per priorità ?
-  effettuato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  effettuato_il TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_utente) REFERENCES utenti (id),
   FOREIGN KEY (id_prodotto) REFERENCES listino_5 (id)
 );
@@ -257,7 +257,7 @@ CREATE TABLE ordine_in_corso_6 (
   id_prodotto INTEGER NOT NULL,
   colli_richiesti SMALLINT NOT NULL,
   specifica TEXT,
-  effettuato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  effettuato_il TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_utente) REFERENCES utenti (id),
   FOREIGN KEY (id_prodotto) REFERENCES listino_1 (id)
 );

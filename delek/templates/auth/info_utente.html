@@ -76,13 +76,13 @@
   <hr>
 
   <div class="padding-s background-warning-50">
-    <form action="{{ url_for('auth.set_codice_arci') }}" method="post" accept-charset="utf-8">{{ csrf_field() }}
+    <form action="{{ url_for('auth.set_codice_ente_terzo') }}" method="post" accept-charset="utf-8">{{ csrf_field() }}
       <p>Tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }} procurata autonomamente, non tramite questo sito: qui puoi solo registrarne il codice per tenerne traccia.</p>
       <p class="field">
-      <label for="codice_arci"><b>Codice Tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }}</b></label>
-      <input type="text" id="codice_arci" name="codice_arci"
-                                          {% if codice_arci %}
-                                          value="{{ codice_arci }}"
+      <label for="codice_ente_terzo"><b>Codice Tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }}</b></label>
+      <input type="text" id="codice_ente_terzo" name="codice_ente_terzo"
+                                          {% if codice_ente_terzo %}
+                                          value="{{ codice_ente_terzo }}"
                                           {% endif %}
                                           />
       </p>

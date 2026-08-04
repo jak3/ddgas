@@ -1,5 +1,4 @@
 """ Gestione dei produttori e delle referenze collegate """
-from datetime import datetime
 from psycopg2.extensions import AsIs
 
 from flask import (
@@ -12,6 +11,7 @@ from delek.controller.auth import (
 from delek.model.checks import check_inputs_produttore, check_inputs_isid
 from delek.model.glossary import MESI
 from delek.controller.db import get_db
+from delek.controller.tempo import da_form
 
 bp = Blueprint('produttori', __name__, url_prefix='/produttori')
 
@@ -155,7 +155,7 @@ def create():
                 id_prodotto INTEGER NOT NULL,
                 colli_richiesti SMALLINT NOT NULL,
                 specifica TEXT,
-                effettuato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                effettuato_il TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (id_utente) REFERENCES utenti (id),
                 FOREIGN KEY (id_prodotto) REFERENCES listino_{0} (id));
             """.format(id_produttore))
@@ -271,7 +271,7 @@ def storico_all(id_produttore):
     if request.method == 'POST':
         try:
             if 'consegna' in request.form:
-                data = datetime.fromisoformat(request.form['consegna'])
+                data = da_form(request.form['consegna'])
                 ordini = get_storico_ordini(id_produttore, data)
         except ValueError:
             error = 'Formato data non riconosciuto'

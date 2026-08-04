@@ -1,7 +1,6 @@
 -- Dati minimi indispensabili al funzionamento dell'app: il codice fa
 -- riferimento diretto a questi id/nomi (es. tipologia 3 = giroconto).
--- Da eseguire su ogni nuova istanza dopo schema.sql (e arci.sql se il
--- modulo tessera_ente_terzo è abilitato).
+-- Da eseguire su ogni nuova istanza dopo schema.sql.
 --
 -- nei movimenti avremo es:
 -- versamento: (per_id_utente: N, verso_id: N)
