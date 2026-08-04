@@ -7,11 +7,6 @@
 - ORM
 - Benchmark close connection/cursor pg
 
-## Security
-
-- check [template injection](https://github.com/epinna/tplmap)
-  [blog post](http://ha.cker.info/exploitation-of-server-side-template-injection-with-craft-cms-plguin-seomatic/)
-
 # Useful Functions
 
 SQLite:
@@ -88,6 +83,19 @@ adesione tesseramento alla richiesta successiva, con la sessione ancora
 valida (nessun logout forzato, nessuna rotazione di SECRET_KEY). Endpoint
 esenti (altrimenti redirect loop): `ENDPOINT_ESENTI_DA_TESSERAMENTO` in
 `delek/controller/auth.py`.
+
+## Server-Side Template Injection
+
+Verificato (non solo assunto): l'app non è vulnerabile a SSTI.
+`render_template_string`/`Template(`/`Environment(`/`from_string` non
+sono mai usati; ogni `render_template()` passa un percorso `.html` fisso
+(l'unico caso con una variabile, `stampa._dettagli_ordini()`, riceve
+sempre una stringa letterale dai 3 chiamanti, mai da `request.args`/
+`request.form`). I soli due usi di `Markup()`/`|safe`
+(`csrf_field()`, `istruzioni.urlize()`) operano su un token generato
+lato server o su testo già passato da `escape()`. Se in futuro si
+aggiunge un endpoint che compone un template a partire da input utente,
+questa nota va rivista.
 
 ## Fuso orario (scadenza, consegna, ecc)
 
