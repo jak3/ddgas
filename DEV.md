@@ -5,7 +5,6 @@
 ## Model
 
 - ORM
-- Aggiungere Tests
 - Benchmark close connection/cursor pg
 
 ## Security
