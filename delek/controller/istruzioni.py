@@ -1,8 +1,16 @@
-""" Istruzioni """
+"""Istruzioni"""
+
 import re
 
 from flask import (
-    Blueprint, abort, flash, g, redirect, render_template, request, url_for
+    Blueprint,
+    abort,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    url_for,
 )
 from markupsafe import Markup, escape
 
@@ -17,16 +25,17 @@ _URL_RE = re.compile(r'(https?://[^\s<>"]+)')
 
 @bp.app_template_filter('urlize')
 def urlize(text):
-    """ Escapa il testo (nessun HTML digitato da un moderatore viene mai
+    """Escapa il testo (nessun HTML digitato da un moderatore viene mai
     interpretato) e poi trasforma gli URL http/https in link cliccabili:
     permette di condividere risorse esterne nei blocchi di testo libero
-    senza dover abilitare l'editing HTML/Markdown. """
+    senza dover abilitare l'editing HTML/Markdown."""
     escaped = str(escape(text or ''))
     linked = _URL_RE.sub(
-        lambda m: '<a href="{0}" rel="noopener noreferrer">{0}</a>'.format(
-            m.group(1)),
-        escaped)
+        lambda m: '<a href="{0}" rel="noopener noreferrer">{0}</a>'.format(m.group(1)),
+        escaped,
+    )
     return Markup(linked)
+
 
 # Ogni blocco di testo modificabile ha un default (usato finché nessun
 # moderatore lo personalizza) e la pagina a cui si torna dopo il salvataggio.
@@ -66,44 +75,48 @@ Questo è il semplice funzionamento, ovvero ciò che ogni gasista ha bisogno di 
 
 
 def get_contenuto(slug):
-    """ Ritorna il testo modificabile per slug, o il default hardcoded se
-    nessun moderatore l'ha ancora personalizzato per questa istanza """
+    """Ritorna il testo modificabile per slug, o il default hardcoded se
+    nessun moderatore l'ha ancora personalizzato per questa istanza"""
     get_db().execute(
-        'SELECT contenuto FROM contenuti_editabili WHERE slug = %s', [slug])
+        'SELECT contenuto FROM contenuti_editabili WHERE slug = %s', [slug]
+    )
     row = get_db().fetchone()
     return row['contenuto'] if row else CONTENUTI[slug]['default']
 
 
 @bp.route('/acquisto')
 def acquisto():
-    """ pagina statica con le istruzioni per gli acquisti, con
-    un'introduzione modificabile dai moderatori """
-    return render_template('istruzioni/acquisto.html',
-                           contenuto_intro=get_contenuto('acquisto_intro'))
+    """pagina statica con le istruzioni per gli acquisti, con
+    un'introduzione modificabile dai moderatori"""
+    return render_template(
+        'istruzioni/acquisto.html', contenuto_intro=get_contenuto('acquisto_intro')
+    )
 
 
 @bp.route('/list')
 def list_tutorial():
-    """ pagina statica con i video tutorial, con link esterni e video
-    modificabili dai moderatori """
+    """pagina statica con i video tutorial, con link esterni e video
+    modificabili dai moderatori"""
     return render_template(
         'istruzioni/list.html',
         contenuto_link_esterni=get_contenuto('list_link_esterni'),
-        contenuto_video_tutorial=get_contenuto('list_video_tutorial'))
+        contenuto_video_tutorial=get_contenuto('list_video_tutorial'),
+    )
 
 
 @bp.route('/modifica/<slug>', methods=('GET', 'POST'))
 @login_required
 @is_ruolo(['moderatore'])
 def modifica(slug):
-    """ Modifica di un blocco di testo di CONTENUTI (solo moderatori) """
+    """Modifica di un blocco di testo di CONTENUTI (solo moderatori)"""
     if slug not in CONTENUTI:
         abort(404)
 
     if request.method == 'POST':
         error = check_inputs_contenuto(request.form)
         if not error:
-            get_db().execute("""
+            get_db().execute(
+                """
                 INSERT INTO contenuti_editabili
                     (slug, contenuto, aggiornato_da)
                 VALUES (%s, %s, %s)
@@ -111,11 +124,15 @@ def modifica(slug):
                     contenuto = EXCLUDED.contenuto,
                     aggiornato_il = CURRENT_TIMESTAMP,
                     aggiornato_da = EXCLUDED.aggiornato_da
-                """, (slug, request.form['contenuto'], g.user['id']))
+                """,
+                (slug, request.form['contenuto'], g.user['id']),
+            )
             flash('Contenuto aggiornato con successo', 'success')
             return redirect(url_for(CONTENUTI[slug]['endpoint']))
         flash(error['error_msg'], 'warning')
 
     return render_template(
-        'istruzioni/modifica.html', slug=slug,
-        contenuto=request.form.get('contenuto') or get_contenuto(slug))
+        'istruzioni/modifica.html',
+        slug=slug,
+        contenuto=request.form.get('contenuto') or get_contenuto(slug),
+    )

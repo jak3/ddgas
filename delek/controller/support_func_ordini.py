@@ -1,14 +1,17 @@
-""" Support functions to controller/ordini """
+"""Support functions to controller/ordini"""
+
 import json
 from functools import wraps
 
-from flask import (current_app, flash, g, redirect, url_for)
+from flask import current_app, flash, g, redirect, url_for
 
 from delek.controller.auth import get_utente_by_id
 
 from delek.controller.db import get_db
-from delek.controller.db_wrapper import (get_spesa_totale_utenti,
-                                         get_totale_utente_temporaneo)
+from delek.controller.db_wrapper import (
+    get_spesa_totale_utenti,
+    get_totale_utente_temporaneo,
+)
 
 from delek.controller.listini import get_prodotti
 from delek.controller.presidi import get_presidi
@@ -16,45 +19,58 @@ from delek.controller.tempo import adesso
 
 
 def get_ordini_in_corso(id_produttore):
-    """ Ritorna le righe corrispondenti alla tabella con gli ordini in corso
-    per il produttore id_produttore """
+    """Ritorna le righe corrispondenti alla tabella con gli ordini in corso
+    per il produttore id_produttore"""
 
-    get_db().execute("""
+    get_db().execute(
+        """
         SELECT {column_names} FROM ordine_in_corso_{idp}
-        """.format(column_names=', '.join(
-                   ['id_utente', 'id_prodotto', 'colli_richiesti',
-                    'specifica']), idp=id_produttore)
+        """.format(
+            column_names=', '.join(
+                ['id_utente', 'id_prodotto', 'colli_richiesti', 'specifica']
+            ),
+            idp=id_produttore,
+        )
     )
 
     return get_db().fetchall()
 
 
 def get_prodotti_ordinati_da_tutti(id_produttore, id_utente=None):
-    """ Ritorna tutti i prodotti ordinati da tutti i gasisti """
+    """Ritorna tutti i prodotti ordinati da tutti i gasisti"""
 
     ordini = get_ordini_in_corso(id_produttore)
 
     # { 1: {'colli_richiesti': 2, 'specifica': None},
     #   5: {'colli_richiesti': 1, 'specifica': None} }
-    def filtroif(x, y): return x == y if y else True
-    ordini = {idp: dict(zip(['colli_richiesti', 'specifica'], [colli, spec]))
-              for [idu, idp, colli, spec] in ordini
-              if filtroif(idu, id_utente)
-              }
+    def filtroif(x, y):
+        return x == y if y else True
+
+    ordini = {
+        idp: dict(zip(['colli_richiesti', 'specifica'], [colli, spec]))
+        for [idu, idp, colli, spec] in ordini
+        if filtroif(idu, id_utente)
+    }
 
     prodotti = []
     pacchi = dict(get_colli_totali_pacchi(id_produttore))
     for prodotto in get_prodotti(id_produttore, disponibile=True):
         tdp = dict(prodotto)
-        tdp.update({'colli_rimasti':
-                    tdp['colli_disponibili'] -
-                    _get_totale_ordinati(id_produttore, tdp['id'])
-                    if tdp['colli_disponibili'] != 0 else -1
-                    })
+        tdp.update(
+            {
+                'colli_rimasti': (
+                    tdp['colli_disponibili']
+                    - _get_totale_ordinati(id_produttore, tdp['id'])
+                    if tdp['colli_disponibili'] != 0
+                    else -1
+                )
+            }
+        )
         if tdp['id'] in ordini.keys():
             tdp.update(ordini[tdp['id']])
-            tdp.update({'prezzo_totale':
-                        ordini[tdp['id']]['colli_richiesti']*tdp['prezzo']})
+            tdp.update(
+                {'prezzo_totale': ordini[tdp['id']]['colli_richiesti'] * tdp['prezzo']}
+            )
         if tdp['id'] in pacchi.keys():
             tdp.update({'totale_ordinati': pacchi[tdp['id']]})
         prodotti.append(tdp)
@@ -63,15 +79,18 @@ def get_prodotti_ordinati_da_tutti(id_produttore, id_utente=None):
 
 
 def get_prodotti_ordinati(id_produttore, id_utente=None):
-    """ Ritorna tutti i prodotti ordinati da id_produttore, ordinati per
-        username, categoria, descrizione_prodotto
+    """Ritorna tutti i prodotti ordinati da id_produttore, ordinati per
+    username, categoria, descrizione_prodotto
     """
 
     ordini = get_ordini_in_corso(id_produttore)
 
-    prodotti_ordinati = list(filter(lambda p: 'colli_richiesti' in p.keys(),
-                                    get_prodotti_ordinati_da_tutti(
-                                        id_produttore, id_utente)))
+    prodotti_ordinati = list(
+        filter(
+            lambda p: 'colli_richiesti' in p.keys(),
+            get_prodotti_ordinati_da_tutti(id_produttore, id_utente),
+        )
+    )
     _aggiungi_dettaglio_pacchi_inconclusi(ordini, prodotti_ordinati)
 
     return prodotti_ordinati
@@ -92,8 +111,9 @@ def _aggiungi_dettaglio_pacchi_inconclusi(ordini, prodotti_ordinati):
             pending = prodotto['totale_ordinati'] % prodotto['n_min_colli']
             pid = prodotto['id']
             # scansiona tutti gli ordini del prodotto in esame
-            for ordine in list(filter(lambda o, pid=pid:
-                                      o['id_prodotto'] == pid, ordini)):
+            for ordine in list(
+                filter(lambda o, pid=pid: o['id_prodotto'] == pid, ordini)
+            ):
                 eccedenza = ordine['colli_richiesti'] % prodotto['n_min_colli']
                 if eccedenza > 0:
                     if ordine['id_utente'] == g.user['id']:
@@ -129,7 +149,7 @@ def _get_totale_ordinati(id_produttore, id_prodotto, notmine=False):
     if notmine:
         query += 'AND id_utente != {0}'.format(g.user['id'])
 
-    get_db().execute(query, (id_prodotto, ))
+    get_db().execute(query, (id_prodotto,))
     totale = get_db().fetchone()['totale_ordinati']
     return totale if totale else 0
 
@@ -140,14 +160,14 @@ def _check_inputs_vincoli(id_produttore, inputs):
 
     # Utenza Attiva
     dbi.execute(
-        'SELECT id FROM utenti WHERE id = %s AND attivo = TRUE',
-        (g.user['id'],)
+        'SELECT id FROM utenti WHERE id = %s AND attivo = TRUE', (g.user['id'],)
     )
 
     if dbi.rowcount < 1:
-        return {'error_msg':
-                'Spiacente, non risulti un utente attivo.'
-                ' Tesseramento effettuato correttamente?'}
+        return {
+            'error_msg': 'Spiacente, non risulti un utente attivo.'
+            ' Tesseramento effettuato correttamente?'
+        }
 
     # dal totale temporaneo tolgo l'ordine vecchio se presente del produttore
     # in questione
@@ -157,58 +177,77 @@ def _check_inputs_vincoli(id_produttore, inputs):
             FROM ordine_in_corso_{0} INNER JOIN listino_{0}
                 ON listino_{0}.id = id_prodotto
             WHERE id_utente = %s
-        """.format(id_produttore), (g.user['id'],))
+        """.format(id_produttore),
+        (g.user['id'],),
+    )
     in_corso = dbi.fetchone()
     in_corso = float(in_corso['totale']) if in_corso['totale'] else 0
-    colli_richiesti = [int(cr) if cr else 0 for cr in
-                       inputs.getlist('colli_richiesti')]
+    colli_richiesti = [int(cr) if cr else 0 for cr in inputs.getlist('colli_richiesti')]
 
-    if (get_totale_utente_temporaneo() + in_corso) < sum([
-        float(p)*float(cr) for p, cr in zip(
-            inputs.getlist('prezzo'), colli_richiesti
-        )
-    ]):
-        return {'error_msg':
-                'Credito insufficente per coprire tutti gli ordini.'
-                ' Vai alla voce Ricarica per accreditare con carta.'}
+    if (get_totale_utente_temporaneo() + in_corso) < sum(
+        [
+            float(p) * float(cr)
+            for p, cr in zip(inputs.getlist('prezzo'), colli_richiesti)
+        ]
+    ):
+        return {
+            'error_msg': 'Credito insufficente per coprire tutti gli ordini.'
+            ' Vai alla voce Ricarica per accreditare con carta.'
+        }
 
-    for i, prodotto in enumerate(get_prodotti(id_produttore,
-                                              disponibile=True)):
+    for i, prodotto in enumerate(get_prodotti(id_produttore, disponibile=True)):
         # Superamento n_max_colli
-        if (prodotto['n_max_colli'] != 0 and
-                colli_richiesti[i] > prodotto['n_max_colli']):
-            return {'error_msg':
-                    ' '.join(['Colli Massimi per Gasista:',
-                              str(prodotto['n_max_colli']),
-                              'ne hai ordinati',
-                              str(colli_richiesti[i])])
-                    }
+        if (
+            prodotto['n_max_colli'] != 0
+            and colli_richiesti[i] > prodotto['n_max_colli']
+        ):
+            return {
+                'error_msg': ' '.join(
+                    [
+                        'Colli Massimi per Gasista:',
+                        str(prodotto['n_max_colli']),
+                        'ne hai ordinati',
+                        str(colli_richiesti[i]),
+                    ]
+                )
+            }
 
         # Superamento colli_disponibili (singolo utente)
-        if (prodotto['colli_disponibili'] != 0 and
-                colli_richiesti[i] > prodotto['colli_disponibili']):
-            return {'error_msg':
-                    ' '.join(['Il numero di colli ordinati di',
-                              prodotto['descrizione_prodotto'], '(',
-                              colli_richiesti[i], ') eccede la disponibilità',
-                              'del produttore (',
-                              str(prodotto['colli_disponibili']), ')'])
-                    }
+        if (
+            prodotto['colli_disponibili'] != 0
+            and colli_richiesti[i] > prodotto['colli_disponibili']
+        ):
+            return {
+                'error_msg': ' '.join(
+                    [
+                        'Il numero di colli ordinati di',
+                        prodotto['descrizione_prodotto'],
+                        '(',
+                        colli_richiesti[i],
+                        ') eccede la disponibilità',
+                        'del produttore (',
+                        str(prodotto['colli_disponibili']),
+                        ')',
+                    ]
+                )
+            }
 
         # Superamento colli_disponibili (tutti gli utenti)
         ordinati = _get_totale_ordinati(id_produttore, prodotto['id'])
-        if (prodotto['colli_disponibili'] > 0 and
-                ordinati > prodotto['colli_disponibili']):
-            return {'error_msg': 'Esaurita disponibilità per ' +
-                                 prodotto['descrizione_prodotto']
-                    }
+        if (
+            prodotto['colli_disponibili'] > 0
+            and ordinati > prodotto['colli_disponibili']
+        ):
+            return {
+                'error_msg': 'Esaurita disponibilità per '
+                + prodotto['descrizione_prodotto']
+            }
 
     return {}
 
 
-def _inserisci_rettifica(id_utente, id_produttore, importo, motivazione,
-                         consegna):
-    """ Inserisce la rettifica nei movimenti e nello storico """
+def _inserisci_rettifica(id_utente, id_produttore, importo, motivazione, consegna):
+    """Inserisce la rettifica nei movimenti e nello storico"""
     dbi = get_db()
     id_utente = int(id_utente)
 
@@ -225,15 +264,18 @@ def _inserisci_rettifica(id_utente, id_produttore, importo, motivazione,
         """.format(id_produttore))
     dettagli_prodotti = dict(dbi.fetchall())
 
-    motivazione = ' '.join(
-        ['Acquisto', '(', motivazione, ')']) if motivazione else 'Acquisto'
+    motivazione = (
+        ' '.join(['Acquisto', '(', motivazione, ')']) if motivazione else 'Acquisto'
+    )
 
-    dbi.execute("""
+    dbi.execute(
+        """
         INSERT INTO movimenti
             (per_id_utente, importo, descrizione, effettuato_il)
         VALUES (%s, %s, %s, %s)
           RETURNING id
-        """, (id_utente, -float(importo), motivazione, adesso())
+        """,
+        (id_utente, -float(importo), motivazione, adesso()),
     )
 
     id_movimento = dbi.fetchone()['id']
@@ -241,20 +283,25 @@ def _inserisci_rettifica(id_utente, id_produttore, importo, motivazione,
     if id_utente in dettagli_prodotti.keys():
         dettaglio_completo = {
             'produttore': nome_produttore,
-            'dettaglio': dettagli_prodotti[id_utente]
+            'dettaglio': dettagli_prodotti[id_utente],
         }
     else:
-        dettaglio_completo = {
-            'produttore': nome_produttore,
-            'dettaglio': motivazione
-        }
+        dettaglio_completo = {'produttore': nome_produttore, 'dettaglio': motivazione}
 
-    dbi.execute("""
+    dbi.execute(
+        """
         INSERT INTO storico_ordini
         (id_utente, id_produttore, importo, consegna, dettaglio, id_movimento)
         VALUES (%s, %s, %s, %s, %s, %s)
-        """, (id_utente, id_produttore, -float(importo), consegna,
-              json.dumps(dettaglio_completo), id_movimento)
+        """,
+        (
+            id_utente,
+            id_produttore,
+            -float(importo),
+            consegna,
+            json.dumps(dettaglio_completo),
+            id_movimento,
+        ),
     )
 
 
@@ -278,20 +325,23 @@ def _pagamenti_ordini_chiusi():
     pagamenti = dbi.fetchall()
 
     pagamenti_ordini_chiusi = []
-    pagamenti = {''.join([str(p[1]), str(p[2])]):
-                 {'id_pagamento': p[0], 'data_pagamento': p[3]}
-                 for p in pagamenti}
+    pagamenti = {
+        ''.join([str(p[1]), str(p[2])]): {'id_pagamento': p[0], 'data_pagamento': p[3]}
+        for p in pagamenti
+    }
 
     for ordine in ordini_chiusi:
         k = ''.join([str(ordine['id_produttore']), str(ordine['consegna'])])
         if k in pagamenti.keys():
-            pagamenti_ordini_chiusi.append({
-                'id_pagamento': pagamenti.get(k)['id_pagamento'],
-                'nome_produttore': ordine['nome_produttore'],
-                'totale': ordine['totale'],
-                'consegna': ordine['consegna'],
-                'data_pagamento': pagamenti.get(k)['data_pagamento']
-            })
+            pagamenti_ordini_chiusi.append(
+                {
+                    'id_pagamento': pagamenti.get(k)['id_pagamento'],
+                    'nome_produttore': ordine['nome_produttore'],
+                    'totale': ordine['totale'],
+                    'consegna': ordine['consegna'],
+                    'data_pagamento': pagamenti.get(k)['data_pagamento'],
+                }
+            )
 
     return pagamenti_ordini_chiusi
 
@@ -299,33 +349,38 @@ def _pagamenti_ordini_chiusi():
 def _delete(id_produttore):
     # Pulisco (TRUNCATE) la tabella ordine_in_corso_ID-PRODUTTORE
     # Rimuovo (DELETE) la riga associata in dettagli_ordini
-    get_db().execute("""
+    get_db().execute(
+        """
         TRUNCATE ordine_in_corso_{0} ;
         DELETE FROM dettagli_ordini WHERE id_produttore = %s ;
-        """.format(id_produttore), [id_produttore])
+        """.format(id_produttore),
+        [id_produttore],
+    )
 
 
 def _get_dettaglio(id_produttore):
-    get_db().execute("""
+    get_db().execute(
+        """
         SELECT scadenza, consegna, minimo_ordine, nota
         FROM dettagli_ordini
         WHERE id_produttore = %s
-    """, [id_produttore])
+    """,
+        [id_produttore],
+    )
     dettaglio = get_db().fetchone()
 
     if dettaglio is None:  # Non vi sono ordini aperti
         # preparo la struttura per jinja, che accede alle keys
-        dettaglio = {'scadenza': '', 'consegna': '',
-                     'minimo_ordine': '', 'nota': ''}
+        dettaglio = {'scadenza': '', 'consegna': '', 'minimo_ordine': '', 'nota': ''}
 
     return dettaglio
 
 
 def get_colli_totali_pacchi(id_produttore):
-    """ Ritorna una lista di (id_prodotto, totali_ordinati) dove
-        totali_ordinati corrisponde al numero di colli richiesti da tutti gli
-        utenti, in questo modo è possibile determinare quanti colli mancano per
-        chiudere un pacco """
+    """Ritorna una lista di (id_prodotto, totali_ordinati) dove
+    totali_ordinati corrisponde al numero di colli richiesti da tutti gli
+    utenti, in questo modo è possibile determinare quanti colli mancano per
+    chiudere un pacco"""
     get_db().execute("""
         SELECT id_prodotto, SUM(colli_richiesti) as totali_ordinati
         FROM ordine_in_corso_{0} INNER JOIN
@@ -338,23 +393,24 @@ def get_colli_totali_pacchi(id_produttore):
 
 
 def get_minimo_ordine(id_produttore):
-    """ Ritorna il minimo_ordine corrente """
-    get_db().execute('SELECT minimo_ordine FROM dettagli_ordini'
-                     ' WHERE id_produttore = %s', (id_produttore,))
+    """Ritorna il minimo_ordine corrente"""
+    get_db().execute(
+        'SELECT minimo_ordine FROM dettagli_ordini' ' WHERE id_produttore = %s',
+        (id_produttore,),
+    )
     minimo_ordine = get_db().fetchone()['minimo_ordine']
     # If NULL return default 0, per jinja
     return minimo_ordine if minimo_ordine else 0
 
 
 def get_produttore(id_produttore):
-    """ Ritorna il produttore associato a id_produttore """
-    get_db().execute('SELECT id, nome FROM produttori WHERE id = %s',
-                     (id_produttore,))
+    """Ritorna il produttore associato a id_produttore"""
+    get_db().execute('SELECT id, nome FROM produttori WHERE id = %s', (id_produttore,))
     return get_db().fetchone()
 
 
 def msg_presidio():
-    """ Ritorna il messaggio da dare in merito i presidi """
+    """Ritorna il messaggio da dare in merito i presidi"""
     presidi = get_presidi()
     datep = [p[0] for p in presidi if p[1] == g.user['id']]
     msg = ''
@@ -363,38 +419,45 @@ def msg_presidio():
         # Non ho ne ruoli ne referenze quindi devo presidiare
         prenotazioni = len(datep)
         if prenotazioni < 1:
-            return "Non hai ancora scelto due date di presidio, ricorda che " \
-                "è invitato partecipare come minimo a due presidi per" \
+            return (
+                "Non hai ancora scelto due date di presidio, ricorda che "
+                "è invitato partecipare come minimo a due presidi per"
                 " essere un vero membro del GAS"
+            )
         if prenotazioni == 1:
             msg = "Hai ancora un presidio da prenotare, non rimandare."
 
-    imminente = [d for d in datep
-                 if -1 < (d - adesso()).days < 14]
+    imminente = [d for d in datep if -1 < (d - adesso()).days < 14]
     if imminente:
-        return ' '.join([msg,
-                        "Ricordati che hai un presidio",
-                         "nelle date:" if len(imminente) > 1 else "in data:",
-                         ', '.join([d.strftime("%d/%m/%Y") for d in imminente])
-                         ])
+        return ' '.join(
+            [
+                msg,
+                "Ricordati che hai un presidio",
+                "nelle date:" if len(imminente) > 1 else "in data:",
+                ', '.join([d.strftime("%d/%m/%Y") for d in imminente]),
+            ]
+        )
 
     return None
 
 
 def rimuovi_ordini_inconclusi(dettagli_ordini):
-    """ Rimuove gli ordini che non hanno raggiunto il minimo_ordine dopo la
-    data di scadenza """
+    """Rimuove gli ordini che non hanno raggiunto il minimo_ordine dopo la
+    data di scadenza"""
     for dett in dettagli_ordini:
         mino = float(dett['minimo_ordine'])
-        if (dett['scadenza'] < adesso() and mino > 0 and mino >
-                sum(get_spesa_totale_utenti(dett['id_produttore']).values())):
+        if (
+            dett['scadenza'] < adesso()
+            and mino > 0
+            and mino > sum(get_spesa_totale_utenti(dett['id_produttore']).values())
+        ):
             _delete(dett['id_produttore'])
 
 
 def rimuovi_pacchi_inconclusi(dettagli_ordini):
-    """ Rimuove gli ordini, di ogni singolo produttore, che non hanno raggiunto
+    """Rimuove gli ordini, di ogni singolo produttore, che non hanno raggiunto
     il n_min_colli (corrispondono ai pacchi non chiusi), se la data di scadenza
-    è stata raggiunta """
+    è stata raggiunta"""
     dbi = get_db()
 
     for dettaglio_ordine in dettagli_ordini:
@@ -413,21 +476,30 @@ def rimuovi_pacchi_inconclusi(dettagli_ordini):
             """.format(id_produttore))
         ordini_aggregati = dbi.fetchall()
 
-        da_rimuovere = [o['id_prodotto'] for o in filter(
-            lambda oa: oa['ordinati'] < oa['n_min_colli'],
-            ordini_aggregati)]
-        dbi.execute("""
+        da_rimuovere = [
+            o['id_prodotto']
+            for o in filter(
+                lambda oa: oa['ordinati'] < oa['n_min_colli'], ordini_aggregati
+            )
+        ]
+        dbi.execute(
+            """
                 DELETE FROM ordine_in_corso_{0}
                 WHERE id_prodotto = ANY(%s)""".format(id_produttore),
-                    (da_rimuovere,))
+            (da_rimuovere,),
+        )
 
         prodotti_da_aggiornare = [
-            {'id_prodotto': o['id_prodotto'],
+            {
+                'id_prodotto': o['id_prodotto'],
                 'eccedenze': o['ordinati'] % o['n_min_colli'],
-             'n_min_colli': o['n_min_colli']
-             } for o in filter(lambda oa: oa['ordinati'] > oa['n_min_colli']
-                               and oa['ordinati'] % oa['n_min_colli'] > 0,
-                               ordini_aggregati)
+                'n_min_colli': o['n_min_colli'],
+            }
+            for o in filter(
+                lambda oa: oa['ordinati'] > oa['n_min_colli']
+                and oa['ordinati'] % oa['n_min_colli'] > 0,
+                ordini_aggregati,
+            )
         ]
 
         for prodotto in prodotti_da_aggiornare:
@@ -437,7 +509,9 @@ def rimuovi_pacchi_inconclusi(dettagli_ordini):
                 FROM ordine_in_corso_{0}
                 WHERE id_prodotto = %s
                 ORDER BY effettuato_il DESC
-                """.format(id_produttore), (prodotto['id_prodotto'],))
+                """.format(id_produttore),
+                (prodotto['id_prodotto'],),
+            )
             ordini_da_aggiornare = dbi.fetchall()
 
             for ordine in ordini_da_aggiornare:
@@ -445,8 +519,11 @@ def rimuovi_pacchi_inconclusi(dettagli_ordini):
                     continue
                 if ordine['colli_richiesti'] <= prodotto['eccedenze']:
                     dbi.execute(
-                        'DELETE FROM ordine_in_corso_{0} WHERE id = %s'
-                        .format(id_produttore), (ordine['id'],))
+                        'DELETE FROM ordine_in_corso_{0} WHERE id = %s'.format(
+                            id_produttore
+                        ),
+                        (ordine['id'],),
+                    )
                     prodotto['eccedenze'] -= ordine['colli_richiesti']
                     if prodotto['eccedenze'] == 0:
                         break
@@ -456,26 +533,39 @@ def rimuovi_pacchi_inconclusi(dettagli_ordini):
                         UPDATE ordine_in_corso_{0}
                         SET colli_richiesti = %s WHERE id = %s
                     """.format(id_produttore),
-                        (ordine['colli_richiesti'] - prodotto['eccedenze'],
-                         ordine['id']))
+                        (
+                            ordine['colli_richiesti'] - prodotto['eccedenze'],
+                            ordine['id'],
+                        ),
+                    )
                     break
 
     return dettagli_ordini
 
 
 def sollecito(func):
-    """ Richiesta di informazioni obbligatorie agli utenti """
+    """Richiesta di informazioni obbligatorie agli utenti"""
+
     @wraps(func)
     def decorated_function(*args, **kwargs):
         utente = get_utente_by_id(g.user['id'])
-        for obbligatorio in [utente['nome'], utente['cognome'],
-                             utente['email'], utente['cf']]:
+        for obbligatorio in [
+            utente['nome'],
+            utente['cognome'],
+            utente['email'],
+            utente['cf'],
+        ]:
             if not obbligatorio:
-                nome_associazione = current_app.config['ASSOCIAZIONE'][
-                    'identita']['nome']
-                flash("""È richiesto compilare i campi: nome, cognome, email e
+                nome_associazione = current_app.config['ASSOCIAZIONE']['identita'][
+                    'nome'
+                ]
+                flash(
+                    """È richiesto compilare i campi: nome, cognome, email e
                 codice fiscale, ai fini di redigere il libro soci della
-                {0}""".format(nome_associazione), 'warning')
+                {0}""".format(nome_associazione),
+                    'warning',
+                )
                 return redirect(url_for('auth.info_utente'))
         return func(*args, **kwargs)
+
     return decorated_function

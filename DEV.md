@@ -4,7 +4,6 @@
 
 ## Controller / Python
 
-- Uniformare e formattare codice
 - Funzione di utilizzo per column_names, placeholders
 - auth/tesseramenti necessita di una modalità per pulire tutte le sessioni
   utente create fino ad ora, in modo da forzare il login. Al momento l'unica
@@ -13,7 +12,6 @@
 
 ## View / HTML
 
-- Uniformare e formattare codice
 - Uniformare movimenti/list e movimenti/list_all (il codice Ereditarietà)
 - bottone "Vedi Contatti" in list_produttori da esplicitare un pochino di che
   contatto si tratta e renderlo visibilmente più carino
@@ -62,6 +60,21 @@ export SECRET_KEY=dev
 
 source env/bin/activate
 flask run
+```
+
+## Formattazione (black)
+
+`black` è nei requirements-dev. Config in `pyproject.toml`
+(`skip-string-normalization = true`: il codice usa apici singoli in modo
+già coerente, non ha senso che black li converta tutti in doppi — evita
+un diff enorme che sarebbe solo rumore). Solo Python: i template Jinja
+non hanno un formatter automatico maturo/sicuro (rischio di rompere
+whitespace dentro `<pre>` o espressioni multi-riga), lì si ripulisce
+manualmente quando si tocca un file per altri motivi.
+
+```
+black delek tests
+black --check delek tests  # solo verifica, non modifica
 ```
 
 ## Docker (ambiente locale)

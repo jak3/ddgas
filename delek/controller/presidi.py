@@ -1,10 +1,8 @@
-""" Gestione dei Presidi """
+"""Gestione dei Presidi"""
 
 from datetime import datetime, timedelta
 
-from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
-)
+from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 
 from delek.model.checks import check_inputs_isid
 from delek.controller.auth import is_ruolo, login_required
@@ -15,11 +13,12 @@ bp = Blueprint('presidi', __name__, url_prefix='/presidi')
 
 
 def get_giorni_presidi(year, when=2):  # 2 = Mercoledì
-    """ Ritorna tutti i mercoledi di un anno """
+    """Ritorna tutti i mercoledi di un anno"""
     today = adesso()
     day = datetime(year, 1, 1, 19, tzinfo=FUSO)
-    day += timedelta(days=when - day.weekday() if day.weekday() <= when
-                     else 7 + when - day.weekday())
+    day += timedelta(
+        days=when - day.weekday() if day.weekday() <= when else 7 + when - day.weekday()
+    )
     while day.year == year:
         if day >= today:
             yield day
@@ -27,10 +26,8 @@ def get_giorni_presidi(year, when=2):  # 2 = Mercoledì
 
 
 def get_date_con_presidiante():
-    """ Ritorna una lista di date, che sono coperte da almeno un predisiante
-    """
-    get_db().execute(
-        """
+    """Ritorna una lista di date, che sono coperte da almeno un predisiante"""
+    get_db().execute("""
             SELECT giorno FROM presidi
             WHERE giorno >= now() AND id_utente NOTNULL
         """)
@@ -39,7 +36,7 @@ def get_date_con_presidiante():
 
 
 def get_presidi():
-    """ Ritorna l'elenco degli id utente che si sono iscritti a presidi """
+    """Ritorna l'elenco degli id utente che si sono iscritti a presidi"""
     get_db().execute("""
         SELECT giorno, id_utente FROM presidi
         WHERE id_utente IS NOT NULL AND
@@ -52,7 +49,7 @@ def get_presidi():
 @login_required
 @is_ruolo(['moderatore', 'presidi'])
 def clear():
-    """ Pulisce le righe dei presidi passati """
+    """Pulisce le righe dei presidi passati"""
     get_db().execute("""
         DELETE FROM presidi
         WHERE extract('year' from giorno) != extract('year' from now())
@@ -64,8 +61,7 @@ def clear():
 @login_required
 @is_ruolo(['moderatore', 'presidi'])
 def newy():
-    """ Genera le date che non sono ancora state inserite nell'anno in corso
-    """
+    """Genera le date che non sono ancora state inserite nell'anno in corso"""
     dbi = get_db()
 
     for giorno in get_giorni_presidi(datetime.today().year):
@@ -78,18 +74,16 @@ def newy():
 @bp.route('/')
 @login_required
 def list_presidi():
-    """ Elenco Presidi """
+    """Elenco Presidi"""
     dbi = get_db()
 
-    dbi.execute(
-        """
+    dbi.execute("""
             SELECT presidi.id, giorno, id_utente,
                     username, nome, cognome, email, telefono
             FROM presidi LEFT JOIN utenti ON id_utente = utenti.id
             WHERE giorno >= now()
             ORDER BY giorno
-        """
-    )
+        """)
 
     return render_template('presidi/list.html', presidi=dbi.fetchall())
 
@@ -97,31 +91,29 @@ def list_presidi():
 @bp.route('/passati')
 @login_required
 def list_presidi_passati():
-    """ Elenco Presidi Passati"""
+    """Elenco Presidi Passati"""
     dbi = get_db()
 
-    dbi.execute(
-        """
+    dbi.execute("""
             SELECT presidi.id, giorno, id_utente,
                     username, nome, cognome, email, telefono
             FROM presidi LEFT JOIN utenti ON id_utente = utenti.id
             WHERE giorno < now() AND username != ''
             ORDER BY giorno
-        """
-    )
+        """)
 
     return render_template('presidi/passati.html', presidi=dbi.fetchall())
 
 
 @bp.route('/vademecum')
 def vademecum():
-    ''' Mostra pagina con vademecum '''
+    '''Mostra pagina con vademecum'''
     return render_template('presidi/vademecum.html')
 
 
 @bp.route('/stats')
 def stats():
-    ''' Mostra statistiche presidianti '''
+    '''Mostra statistiche presidianti'''
 
     get_db().execute("""
     SELECT nome, cognome, username, telefono, email FROM utenti
@@ -138,17 +130,15 @@ def stats():
 @login_required
 @is_ruolo(['moderatore', 'presidi'])
 def create():
-    """ Creazione di un Presidio """
+    """Creazione di un Presidio"""
     msg = {'content': 'Formato data non conforme', 'type': 'warning'}
     if request.method == 'POST':
         try:
             get_db().execute(
                 'INSERT INTO presidi (giorno) VALUES (%s)',
-                (da_form(request.form['giorno']) +
-                    timedelta(hours=19),)
+                (da_form(request.form['giorno']) + timedelta(hours=19),),
             )
-            msg = {'content': 'Inserimento avvenuto con successo',
-                   'type': 'success'}
+            msg = {'content': 'Inserimento avvenuto con successo', 'type': 'success'}
         except ValueError:
             pass
 
@@ -159,34 +149,35 @@ def create():
 
 def _aggiungi_ruolo(id_utente, id_presidio):
     dbi = get_db()
-    dbi.execute('UPDATE presidi SET id_utente = %s WHERE id = %s',
-                (id_utente, id_presidio))
+    dbi.execute(
+        'UPDATE presidi SET id_utente = %s WHERE id = %s', (id_utente, id_presidio)
+    )
 
     dbi.execute("SELECT id FROM ruoli WHERE ruolo = 'presidiante'")
     id_ruolo = dbi.fetchone()['id']
     dbi.execute(
-            """
+        """
             SELECT 1 FROM arruolati
             WHERE id_ruolo = %s AND id_utente = %s
             """,
-            (id_ruolo, id_utente)
-        )
+        (id_ruolo, id_utente),
+    )
     esistente = dbi.fetchone()
 
     if not esistente:
         dbi.execute(
-                """
+            """
                 INSERT INTO arruolati (id_ruolo, id_utente)
                 VALUES (%s, %s)
                 """,
-                (id_ruolo, id_utente)
-                )
+            (id_ruolo, id_utente),
+        )
 
 
 @bp.route('/booking')
 @login_required
 def booking():
-    """ Creazione di un Presidio """
+    """Creazione di un Presidio"""
     id_presidio = request.args.get('id_presidio')
     error = check_inputs_isid({'id': id_presidio})
     if error:
@@ -204,13 +195,11 @@ def _aggiorna_ruolo(id_presidio):
     dbi.execute("SELECT id FROM ruoli WHERE ruolo = 'presidiante'")
     id_ruolo = dbi.fetchone()['id']
 
-    dbi.execute('SELECT id_utente FROM presidi WHERE id = %s',
-                (id_presidio,))
+    dbi.execute('SELECT id_utente FROM presidi WHERE id = %s', (id_presidio,))
     id_utente = dbi.fetchone()['id_utente']
 
     # Verifica se l'utente ha altri presidi con lo stesso ruolo
-    dbi.execute('SELECT * FROM presidi WHERE id_utente = %s',
-                (id_utente,))
+    dbi.execute('SELECT * FROM presidi WHERE id_utente = %s', (id_utente,))
     altri_presidi = dbi.fetchone()
     if not altri_presidi:
         dbi.execute(
@@ -218,19 +207,18 @@ def _aggiorna_ruolo(id_presidio):
             DELETE FROM arruolati
             WHERE id_ruolo = %s AND id_utente = %s
             """,
-            (id_ruolo, id_utente)
-            )
+            (id_ruolo, id_utente),
+        )
 
 
 @bp.route('/unbooking/<int:id_presidio>')
 @login_required
 def unbooking(id_presidio):
-    """ Rimozione di una prenotazione presidio """
+    """Rimozione di una prenotazione presidio"""
     dbi = get_db()
 
     # Rimuovi la prenotazione
-    dbi.execute('UPDATE presidi SET id_utente = NULL WHERE id = %s',
-                (id_presidio,))
+    dbi.execute('UPDATE presidi SET id_utente = NULL WHERE id = %s', (id_presidio,))
     _aggiorna_ruolo(id_presidio)
 
     flash('Rimozione Prenotazione avvenuta con successo', 'success')
@@ -242,7 +230,7 @@ def unbooking(id_presidio):
 @login_required
 @is_ruolo(['moderatore', 'presidi'])
 def assign(id_presidio):
-    """ Assegna un utente a un presidio """
+    """Assegna un utente a un presidio"""
     dbi = get_db()
 
     if request.method == 'POST':
@@ -267,7 +255,7 @@ def assign(id_presidio):
 @login_required
 @is_ruolo(['moderatore', 'presidi'])
 def delete(id_presidio):
-    """ Cancella la data di presidio tramite il proprio id """
+    """Cancella la data di presidio tramite il proprio id"""
 
     get_db().execute('DELETE FROM presidi WHERE id = %s', (id_presidio,))
     _aggiorna_ruolo(id_presidio)

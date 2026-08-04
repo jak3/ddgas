@@ -1,8 +1,6 @@
-""" Gestione dei ruoli degli utenti """
+"""Gestione dei ruoli degli utenti"""
 
-from flask import (
-    Blueprint, flash, redirect, render_template, request, url_for
-)
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from delek.model.checks import check_inputs_ruolo
 from delek.controller.auth import login_required, is_ruolo
@@ -15,7 +13,7 @@ bp = Blueprint('ruoli', __name__, url_prefix='/ruoli')
 @login_required
 @is_ruolo(['moderatore'])
 def list_ruoli():
-    """ Elenco Ruoli """
+    """Elenco Ruoli"""
     get_db().execute('SELECT ruolo, descrizione FROM ruoli')
 
     return render_template('ruoli/list.html', ruoli=get_db().fetchall())
@@ -25,7 +23,7 @@ def list_ruoli():
 @login_required
 @is_ruolo(['moderatore'])
 def list_ruoli_utenti():
-    """ Elenco Ruoli """
+    """Elenco Ruoli"""
     get_db().execute("""
     SELECT username, nome, cognome, ruolo, descrizione
     FROM ruoli inner join arruolati ON ruoli.id = id_ruolo
@@ -34,22 +32,21 @@ def list_ruoli_utenti():
     ORDER BY ruolo, cognome, nome, username
                      """)
 
-    return render_template('ruoli/list_ruoli_utenti.html',
-                           ruoli=get_db().fetchall())
+    return render_template('ruoli/list_ruoli_utenti.html', ruoli=get_db().fetchall())
 
 
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
 @is_ruolo(['moderatore'])
 def create():
-    """ TODO: Ancora non gestito.
-    Creazione di un Ruolo Utente """
+    """TODO: Ancora non gestito.
+    Creazione di un Ruolo Utente"""
     if request.method == 'POST':
         error = check_inputs_ruolo(request.form)
         if not error:
             get_db().execute(
                 'INSERT INTO ruoli (nome, descrizione) VALUES (%s, %s)',
-                (request.form['nome'], request.form['descrizione'])
+                (request.form['nome'], request.form['descrizione']),
             )
             return redirect(url_for('ruoli.list_ruoli'))
 
@@ -62,7 +59,7 @@ def create():
 @login_required
 @is_ruolo(['moderatore'])
 def update(idr):
-    """ UPDATE di un ruolo utente """
+    """UPDATE di un ruolo utente"""
 
     if request.method == 'POST':
         error = check_inputs_ruolo(request.form)
@@ -73,7 +70,7 @@ def update(idr):
                 UPDATE ruoli SET (nome, descrizione) = (%s, %s)
                 WHERE id = %s
                 """,
-                (request.form['nome'], request.form['descrizione'], idr)
+                (request.form['nome'], request.form['descrizione'], idr),
             )
             return redirect(url_for('ruoli.list'))
 
@@ -89,7 +86,7 @@ def update(idr):
 @is_ruolo(['moderatore'])
 def delete(idr):
     """
-        La cancellazione di un ruolo al momento corrisponde alla disattivazione
+    La cancellazione di un ruolo al momento corrisponde alla disattivazione
     """
     get_db().execute('UPDATE ruoli SET attivo = FALSE WHERE id = %s', (idr,))
     return redirect(url_for('ruoli.list_ruoli'))

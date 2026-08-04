@@ -21,16 +21,18 @@ def _connect(dbname):
 
 @pytest.fixture(scope='session', autouse=True)
 def _test_database():
-    """ Ricrea da zero delek_test una volta per sessione di test, dallo
+    """Ricrea da zero delek_test una volta per sessione di test, dallo
     schema.sql "vero" (i DROP TABLE IF EXISTS in testa, che non vanno mai
     lanciati contro il DB live, qui sono esattamente quello che serve per
     un DB usa-e-getta). Mai lo stesso DB usato per lo sviluppo locale
-    (delek), per non modificare dati reali. """
+    (delek), per non modificare dati reali."""
     admin = _connect('postgres')
     with admin.cursor() as cur:
         cur.execute(
             "SELECT pg_terminate_backend(pid) FROM pg_stat_activity"
-            " WHERE datname = %s AND pid <> pg_backend_pid()", (TEST_DB,))
+            " WHERE datname = %s AND pid <> pg_backend_pid()",
+            (TEST_DB,),
+        )
         cur.execute('DROP DATABASE IF EXISTS {0}'.format(TEST_DB))
         cur.execute('CREATE DATABASE {0}'.format(TEST_DB))
     admin.close()
@@ -44,9 +46,9 @@ def _test_database():
 
 @pytest.fixture(autouse=True)
 def _clean_db():
-    """ Isola i test l'uno dall'altro: droppa le tabelle listino_N /
+    """Isola i test l'uno dall'altro: droppa le tabelle listino_N /
     ordine_in_corso_N create dinamicamente (non fanno parte dello schema
-    base) e svuota le tabelle popolate dai fixture, prima di ogni test. """
+    base) e svuota le tabelle popolate dai fixture, prima di ogni test."""
     conn = _connect(TEST_DB)
     with conn.cursor() as cur:
         cur.execute("""
@@ -81,63 +83,69 @@ def client(app):
 
 
 def get_csrf_token(client, url):
-    """ Recupera un token CSRF valido dalla pagina data, cosi i test POST
+    """Recupera un token CSRF valido dalla pagina data, cosi i test POST
     esercitano il percorso reale (CSRFProtect attivo, come in produzione)
-    invece di disabilitare la protezione durante i test. """
+    invece di disabilitare la protezione durante i test."""
     resp = client.get(url)
-    match = re.search(r'name="csrf_token" value="([^"]+)"',
-                      resp.data.decode('utf8'))
+    match = re.search(r'name="csrf_token" value="([^"]+)"', resp.data.decode('utf8'))
     assert match, 'csrf_token non trovato in {0}'.format(url)
     return match.group(1)
 
 
 @pytest.fixture
 def moderatore():
-    """ Crea un utente con ruolo 'moderatore' direttamente via SQL (più
-    veloce e isolato dal passare per le route di registrazione/permessi) """
+    """Crea un utente con ruolo 'moderatore' direttamente via SQL (più
+    veloce e isolato dal passare per le route di registrazione/permessi)"""
     conn = _connect(TEST_DB)
     with conn.cursor() as cur:
         cur.execute(
             "INSERT INTO utenti (username, password, email, attivo)"
             " VALUES (%s, %s, %s, true) RETURNING id",
-            ('modtest', generate_password_hash('pwtest'), 'mod@test.it'))
+            ('modtest', generate_password_hash('pwtest'), 'mod@test.it'),
+        )
         id_utente = cur.fetchone()[0]
         cur.execute(
             "INSERT INTO ruoli (ruolo, descrizione) VALUES ('moderatore', '')"
-            " RETURNING id")
+            " RETURNING id"
+        )
         id_ruolo = cur.fetchone()[0]
         cur.execute(
             "INSERT INTO arruolati (id_ruolo, id_utente) VALUES (%s, %s)",
-            (id_ruolo, id_utente))
+            (id_ruolo, id_utente),
+        )
     conn.close()
     return {'username': 'modtest', 'password': 'pwtest', 'id': id_utente}
 
 
 @pytest.fixture
 def login_moderatore(client, moderatore):
-    """ Autentica il client come moderatore (sessione via cookie), tramite
-    un vero POST /auth/login con token CSRF valido. """
+    """Autentica il client come moderatore (sessione via cookie), tramite
+    un vero POST /auth/login con token CSRF valido."""
     token = get_csrf_token(client, '/auth/login')
-    resp = client.post('/auth/login', data={
-        'username': moderatore['username'],
-        'password': moderatore['password'],
-        'csrf_token': token,
-    })
+    resp = client.post(
+        '/auth/login',
+        data={
+            'username': moderatore['username'],
+            'password': moderatore['password'],
+            'csrf_token': token,
+        },
+    )
     assert resp.status_code == 302, resp.data
     return client
 
 
 @pytest.fixture
 def produttore_con_listino():
-    """ Crea un produttore con un listino_N non vuoto (precondizione di
+    """Crea un produttore con un listino_N non vuoto (precondizione di
     ordini.create) e le tabelle dinamiche listino_N/ordine_in_corso_N,
-    con lo stesso DDL usato da produttori.controller.create(). """
+    con lo stesso DDL usato da produttori.controller.create()."""
     conn = _connect(TEST_DB)
     with conn.cursor() as cur:
         cur.execute(
             "INSERT INTO produttori (nome, mask_mesi_consegna)"
             " VALUES (%s, B'000000000000') RETURNING id",
-            ('Produttore Test',))
+            ('Produttore Test',),
+        )
         id_produttore = cur.fetchone()[0]
         cur.execute("""
             CREATE TABLE listino_{0} (
@@ -165,8 +173,8 @@ def produttore_con_listino():
         """.format(id_produttore))
         cur.execute(
             "INSERT INTO listino_{0}"
-            " (descrizione_prodotto, prezzo) VALUES (%s, %s)".format(
-                id_produttore),
-            ('Prodotto Test', 9.99))
+            " (descrizione_prodotto, prezzo) VALUES (%s, %s)".format(id_produttore),
+            ('Prodotto Test', 9.99),
+        )
     conn.close()
     return id_produttore

@@ -1,4 +1,5 @@
-""" INIT Flask """
+"""INIT Flask"""
+
 import os
 from urllib.parse import urlparse
 
@@ -6,7 +7,7 @@ from datetime import datetime
 
 import click
 import yaml
-from flask import (Flask, render_template, g, redirect, url_for)
+from flask import Flask, render_template, g, redirect, url_for
 from flask_wtf.csrf import generate_csrf
 from markupsafe import Markup
 from werkzeug.security import generate_password_hash
@@ -42,10 +43,10 @@ def bad_request(e):
 
 
 def load_associazione_config(app):
-    """ Carica i dati pubblici dell'associazione (branding, contatti,
+    """Carica i dati pubblici dell'associazione (branding, contatti,
     regole) da config/associazione.yaml e li rende disponibili in
     app.config['ASSOCIAZIONE'] e come variabile 'associazione' in ogni
-    template. """
+    template."""
     path = os.path.join(app.root_path, '..', 'config', 'associazione.yaml')
     with open(path, encoding='utf-8') as f:
         app.config['ASSOCIAZIONE'] = yaml.safe_load(f)
@@ -56,7 +57,7 @@ def load_associazione_config(app):
 
 
 def create_app(local=False):
-    """ INIT App """
+    """INIT App"""
 
     app = Flask(__name__, instance_relative_config=True)
     app.register_error_handler(400, bad_request)
@@ -69,10 +70,9 @@ def create_app(local=False):
 
     @app.template_global()
     def csrf_field():
-        """ Da usare in ogni <form method="post">: {{ csrf_field() }} """
+        """Da usare in ogni <form method="post">: {{ csrf_field() }}"""
         return Markup(
-            '<input type="hidden" name="csrf_token" value="{}">'.format(
-                generate_csrf())
+            '<input type="hidden" name="csrf_token" value="{}">'.format(generate_csrf())
         )
 
     SOGLIA_SALDO_BASSO = 20
@@ -89,13 +89,13 @@ def create_app(local=False):
     # bottone "Paga con Satispay" prima che SATISPAY_KEY_ID/PRIVATE_KEY siano
     # configurate (altrimenti cliccarlo darebbe un errore).
     app.config['SATISPAY_ABILITATO'] = bool(
-        os.environ.get('SATISPAY_KEY_ID')
-        and os.environ.get('SATISPAY_PRIVATE_KEY'))
+        os.environ.get('SATISPAY_KEY_ID') and os.environ.get('SATISPAY_PRIVATE_KEY')
+    )
 
     @app.context_processor
     def inject_saldo_basso():
-        """ Espone 'saldo_basso' ad ogni template quando l'utente loggato
-        ha un credito sotto SOGLIA_SALDO_BASSO, per l'avviso in base.html """
+        """Espone 'saldo_basso' ad ogni template quando l'utente loggato
+        ha un credito sotto SOGLIA_SALDO_BASSO, per l'avviso in base.html"""
         if pagamenti_abilitati and g.get('user'):
             saldo = float(get_totale_utente(g.user['id']) or 0)
             if saldo < SOGLIA_SALDO_BASSO:
@@ -104,14 +104,18 @@ def create_app(local=False):
 
     @app.context_processor
     def inject_anno_corrente():
-        """ Per il copyright nel footer di base.html. """
+        """Per il copyright nel footer di base.html."""
         return {'anno_corrente': datetime.now().year}
 
     if not local:
         url = urlparse(os.environ.get('DATABASE_URL'))
         dbparams = "dbname=%s user=%s password=%s host=%s sslmode=%s" % (
-            url.path[1:], url.username, url.password, url.hostname,
-            'require')
+            url.path[1:],
+            url.username,
+            url.password,
+            url.hostname,
+            'require',
+        )
     else:
         # DELEK_LOCAL_DB permette ai test di puntare a un DB usa-e-getta
         # (es. delek_test) senza toccare il delek di sviluppo. DELEK_DB_HOST
@@ -119,7 +123,8 @@ def create_app(local=False):
         # Compose l'app deve invece raggiungere il servizio 'db' per nome.
         dbparams = "dbname=%s host=%s" % (
             os.environ.get('DELEK_LOCAL_DB', 'delek'),
-            os.environ.get('DELEK_DB_HOST', '127.0.0.1'))
+            os.environ.get('DELEK_DB_HOST', '127.0.0.1'),
+        )
 
     app.config.from_mapping(
         DB_PARAMS=dbparams,
@@ -150,19 +155,19 @@ def create_app(local=False):
 
     @app.template_filter()
     def data(date):
-        """ Usato per <p> """
+        """Usato per <p>"""
         return date.strftime("%d / %m / %Y")
 
     @app.template_filter()
     def data_input(dtime):
-        """ Usato per <input> """
+        """Usato per <input>"""
         if isinstance(dtime, str):
             dtime = datetime.fromisoformat(dtime)
         return dtime.strftime("%Y-%m-%d")
 
     @app.template_filter()
     def data_it(dtime):
-        """ Usato per stampare una data nel formato italiano """
+        """Usato per stampare una data nel formato italiano"""
         if isinstance(dtime, str):
             dtime = datetime.fromisoformat(dtime)
         return dtime.strftime("%d / %m / %Y")
@@ -184,14 +189,13 @@ def create_app(local=False):
     @app.cli.command('create-admin')
     @click.option('--username', prompt=True)
     @click.option('--email', prompt=True)
-    @click.option('--password', prompt=True, hide_input=True,
-                  confirmation_prompt=True)
+    @click.option('--password', prompt=True, hide_input=True, confirmation_prompt=True)
     def create_admin(username, email, password):
-        """ Crea il primo utente con ruolo moderatore per una nuova
+        """Crea il primo utente con ruolo moderatore per una nuova
         istanza (già attivo, non passa dal flusso di attivazione email).
         Utile subito dopo aver applicato schema.sql/bootstrap.sql, quando
         non esiste ancora nessuno con i permessi per assegnare ruoli da
-        interfaccia. """
+        interfaccia."""
         dbi = get_db()
 
         dbi.execute('SELECT id FROM utenti WHERE username = %s', (username,))
@@ -199,10 +203,13 @@ def create_app(local=False):
             click.echo("Utente '{0}' già esistente.".format(username))
             return
 
-        dbi.execute("""
+        dbi.execute(
+            """
             INSERT INTO utenti (username, password, email, attivo)
             VALUES (%s, %s, %s, TRUE) RETURNING id
-            """, (username, generate_password_hash(password), email))
+            """,
+            (username, generate_password_hash(password), email),
+        )
         id_utente = dbi.fetchone()['id']
 
         dbi.execute("SELECT id FROM ruoli WHERE ruolo = 'moderatore'")
@@ -219,9 +226,9 @@ def create_app(local=False):
 
         dbi.execute(
             'INSERT INTO arruolati (id_ruolo, id_utente) VALUES (%s, %s)',
-            (id_ruolo, id_utente))
+            (id_ruolo, id_utente),
+        )
 
-        click.echo("Utente '{0}' creato con ruolo moderatore.".format(
-            username))
+        click.echo("Utente '{0}' creato con ruolo moderatore.".format(username))
 
     return app
