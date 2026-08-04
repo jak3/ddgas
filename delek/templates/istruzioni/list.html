@@ -2,16 +2,6 @@
 
 {% block header %}
     <h1>{% block title %}FAQ - Domande Frequenti{% endblock %}</h1>
-    <script charset="utf-8">
-        function search_video(){
-          input = document.getElementById('input_s');
-          filter = input.value.toUpperCase();
-          document.querySelectorAll('[id^=video]').forEach(video => {
-            content = video.textContent.replace(/\s+/g, '').toUpperCase()
-            video.style.display = content.indexOf(filter) > -1 ? "" : "none";
-          });
-        }
-    </script>
 {% endblock %}
 
 {% block content %}
@@ -20,60 +10,30 @@
 <a class="color-info font-weight-bold" href="{{ url_for('istruzioni.acquisto')
           }}">Come si acquista</a> Istruzioni scritte su come effettuare un acquisto.
 </p>
-<p>
-<a class="color-info font-weight-bold"
-   href="https://docs.google.com/document/d/1cRhtflk3DE8iKnzWeCk1yiRIba3O3f98wmL0r312AHI">FAQ
-e Informazioni Generali</a> Documento condiviso con alcune informazioni utili e
-risposte alle domande frequenti.
-</p>
-<p>
-<a class="color-info font-weight-bold"
-   href="https://docs.google.com/document/d/1T54vFZvexjt7o-VAmD1Ne4AzPMhp4BeXf_uGvT5Ara8/edit?usp=sharing">Istruzioni
-   Presidianti</a> Istruzioni per i presidianti.
-</p>
+
+{% if contenuto_link_esterni %}
+<div style="white-space: pre-line">{{ contenuto_link_esterni | urlize }}</div>
+{% endif %}
+{% if g.user and 'moderatore' in g.ruoli %}
+<p><a class="button button-xs button-border" href="{{
+          url_for('istruzioni.modifica', slug='list_link_esterni') }}">Modifica Link</a></p>
+{% endif %}
 
 <div class="space-m"></div>
 
-{% if 'moderatore' in g.ruoli or 'referente' in g.ruoli %}
+{% if g.user and ('moderatore' in g.ruoli or 'referente' in g.ruoli) %}
 
-<div class="group group-m">
-  <ul>
-    <li><h3>Video Tutorial</h3></li>
-    <li><input type="text" id="input_s" onkeyup="search_video()" placeholder="Cerca Video..."></li>
-  </ul>
-</div>
+<h3>Video Tutorial</h3>
+{% if contenuto_video_tutorial %}
+<div style="white-space: pre-line">{{ contenuto_video_tutorial | urlize }}</div>
+{% else %}
+<p>Nessun video tutorial ancora configurato.</p>
+{% endif %}
+{% if 'moderatore' in g.ruoli %}
+<p><a class="button button-xs button-border" href="{{
+          url_for('istruzioni.modifica', slug='list_video_tutorial') }}">Modifica Video Tutorial</a></p>
+{% endif %}
 
-<p id="video-svo">
-<a class="color-info font-weight-bold" href="https://www.dropbox.com/s/gt7z3p83eb4gs88/Peek-stampa-vecchio-ordine.mp4?raw=1">Stampa Vecchio Ordine</a>
-Video su come stampare le rettifiche e i totali di un ordine passato.
-</p>
-<p id="video-ao">
-<a class="color-info font-weight-bold" href="https://www.dropbox.com/s/m50waix2csid9dp/annulla-ordine.mp4?raw=1">Annulla Ordine ( Cancella tutti gli Ordini )</a>
-Video su come annullare un ordine, cancellando completamente tutti gli ordini.
-</p>
-<p id="video-er">
-<a class="color-info font-weight-bold" href="https://www.dropbox.com/s/xdnsn2xc778kwe4/rettifiche.mp4?raw=1">Esegui Rettifiche</a>
-Video su come effettuale le rettifiche di un ordine.
-</p>
-<p id="video-ascere">
-<a class="color-info font-weight-bold"
-   href="https://www.dropbox.com/s/5hyvfara8pu5qln/AssegnaReferenza.mp4?raw=1">Assegna e Cedi Referenza</a>
-Video su come assegnare e cedere una referenza.
-</p>
-<p id="video-fixpostret">
-<a class="color-info font-weight-bold"
-   href="https://www.dropbox.com/s/2rhrwcd34e56gb1/aggiusta-totale-ordine-post-rettifica.mp4?raw=1">Aggiorna
-totale ordine chiuso</a>
-Video su come aggiornare il totale di un ordine a cui sono state già emesse le
-fatture ma non corrisponde con la fattura emessa dal produttore. La differenza
-al momento viene lasciata in cassa, non trasmessa all'utente FCA (Fondo Cassa).
-</p>
-<p id="video-modinfo">
-<a class="color-info font-weight-bold"
-   href="https://www.dropbox.com/scl/fi/2yvo5v9p88zwniv6fqwfo/cambio-informazioni-personali.mp4?rlkey=1ryxyge90v6how7q6cq8f2j0n&raw=1">Modifica Informazioni Personali</a>
-Video su come modificare le proprie informazioni personali, tra le quali
-password e codice fiscale.
-</p>
 {% endif %}
 
 {% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Modifica Testo{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="box-shadow-m padding-s">
+  <form method="post">{{ csrf_field() }}
+    <p class="field">
+      <label for="contenuto">Testo</label>
+      <textarea name="contenuto" id="contenuto" rows="16">{{ contenuto }}</textarea>
+    </p>
+    <p class="field">
+      <button type="submit" class="button border-color-info">Salva</button>
+    </p>
+  </form>
+</div>
+{% endblock %}

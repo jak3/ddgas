@@ -5,23 +5,11 @@
 {% endblock %}
 
 {% block content %}
-<p>I pagamenti degli ordini avvengono con il metodo del <strong>prepagato</strong>.</p>
-<p>Cosa significa?</p>
-<p>Abbiamo aperto un conto corrente presso {{ associazione.bancari.banca }}
-(al punto 1, di seguito, troverete le coordinate del conto).</p>
-<p>Ogni gasista versa una somma nel conto corrente. L'importo è a discrezione del singolo.</p>
-<p>Il gasista non paga mai in contanti: l'importo che spende viene automaticamente detratto dal suo credito al momento dell'ordine.</p>
-<p>Un esempio: io verso oggi 100 euro nel nostro conto corrente a mio nome.</p>
-<p>Acquisto 11 euro di formaggi, 4 euro di pane e 3 euro di miele.</p>
-<p>Quando vado a ritirare i prodotti non ho bisogno di pagare.</p>
-<p>In credito sul sito non avrò più 100 euro, ma 82 euro (100-18). E così via di ordine in ordine.</p>
-<p>I debiti vengono infatti scalati al momento dell'ordine, prima del ritiro della merce.</p>
-<p>Questo per essere sicuri di avere i soldi per pagare i fornitori senza che gli incaricati a fare i bonifici siano mai costretti a dovere anticipare somme proprie.</p>
-<p>Quando il costo della merce consegnata differisce dall'ordine, il referente fa una rettifica, e il credito residuo viene pertanto corretto.</p>
-<p>Si invitano comunque i gasisti a tenere sotto controllo la situazione del loro credito; sviste segnalate a distanza di troppo tempo potrebbero essere difficili da gestire.</p>
-<p>Quando mi accorgo che i soldi stanno finendo (vedi punto 3) effettuo un altro versamento.</p>
-<p><strong>Attenzione!</strong> Ricordatevi che da quando fate il bonifico al momento nel quale troverete i soldi accreditati sul conto GAS <strong>possono passare anche diversi giorni (fino a 1 settimana)</strong> quindi calcolate bene i tempi se avete un ordine in programma.</p>
-<p>Questo è il semplice funzionamento, ovvero ciò che ogni gasista ha bisogno di sapere per aderire al prepagato. Ciò che il singolo gasista che acquista deve fare è semplicemente versare soldi nel conto corrente e sincerarsi che il suo saldo sia sempre più o meno sufficiente per far fronte ai suoi acquisti.</p>
+<div style="white-space: pre-line">{{ contenuto_intro }}</div>
+{% if g.user and 'moderatore' in g.ruoli %}
+<p><a class="button button-xs button-border" href="{{
+          url_for('istruzioni.modifica', slug='acquisto_intro') }}">Modifica testo</a></p>
+{% endif %}
 <p>Il gas ha un costo. Per questo motivo ogni gasista versa {{ associazione.regole.quota_associativa_annuale }} euro di quota associativa annuale. La quota associativa viene utilizzata per coprire i costi di gestione del conto, l'hosting del sito, l'acquisto di attrezzature da tenere presso {{ associazione.identita.sede }} (bilancia, frigorifero, ecc).</p>
 {% if associazione.regole.tessera_ente_terzo.richiesta %}
 <p>Per poter accedere e per potersi iscrivere al GAS è necessario avere la tessera {{ associazione.regole.tessera_ente_terzo.nome_ente }}.</p>

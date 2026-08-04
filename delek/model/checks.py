@@ -406,3 +406,14 @@ def check_aggiusta_ordine_chiuso(inputs):
                     ) } | CeIdProduttoreRequired | CeDescrizione
 
     return _check(checks, inputs)
+
+def check_inputs_contenuto(inputs):
+    """ :inputs form di modifica di un blocco di contenuti_editabili.
+    could_be_empty=True: alcuni blocchi (es. elenco link/video) sono
+    legittimamente vuoti finché un moderatore non li compila. """
+    checks = { 'contenuto': create_checknerror(
+                    MULTI_LINE_STRING,
+                    'Contenuto non conforme'
+                    ) }
+
+    return _check(checks, inputs)

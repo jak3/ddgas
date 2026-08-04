@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS ricariche_esterne;
+DROP TABLE IF EXISTS contenuti_editabili;
 DROP TABLE IF EXISTS codici_ente_terzo;
 DROP TABLE IF EXISTS nuovi_utenti;
 DROP TABLE IF EXISTS referenze;
@@ -166,4 +167,16 @@ CREATE TABLE codici_ente_terzo (
   id_utente INTEGER PRIMARY KEY,
   codice TEXT,
   FOREIGN KEY (id_utente) REFERENCES utenti (id) ON DELETE CASCADE
+);
+
+-- Blocchi di testo di alcune pagine (es. l'introduzione discorsiva di
+-- istruzioni/acquisto.html) modificabili da un moderatore senza toccare il
+-- codice. Se non è presente una riga per uno slug, il controller usa un
+-- default hardcoded: questa tabella parte quindi vuota, non richiede seed.
+CREATE TABLE contenuti_editabili (
+  slug TEXT PRIMARY KEY,
+  contenuto TEXT NOT NULL,
+  aggiornato_il TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  aggiornato_da INTEGER,
+  FOREIGN KEY (aggiornato_da) REFERENCES utenti (id)
 );
