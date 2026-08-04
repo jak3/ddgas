@@ -4,7 +4,6 @@
 
 ## Controller / Python
 
-- Funzione di utilizzo per column_names, placeholders
 - auth/tesseramenti necessita di una modalità per pulire tutte le sessioni
   utente create fino ad ora, in modo da forzare il login. Al momento l'unica
   soluzione trovata è [cambiare la SECRET_KEY](https://stackoverflow.com/questions/14737531/how-to-i-delete-all-flask-sessions)
