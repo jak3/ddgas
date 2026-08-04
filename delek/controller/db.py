@@ -16,6 +16,25 @@ def quote(string):
     return AsIs(string).getquoted()
 
 
+def column_names_placeholders(inputs):
+    """Da un dict {colonna: valore} genera i due frammenti SQL, già tra
+    parentesi, per costruire INSERT INTO t {column_names} VALUES
+    {placeholders} oppure UPDATE t SET {column_names} = {placeholders}
+    (sintassi Postgres di assegnamento multiplo su riga). Es. con
+    {'nome': 'Mario', 'email': 'm@x.it'} ritorna
+    ('(nome, email)', '(%s, %s)'). tuple(inputs.values()) va passato come
+    parametri nello stesso ordine.
+
+    Sostituisce l'idioma ripetuto in vari controller
+    str(tuple(cn for cn in inputs)).replace("'", ''): fragile (dipende dal
+    repr di un tuple, si rompe se una chiave contiene un apice) e
+    incoerente (a seconda del punto le parentesi erano già incluse nel
+    valore o aggiunte dalla query stessa)."""
+    column_names = '(' + ', '.join(inputs) + ')'
+    placeholders = '(' + ', '.join('%s' for _ in inputs) + ')'
+    return column_names, placeholders
+
+
 def get_db():
     """Istanza DB"""
     if 'db' not in g:

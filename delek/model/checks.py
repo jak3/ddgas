@@ -158,7 +158,10 @@ def check_inputs_listino(inputs):
 
 
 def check_inputs_utente(inputs):
-    """:inputs form per utente"""
+    """:inputs form per utente. La password è facoltativa qui: usato sia in
+    registrazione (dove va richiesta esplicitamente da chi chiama, vedi
+    auth.register()) sia per aggiornare il profilo senza cambiarla
+    (_update_user() la rimuove apposta dagli inputs in quel caso)."""
     checks = (
         CeId
         | {
@@ -167,9 +170,7 @@ def check_inputs_utente(inputs):
                 'Username non conforme o non inserito',
                 could_be_empty=False,
             ),
-            'password': create_checknerror(
-                SINGLE_LINE_STRING, 'Password non conforme', could_be_empty=False
-            ),
+            'password': create_checknerror(SINGLE_LINE_STRING, 'Password non conforme'),
             'cognome': create_checknerror(SINGLE_LINE_STRING, 'Cognome non conforme'),
             'cf': create_checknerror(CF, 'Codice Fiscale non conforme'),
         }

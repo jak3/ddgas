@@ -27,7 +27,7 @@ from delek.model.checks import (
 
 from delek.controller.produttori import get_storico_ordini
 from delek.controller.auth import login_required, is_ruolo, get_utenti, get_utente_by_id
-from delek.controller.db import get_db, atomic
+from delek.controller.db import get_db, atomic, column_names_placeholders
 from delek.controller.tempo import da_form
 
 bp = Blueprint('movimenti', __name__, url_prefix='/movimenti')
@@ -139,13 +139,11 @@ def insert_movimento(movimento: dict):
     cp_movimento = movimento.copy()
     for campo_non_colonna in ('verso_id', 'csrf_token'):
         cp_movimento.pop(campo_non_colonna, None)
+    column_names, placeholders = column_names_placeholders(cp_movimento)
     get_db().execute(
         """
-            INSERT INTO movimenti {column_names} VALUES ({placeholders})
-        """.format(
-            column_names=str(tuple(cn for cn in cp_movimento)).replace('\'', ''),
-            placeholders=','.join('%s' for _ in range(len(cp_movimento))),
-        ),
+            INSERT INTO movimenti {column_names} VALUES {placeholders}
+        """.format(column_names=column_names, placeholders=placeholders),
         tuple(cp_movimento.values()),
     )
 

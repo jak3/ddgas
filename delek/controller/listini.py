@@ -16,7 +16,7 @@ from flask import (
 
 from delek.model.checks import check_inputs_listino
 from delek.controller.auth import login_required, is_ruolo
-from delek.controller.db import get_db
+from delek.controller.db import get_db, column_names_placeholders
 from delek.controller.produttori import get_produttore
 from delek.controller.tempo import adesso
 
@@ -88,14 +88,15 @@ def create(id_produttore):
         inputs = request.form.copy()
         inputs.pop('csrf_token', None)
 
+        column_names, placeholders = column_names_placeholders(inputs)
         dbi.execute(
             """
-                INSERT INTO listino_{idp} ({column_names})
-                VALUES ({placeholders})
+                INSERT INTO listino_{idp} {column_names}
+                VALUES {placeholders}
             """.format(
                 idp=id_produttore,
-                column_names=','.join(inputs.keys()),
-                placeholders=','.join(['%s' for _ in enumerate(inputs)]),
+                column_names=column_names,
+                placeholders=placeholders,
             ),
             tuple(inputs.values()),
         )

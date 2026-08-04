@@ -28,7 +28,7 @@ from delek.controller.auth import (
     is_ruolo,
     is_mod_or_ref_of,
 )
-from delek.controller.db import get_db
+from delek.controller.db import get_db, column_names_placeholders
 from delek.controller.db_wrapper import (
     get_spesa_totale_utenti,
     get_totale_utente_temporaneo,
@@ -356,14 +356,12 @@ def create():
                 inputs['minimo_ordine'] = 0
             inputs['scadenza'] = str(da_form(inputs['scadenza']) + timedelta(hours=22))
             inputs['consegna'] = str(da_form(inputs['consegna']) + timedelta(hours=19))
+            column_names, placeholders = column_names_placeholders(inputs)
             dbi.execute(
                 """
                 INSERT INTO dettagli_ordini {column_names}
-                VALUES ({placeholders})
-            """.format(
-                    column_names=str(tuple(cn for cn in inputs)).replace('\'', ''),
-                    placeholders=','.join('%s' for _ in range(len(inputs))),
-                ),
+                VALUES {placeholders}
+            """.format(column_names=column_names, placeholders=placeholders),
                 tuple(inputs.values()),
             )
             # Lo attivo, in quanto non sono sicuro lo fosse stato
@@ -436,14 +434,12 @@ def update(id_produttore):
                 inputs['scadenza'] = str(scadenza)
             if 'consegna' in request.form:
                 inputs['consegna'] = str(consegna)
+            column_names, placeholders = column_names_placeholders(inputs)
             get_db().execute(
                 """
-                UPDATE dettagli_ordini SET {column_names} = ({placeholders})
+                UPDATE dettagli_ordini SET {column_names} = {placeholders}
                 WHERE id_produttore = %s
-            """.format(
-                    column_names=str(tuple(cn for cn in inputs)).replace('\'', ''),
-                    placeholders=','.join('%s' for _ in range(len(inputs))),
-                ),
+            """.format(column_names=column_names, placeholders=placeholders),
                 tuple(inputs.values()) + (id_produttore,),
             )
 

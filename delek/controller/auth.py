@@ -33,7 +33,7 @@ from delek.model.checks import (
     check_inputs_smemo,
 )
 
-from delek.controller.db import get_db, atomic
+from delek.controller.db import get_db, atomic, column_names_placeholders
 from delek.controller.tempo import adesso
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -227,6 +227,11 @@ def register():
     """Registrazione Utente"""
     if request.method == 'POST':
         error = check_inputs_utente(request.form)
+        # check_inputs_utente non richiede la password (serve anche per
+        # l'aggiornamento profilo, dove è facoltativa): in registrazione
+        # invece è sempre obbligatoria.
+        if not error and not request.form.get('password'):
+            error = {'error_msg': "Il campo 'password' non può essere vuoto"}
 
         if not error:
             if get_utente_by_username(request.form['username']) is not None:
@@ -492,14 +497,12 @@ def _update_user(inputs: dict, id_utente):
     inputs = {k: v for k, v in inputs.items() if k in COLONNE_UTENTE_MODIFICABILI}
 
     if not error:
+        column_names, placeholders = column_names_placeholders(inputs)
         get_db().execute(
             """
-            UPDATE utenti SET {column_names} = ({placeholders})
+            UPDATE utenti SET {column_names} = {placeholders}
             WHERE id = %s
-            """.format(
-                column_names=str(tuple(cn for cn in inputs)).replace('\'', ''),
-                placeholders=','.join('%s' for _ in range(len(inputs))),
-            ),
+            """.format(column_names=column_names, placeholders=placeholders),
             tuple(v for v in inputs.values()) + (id_utente,),
         )
 
@@ -900,13 +903,11 @@ def set_codice_ente_terzo():
 
 
 def _insert_movimento(movimento: dict):
+    column_names, placeholders = column_names_placeholders(movimento)
     get_db().execute(
         """
-            INSERT INTO movimenti {column_names} VALUES ({placeholders})
-        """.format(
-            column_names=str(tuple(cn for cn in movimento)).replace('\'', ''),
-            placeholders=','.join('%s' for _ in range(len(movimento))),
-        ),
+            INSERT INTO movimenti {column_names} VALUES {placeholders}
+        """.format(column_names=column_names, placeholders=placeholders),
         tuple(movimento.values()),
     )
 

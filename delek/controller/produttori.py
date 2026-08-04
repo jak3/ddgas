@@ -13,7 +13,7 @@ from delek.controller.auth import (
 )
 from delek.model.checks import check_inputs_produttore, check_inputs_isid
 from delek.model.glossary import MESI
-from delek.controller.db import get_db
+from delek.controller.db import get_db, column_names_placeholders
 from delek.controller.tempo import da_form
 
 bp = Blueprint('produttori', __name__, url_prefix='/produttori')
@@ -36,7 +36,9 @@ def build_mask_fix_inputs(inputs: dict) -> dict:
     return a tuple like ('101010101010', inputs)"""
     mask = ['0' for i in range(12)]
 
-    inputs |= {'attivo': True}
+    # CeAttivo valida contro ZERO_OR_ONE ('0'/'1' stringa): un booleano
+    # Python fallirebbe sempre il regex match ("True"/"False" non è "0"/"1").
+    inputs |= {'attivo': '1'}
     # Rimuovo id_utente perchè la tabella produttori non contiene questo campo,
     # per aggiungere la referenza, se presente, prendo direttamente dal form
     if 'id_utente' in inputs.keys():
@@ -121,7 +123,7 @@ def create():
         inputs = build_mask_fix_inputs(dict(request.form))
         # se non presente un referente, il produttore non risulta attivo
         if 'id_utente' not in request.form.keys():
-            inputs['attivo'] = False
+            inputs['attivo'] = '0'
         error = check_inputs_produttore(inputs)
 
         if not error:
@@ -135,14 +137,12 @@ def create():
                 k: v for k, v in inputs.items() if k in COLONNE_PRODUTTORE_MODIFICABILI
             }
 
+            column_names, placeholders = column_names_placeholders(inputs)
             dbi.execute(
                 """
-                INSERT INTO produttori {column_names} VALUES ({placeholders})
+                INSERT INTO produttori {column_names} VALUES {placeholders}
                     RETURNING id
-                """.format(
-                    column_names=str(tuple(cn for cn in inputs)).replace('\'', ''),
-                    placeholders=','.join('%s' for _ in range(len(inputs))),
-                ),
+                """.format(column_names=column_names, placeholders=placeholders),
                 tuple(inputs.values()),
             )
             id_produttore = dbi.fetchone()['id']
@@ -208,7 +208,7 @@ def update(id_produttore):
         else:
             inputs = build_mask_fix_inputs(dict(request.form))
             if len(get_referenti(id_produttore)) <= 0:
-                inputs['attivo'] = False
+                inputs['attivo'] = '0'
             error = check_inputs_produttore(inputs)
 
         if not error:
@@ -224,14 +224,12 @@ def update(id_produttore):
                     for k, v in inputs.items()
                     if k in COLONNE_PRODUTTORE_MODIFICABILI
                 }
+                column_names, placeholders = column_names_placeholders(inputs)
                 dbi.execute(
                     """
-                    UPDATE produttori SET {column_names} = ({placeholders})
+                    UPDATE produttori SET {column_names} = {placeholders}
                     WHERE id = %s
-                    """.format(
-                        column_names=str(tuple(cn for cn in inputs)).replace('\'', ''),
-                        placeholders=','.join('%s' for _ in range(len(inputs))),
-                    ),
+                    """.format(column_names=column_names, placeholders=placeholders),
                     # (v1, ..., vn, id_produttore)
                     tuple(v for v in inputs.values()) + (id_produttore,),
                 )
