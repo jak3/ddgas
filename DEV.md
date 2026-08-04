@@ -2,13 +2,6 @@
 
 ## Nuove Funzionalità
 
-## Controller / Python
-
-- auth/tesseramenti necessita di una modalità per pulire tutte le sessioni
-  utente create fino ad ora, in modo da forzare il login. Al momento l'unica
-  soluzione trovata è [cambiare la SECRET_KEY](https://stackoverflow.com/questions/14737531/how-to-i-delete-all-flask-sessions)
-  app.secret_key = os.urandom(32)
-
 ## View / HTML
 
 - Uniformare movimenti/list e movimenti/list_all (il codice Ereditarietà)
@@ -95,6 +88,17 @@ dentro il container: `docker compose exec -e DELEK_DB_HOST=db app python -m pyte
 Pensato solo per sviluppo/test locale, non per il deploy in produzione
 (quello resta Heroku, vedi sotto — valutare un'immagine di produzione è
 un lavoro separato, non ancora fatto).
+
+## Tesseramenti: blocco continuo, non solo al login
+
+Quando parte una nuova campagna tesseramenti, chi era già loggato prima
+non va ri-autenticato: `auth.load_logged_in_user()` (before_app_request)
+rivaluta `is_tesserato()` ad ogni richiesta, non solo al momento del
+login. Un utente non più in regola viene bloccato sulla pagina di
+adesione tesseramento alla richiesta successiva, con la sessione ancora
+valida (nessun logout forzato, nessuna rotazione di SECRET_KEY). Endpoint
+esenti (altrimenti redirect loop): `ENDPOINT_ESENTI_DA_TESSERAMENTO` in
+`delek/controller/auth.py`.
 
 ## Fuso orario (scadenza, consegna, ecc)
 

@@ -430,6 +430,16 @@ def login():
     return render_template('auth/login.html')
 
 
+# Endpoint sempre raggiungibili anche da un utente loggato ma non ancora
+# tesserato per la campagna corrente, per non creare un redirect loop nel
+# controllo dentro load_logged_in_user() qui sotto.
+ENDPOINT_ESENTI_DA_TESSERAMENTO = (
+    'auth.effettua_tesseramento',
+    'auth.logout',
+    'static',
+)
+
+
 @bp.before_app_request
 def load_logged_in_user():
     """Gestione della Sessione Utente:
@@ -441,27 +451,41 @@ def load_logged_in_user():
 
     if user_id is None:
         g.user = None
-    else:
-        dbi = get_db()
-        g.user = get_utente_by_id(user_id)
-        dbi.execute(
-            """
-            SELECT ruolo
-            FROM arruolati INNER JOIN ruoli ON ruoli.id = arruolati.id_ruolo
-            WHERE arruolati.id_utente = %s""",
-            (g.user['id'],),
+        return
+
+    dbi = get_db()
+    g.user = get_utente_by_id(user_id)
+    dbi.execute(
+        """
+        SELECT ruolo
+        FROM arruolati INNER JOIN ruoli ON ruoli.id = arruolati.id_ruolo
+        WHERE arruolati.id_utente = %s""",
+        (g.user['id'],),
+    )
+    ruoli = dbi.fetchall()
+    # [ Row Obj1, Row Obj2] => ['moderatore', 'referente']
+    g.ruoli = [row['ruolo'] for row in ruoli]
+    dbi.execute(
+        """
+        SELECT id_produttore FROM referenze
+        WHERE id_utente = %s""",
+        (g.user['id'],),
+    )
+    produttori = dbi.fetchall()
+    g.referenze = [row['id_produttore'] for row in produttori]
+
+    # Se nel frattempo è partita una nuova campagna tesseramenti, l'utente
+    # va bloccato alla richiesta successiva (non serve invalidare la
+    # sessione/forzare un nuovo login: is_tesserato() rivaluta il
+    # pagamento ad ogni richiesta, non solo al momento del login).
+    if request.endpoint in ENDPOINT_ESENTI_DA_TESSERAMENTO:
+        return
+    if not is_tesserato(g.user['id']) and not is_produttore(g.user['id']):
+        session['pending_tesseramento'] = g.user['id']
+        return render_template(
+            'auth/effettua_tesseramento.html',
+            campagna=get_ultima_campagna_tesseramenti(),
         )
-        ruoli = dbi.fetchall()
-        # [ Row Obj1, Row Obj2] => ['moderatore', 'referente']
-        g.ruoli = [row['ruolo'] for row in ruoli]
-        dbi.execute(
-            """
-            SELECT id_produttore FROM referenze
-            WHERE id_utente = %s""",
-            (g.user['id'],),
-        )
-        produttori = dbi.fetchall()
-        g.referenze = [row['id_produttore'] for row in produttori]
 
 
 @bp.route('/logout')
