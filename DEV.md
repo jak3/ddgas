@@ -2,11 +2,6 @@
 
 ## Nuove Funzionalità
 
-## View / HTML
-
-- bottone "Vedi Contatti" in list_produttori da esplicitare un pochino di che
-  contatto si tratta e renderlo visibilmente più carino
-
 ## Model
 
 - ORM

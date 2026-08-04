@@ -103,11 +103,15 @@
           <ul>
             <li>
               <ul id="contatti-{{ produttore.id }}" style="list-style:none">
-                {% for property in produttore[3:5] %}
-                {% if property %}
-                <li>{{ property }}</li>
+                {% if produttore.email %}
+                <li>&#9993; <a href="mailto:{{ produttore.email }}">{{ produttore.email }}</a></li>
                 {% endif %}
-                {% endfor %}
+                {% if produttore.telefono %}
+                <li>&#9742; {{ produttore.telefono }}</li>
+                {% endif %}
+                {% if produttore.website %}
+                <li>&#127760; <a href="{{ produttore.website }}" target="_blank" rel="noopener noreferrer">{{ produttore.website }}</a></li>
+                {% endif %}
               </ul>
             </li>
             <li>
