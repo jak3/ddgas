@@ -583,7 +583,12 @@ def aggiusta_ordine_chiuso():
             (gestore, tipologia, importo, descrizione)
                 VALUES (%s, %s, %s, %s) RETURNING id
         """,
-            (g.user['id'], 6, nuovo_totale, request.form['descrizione']),
+            (
+                g.user['id'],
+                6,
+                nuovo_totale,
+                request.form['descrizione'],
+            ),
         )
 
         id_movimento = dbi.fetchone()['id']

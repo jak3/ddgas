@@ -105,7 +105,7 @@ def moderatore():
         )
         id_utente = cur.fetchone()[0]
         cur.execute(
-            "INSERT INTO ruoli (ruolo, descrizione) VALUES ('moderatore', '')"
+            "INSERT INTO ruoli (nome, descrizione) VALUES ('moderatore', '')"
             " RETURNING id"
         )
         id_ruolo = cur.fetchone()[0]

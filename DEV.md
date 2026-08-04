@@ -7,10 +7,6 @@
 - ORM
 - Aggiungere Tests
 - Benchmark close connection/cursor pg
-- [schema.sql] change ruoli.ruolo to ruoli.nome
-- [schema.sql] arruolati.id_ruolo/.id_utente UNIQUE?
-- [schema.sql] fare in modo che sia richiesto un utente fondo cassa per poter
-  utilizzare movimenti di aggiusta_ordine_chiuso
 
 ## Security
 

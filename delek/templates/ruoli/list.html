@@ -15,7 +15,7 @@
 {% block content %}
 <dl>
   {% for ruolo in ruoli %}
-  <dt>{{ ruolo['ruolo'] }}</dt>
+  <dt>{{ ruolo['nome'] }}</dt>
   <dl>{{ ruolo['descrizione'] }}</dl>
   {% endfor %}
 </dl>

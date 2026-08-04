@@ -394,7 +394,7 @@ def is_produttore(id_utente):
     get_db().execute(
         """ SELECT 1
         FROM arruolati INNER JOIN ruoli ON ruoli.id = arruolati.id_ruolo
-        WHERE ruolo = %s AND id_utente = %s
+        WHERE nome = %s AND id_utente = %s
         """,
         ('produttore', id_utente),
     )
@@ -457,14 +457,14 @@ def load_logged_in_user():
     g.user = get_utente_by_id(user_id)
     dbi.execute(
         """
-        SELECT ruolo
+        SELECT nome
         FROM arruolati INNER JOIN ruoli ON ruoli.id = arruolati.id_ruolo
-        WHERE arruolati.id_utente = %s""",
+        WHERE arruolati.id_utente = %s AND ruoli.attivo""",
         (g.user['id'],),
     )
     ruoli = dbi.fetchall()
     # [ Row Obj1, Row Obj2] => ['moderatore', 'referente']
-    g.ruoli = [row['ruolo'] for row in ruoli]
+    g.ruoli = [row['nome'] for row in ruoli]
     dbi.execute(
         """
         SELECT id_produttore FROM referenze
@@ -598,6 +598,7 @@ def gestione_permessi(id_utente):
                 dbi.execute(
                     """
                     INSERT INTO arruolati (id_ruolo, id_utente) VALUES (%s, %s)
+                    ON CONFLICT DO NOTHING
                     """,
                     (request.form.get('id_ruolo'), id_utente),
                 )
@@ -620,7 +621,7 @@ def gestione_permessi(id_utente):
             return redirect(url_for('auth.gestione_permessi', id_utente=id_utente))
 
     dbi.execute(
-        """ SELECT DISTINCT id_ruolo, ruolo as nome
+        """ SELECT DISTINCT id_ruolo, nome
             FROM arruolati INNER JOIN ruoli ON arruolati.id_ruolo = ruoli.id
             WHERE id_utente = %s
         """,
@@ -640,7 +641,7 @@ def gestione_permessi(id_utente):
 
     referenze = dbi.fetchall()
 
-    dbi.execute('SELECT * FROM ruoli')
+    dbi.execute('SELECT * FROM ruoli WHERE attivo ORDER BY nome')
     ruoli = dbi.fetchall()
 
     dbi.execute('SELECT id, nome FROM produttori ORDER BY nome')

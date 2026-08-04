@@ -153,7 +153,7 @@ def _aggiungi_ruolo(id_utente, id_presidio):
         'UPDATE presidi SET id_utente = %s WHERE id = %s', (id_utente, id_presidio)
     )
 
-    dbi.execute("SELECT id FROM ruoli WHERE ruolo = 'presidiante'")
+    dbi.execute("SELECT id FROM ruoli WHERE nome = 'presidiante'")
     id_ruolo = dbi.fetchone()['id']
     dbi.execute(
         """
@@ -168,7 +168,7 @@ def _aggiungi_ruolo(id_utente, id_presidio):
         dbi.execute(
             """
                 INSERT INTO arruolati (id_ruolo, id_utente)
-                VALUES (%s, %s)
+                VALUES (%s, %s) ON CONFLICT DO NOTHING
                 """,
             (id_ruolo, id_utente),
         )
@@ -192,7 +192,7 @@ def booking():
 def _aggiorna_ruolo(id_presidio):
     dbi = get_db()
 
-    dbi.execute("SELECT id FROM ruoli WHERE ruolo = 'presidiante'")
+    dbi.execute("SELECT id FROM ruoli WHERE nome = 'presidiante'")
     id_ruolo = dbi.fetchone()['id']
 
     dbi.execute('SELECT id_utente FROM presidi WHERE id = %s', (id_presidio,))

@@ -14,7 +14,7 @@ bp = Blueprint('ruoli', __name__, url_prefix='/ruoli')
 @is_ruolo(['moderatore'])
 def list_ruoli():
     """Elenco Ruoli"""
-    get_db().execute('SELECT ruolo, descrizione FROM ruoli')
+    get_db().execute('SELECT nome, descrizione FROM ruoli WHERE attivo ORDER BY nome')
 
     return render_template('ruoli/list.html', ruoli=get_db().fetchall())
 
@@ -25,11 +25,11 @@ def list_ruoli():
 def list_ruoli_utenti():
     """Elenco Ruoli"""
     get_db().execute("""
-    SELECT username, nome, cognome, ruolo, descrizione
+    SELECT username, utenti.nome, cognome, ruoli.nome AS ruolo, descrizione
     FROM ruoli inner join arruolati ON ruoli.id = id_ruolo
                inner join utenti ON utenti.id = id_utente
-    GROUP BY username, nome, cognome, ruolo, descrizione
-    ORDER BY ruolo, cognome, nome, username
+    GROUP BY username, utenti.nome, cognome, ruoli.nome, descrizione
+    ORDER BY ruoli.nome, cognome, utenti.nome, username
                      """)
 
     return render_template('ruoli/list_ruoli_utenti.html', ruoli=get_db().fetchall())
@@ -72,7 +72,7 @@ def update(idr):
                 """,
                 (request.form['nome'], request.form['descrizione'], idr),
             )
-            return redirect(url_for('ruoli.list'))
+            return redirect(url_for('ruoli.list_ruoli'))
 
         flash(error['error_msg'], 'warning')
 

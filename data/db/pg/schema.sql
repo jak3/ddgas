@@ -46,8 +46,9 @@ CREATE TABLE produttori (
 
 CREATE TABLE ruoli (
   id SERIAL PRIMARY KEY,
-  ruolo VARCHAR(40) NOT NULL, -- 'nome' sarebbe stato meglio che ne 'ruolo'
-  descrizione TEXT NOT NULL
+  nome VARCHAR(40) NOT NULL,
+  descrizione TEXT NOT NULL,
+  attivo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE arruolati (
@@ -55,7 +56,8 @@ CREATE TABLE arruolati (
   id_ruolo INTEGER NOT NULL,
   id_utente INTEGER NOT NULL,
   FOREIGN KEY (id_ruolo) REFERENCES ruoli (id),
-  FOREIGN KEY (id_utente) REFERENCES utenti (id)
+  FOREIGN KEY (id_utente) REFERENCES utenti (id),
+  UNIQUE (id_ruolo, id_utente)
 );
 
 CREATE TABLE referenze (

@@ -16,7 +16,7 @@ insert into tipologie_movimenti (id, nome)
 values (1, 'versamento'), (2, 'prelievo'), (3, 'giroconto'), (4, 'acquisto'),
  (5, 'rettifica'), (6, 'aggiustamento'), (7, 'spese CC'), (8, 'spese varie');
 
-insert into ruoli (ruolo, descrizione)
+insert into ruoli (nome, descrizione)
 values
   ('moderatore', 'Aggiunge produttori, assegna referenti, gestisce i membri'),
   ('referente', 'Gestisce un produttore'),

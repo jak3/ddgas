@@ -212,20 +212,21 @@ def create_app(local=False):
         )
         id_utente = dbi.fetchone()['id']
 
-        dbi.execute("SELECT id FROM ruoli WHERE ruolo = 'moderatore'")
+        dbi.execute("SELECT id FROM ruoli WHERE nome = 'moderatore'")
         ruolo = dbi.fetchone()
         if ruolo:
             id_ruolo = ruolo['id']
         else:
             dbi.execute("""
-                INSERT INTO ruoli (ruolo, descrizione) VALUES ('moderatore',
+                INSERT INTO ruoli (nome, descrizione) VALUES ('moderatore',
                     'Aggiunge produttori, assegna referenti, gestisce i membri')
                 RETURNING id
                 """)
             id_ruolo = dbi.fetchone()['id']
 
         dbi.execute(
-            'INSERT INTO arruolati (id_ruolo, id_utente) VALUES (%s, %s)',
+            'INSERT INTO arruolati (id_ruolo, id_utente) VALUES (%s, %s)'
+            ' ON CONFLICT DO NOTHING',
             (id_ruolo, id_utente),
         )
 
