@@ -88,6 +88,18 @@ def list_ordini():
 
     ordini_scadenza = list(filter(lambda o: o['scadenza'] >= adesso(), dettagli_ordini))
 
+    dbi.execute(
+        'SELECT id_produttore FROM notifiche_produttore WHERE id_utente = %s',
+        (g.user['id'],),
+    )
+    produttori_notificati = {row['id_produttore'] for row in dbi.fetchall()}
+
+    dbi.execute(
+        'SELECT id_dettaglio_ordine FROM notifiche_ordine WHERE id_utente = %s',
+        (g.user['id'],),
+    )
+    ordini_notificati = {row['id_dettaglio_ordine'] for row in dbi.fetchall()}
+
     # Rimozione direttamente nel DB
     rimuovi_ordini_inconclusi(dettagli_ordini)
 
@@ -133,7 +145,9 @@ def list_ordini():
         mie_prossime_consegne=mie_prossime_consegne,
         ordini_archivio=_get_archivio_ordini(10),
         ordini_in_rettifica=ordini_in_rettifica,
+        ordini_notificati=ordini_notificati,
         ordini_scadenza=ordini_scadenza,
+        produttori_notificati=produttori_notificati,
         prenotati=get_date_con_presidiante(),
         prossime_consegne=prossime_consegne,
         totale=get_totale_utente_temporaneo(),
@@ -407,6 +421,7 @@ def update(id_produttore):
 
     if request.method == 'POST':
         error = check_inputs_dettagli_ordine(request.form)
+        reset_promemoria = False
 
         try:
             scadenza = da_form(request.form['scadenza']) + timedelta(hours=22)
@@ -417,6 +432,11 @@ def update(id_produttore):
                     error = {
                         'error_msg': 'Non è consentito impostare scadenza nel passato'
                     }
+                else:
+                    # La scadenza è cambiata: se il promemoria era già
+                    # partito per la data vecchia, va rimandato per la
+                    # nuova, altrimenti resterebbe silenziato per sempre.
+                    reset_promemoria = True
             if 'consegna' in request.form and dettaglio['consegna'] != consegna:
                 if adesso() > consegna:
                     error = {
@@ -434,6 +454,8 @@ def update(id_produttore):
                 inputs['scadenza'] = str(scadenza)
             if 'consegna' in request.form:
                 inputs['consegna'] = str(consegna)
+            if reset_promemoria:
+                inputs['promemoria_inviato'] = False
             column_names, placeholders = column_names_placeholders(inputs)
             get_db().execute(
                 """

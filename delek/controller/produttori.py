@@ -349,7 +349,7 @@ def get_referenti(id_produttore=None):
     """Get tutte le referenze se id_produttore non è passato come parametro"""
     get_db().execute(
         """
-        SELECT referenze.id, id_produttore, id_utente, username, nome, cognome
+        SELECT referenze.id, id_produttore, id_utente, username, nome, cognome, email
         FROM referenze INNER JOIN utenti ON id_utente = utenti.id
         WHERE %s = %s
         """,

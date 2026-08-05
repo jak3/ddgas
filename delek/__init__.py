@@ -18,6 +18,7 @@ from delek.controller.auth import bp as auth_bp
 from delek.controller.istruzioni import bp as istruzioni_bp
 from delek.controller.listini import bp as listini_bp
 from delek.controller.movimenti import bp as movimenti_bp, get_totale_utente
+from delek.controller.notifiche import bp as notifiche_bp, esegui_promemoria_ordini
 from delek.controller.ordini import bp as ordini_bp
 from delek.controller.pagamenti import bp as pagamenti_bp
 from delek.controller.presidi import bp as presidi_bp
@@ -177,6 +178,7 @@ def create_app(local=False):
     app.register_blueprint(istruzioni_bp)
     app.register_blueprint(listini_bp)
     app.register_blueprint(movimenti_bp)
+    app.register_blueprint(notifiche_bp)
     app.register_blueprint(ordini_bp)
     if pagamenti_abilitati:
         app.register_blueprint(pagamenti_bp)
@@ -231,5 +233,12 @@ def create_app(local=False):
         )
 
         click.echo("Utente '{0}' creato con ruolo moderatore.".format(username))
+
+    @app.cli.command('invia-promemoria-ordini')
+    def invia_promemoria_ordini():
+        """Invia il promemoria (referenti + iscritti) per ogni ordine che
+        scade nelle prossime 24 ore e non l'ha già ricevuto. Pensato per
+        essere lanciato una volta al giorno via Heroku Scheduler."""
+        click.echo(esegui_promemoria_ordini())
 
     return app

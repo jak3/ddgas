@@ -80,7 +80,29 @@ CREATE TABLE dettagli_ordini (
   consegna TIMESTAMPTZ NOT NULL,
   minimo_ordine NUMERIC(7, 2) NOT NULL DEFAULT 0,
   nota TEXT,
+  promemoria_inviato BOOLEAN NOT NULL DEFAULT FALSE,
   FOREIGN KEY (id_produttore) REFERENCES produttori (id)
+);
+
+-- Iscrizione permanente: l'utente vuole essere avvisato per ogni futuro
+-- ordine di questo produttore, non solo per quello attualmente aperto.
+CREATE TABLE notifiche_produttore (
+  id_utente INTEGER NOT NULL,
+  id_produttore INTEGER NOT NULL,
+  PRIMARY KEY (id_utente, id_produttore),
+  FOREIGN KEY (id_utente) REFERENCES utenti (id) ON DELETE CASCADE,
+  FOREIGN KEY (id_produttore) REFERENCES produttori (id) ON DELETE CASCADE
+);
+
+-- Iscrizione una tantum, solo per l'ordine attualmente aperto: la riga
+-- referenziata sparisce (CASCADE) quando l'ordine chiude, non si trascina
+-- sul ciclo d'ordine successivo dello stesso produttore.
+CREATE TABLE notifiche_ordine (
+  id_utente INTEGER NOT NULL,
+  id_dettaglio_ordine INTEGER NOT NULL,
+  PRIMARY KEY (id_utente, id_dettaglio_ordine),
+  FOREIGN KEY (id_utente) REFERENCES utenti (id) ON DELETE CASCADE,
+  FOREIGN KEY (id_dettaglio_ordine) REFERENCES dettagli_ordini (id) ON DELETE CASCADE
 );
 
 CREATE TABLE tipologie_movimenti (
