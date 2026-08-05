@@ -727,7 +727,7 @@ def rettifica_ordine(id_produttore):
     )
 
 
-@bp.route('/rettifica/<int:id_produttore>/rimuovi/<int:id_utente>')
+@bp.route('/rettifica/<int:id_produttore>/rimuovi/<int:id_utente>', methods=('POST',))
 @login_required
 @is_ruolo(['moderatore', 'referente'])
 def rimuovi_singolo_ordine(id_produttore, id_utente):

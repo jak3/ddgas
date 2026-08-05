@@ -4,6 +4,7 @@ prima di queste modifiche, non introdotti dai refactor che li hanno
 scoperti."""
 
 import psycopg2
+from werkzeug.security import generate_password_hash
 
 from tests.conftest import DB_HOST, TEST_DB, get_csrf_token
 
@@ -122,3 +123,144 @@ def test_ruoli_create_e_update_hanno_un_template(login_moderatore):
 
     resp = client.get('/ruoli/')
     assert b'TestRuoloMod' in resp.data
+
+
+def test_presidi_newy_non_duplica_e_richiede_post(login_moderatore):
+    """newy() chiamava INSERT due volte per ogni giorno nel loop: ogni
+    click su "Genera Date Anno in Corso" duplicava tutte le righe. La
+    route era anche una GET che scrive sul DB, cliccabile/crawlabile
+    senza alcuna protezione CSRF (stessa classe di bug già corretta per
+    movimenti.delete): ora richiede POST."""
+    client = login_moderatore
+
+    resp = client.get('/presidi/newy')
+    assert resp.status_code == 405, resp.data
+
+    token = get_csrf_token(client, '/presidi/')
+    resp = client.post('/presidi/newy', data={'csrf_token': token})
+    assert resp.status_code == 302, resp.data
+
+    conn = _connect()
+    with conn.cursor() as cur:
+        cur.execute(
+            'SELECT giorno FROM presidi GROUP BY giorno HAVING COUNT(*) > 1'
+        )
+        assert cur.fetchall() == [], 'newy ha inserito righe duplicate'
+    conn.close()
+
+
+def test_presidi_unbooking_richiede_autorizzazione(app, moderatore):
+    """unbooking() non controllava affatto chi stesse chiamando (solo
+    login_required, nessun controllo di proprietà/ruolo): qualunque
+    utente loggato poteva disdire la prenotazione di un altro
+    conoscendone/indovinandone l'id (IDOR). Il template nascondeva il
+    link ma non proteggeva la route."""
+    conn = _connect()
+    with conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO presidi (giorno, id_utente)"
+            " VALUES (now() + interval '7 days', %s) RETURNING id",
+            (moderatore['id'],),
+        )
+        id_presidio = cur.fetchone()[0]
+        cur.execute(
+            "INSERT INTO utenti (username, password, email, attivo)"
+            " VALUES ('altro', %s, 'altro@test.it', true) RETURNING id",
+            (generate_password_hash('pwaltro'),),
+        )
+    conn.close()
+
+    other_client = app.test_client()
+    token = get_csrf_token(other_client, '/auth/login')
+    resp = other_client.post(
+        '/auth/login',
+        data={'username': 'altro', 'password': 'pwaltro', 'csrf_token': token},
+    )
+    assert resp.status_code == 302, resp.data
+
+    token = get_csrf_token(other_client, '/presidi/')
+    resp = other_client.post(
+        '/presidi/unbooking/{0}'.format(id_presidio), data={'csrf_token': token}
+    )
+    assert resp.status_code == 302, resp.data
+
+    conn = _connect()
+    with conn.cursor() as cur:
+        cur.execute('SELECT id_utente FROM presidi WHERE id = %s', (id_presidio,))
+        assert cur.fetchone()[0] == moderatore['id'], (
+            'un utente non autorizzato ha rimosso la prenotazione altrui'
+        )
+    conn.close()
+
+
+def test_produttori_remove_referente_richiede_post(
+    login_moderatore, produttore_con_listino
+):
+    """remove_referente() era una GET che cancella (DELETE FROM
+    referenze), linkata come <a href> in produttori/update.html: bastava
+    un click, senza CSRF. Ora richiede POST."""
+    client = login_moderatore
+    resp = client.get('/produttori/{0}/1/delete'.format(produttore_con_listino))
+    assert resp.status_code == 405, resp.data
+
+
+def test_ordini_rimuovi_singolo_ordine_richiede_post(
+    login_moderatore, moderatore, produttore_con_listino
+):
+    """rimuovi_singolo_ordine() era una GET che cancella (DELETE FROM
+    ordine_in_corso_N), linkata come <a href> in ordini/rettifica.html
+    dentro il <form> principale della rettifica (non annidabile in un
+    secondo <form>): risolto con l'attributo HTML5 form= verso un <form>
+    nascosto esterno. La route ora richiede POST."""
+    conn = _connect()
+    with conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO dettagli_ordini (id_produttore, scadenza, consegna)"
+            " VALUES (%s, now(), now())",
+            (produttore_con_listino,),
+        )
+        cur.execute('SELECT id FROM listino_{0} LIMIT 1'.format(produttore_con_listino))
+        id_prodotto = cur.fetchone()[0]
+        cur.execute(
+            'INSERT INTO ordine_in_corso_{0}'
+            ' (id_utente, id_prodotto, colli_richiesti) VALUES (%s, %s, 1)'.format(
+                produttore_con_listino
+            ),
+            (moderatore['id'], id_prodotto),
+        )
+    conn.close()
+
+    client = login_moderatore
+
+    resp = client.get('/ordini/rettifica/{0}'.format(produttore_con_listino))
+    assert resp.status_code == 200, resp.data
+    assert b'rimuovi-ordine-' in resp.data
+
+    resp = client.get(
+        '/ordini/rettifica/{0}/rimuovi/{1}'.format(
+            produttore_con_listino, moderatore['id']
+        )
+    )
+    assert resp.status_code == 405, resp.data
+
+    token = get_csrf_token(
+        client, '/ordini/rettifica/{0}'.format(produttore_con_listino)
+    )
+    resp = client.post(
+        '/ordini/rettifica/{0}/rimuovi/{1}'.format(
+            produttore_con_listino, moderatore['id']
+        ),
+        data={'csrf_token': token},
+    )
+    assert resp.status_code == 302, resp.data
+
+    conn = _connect()
+    with conn.cursor() as cur:
+        cur.execute(
+            'SELECT * FROM ordine_in_corso_{0} WHERE id_utente = %s'.format(
+                produttore_con_listino
+            ),
+            (moderatore['id'],),
+        )
+        assert cur.fetchone() is None, "l'ordine non è stato rimosso"
+    conn.close()

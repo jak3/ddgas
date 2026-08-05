@@ -45,7 +45,7 @@ def get_presidi():
     return get_db().fetchall()
 
 
-@bp.route('/clear')
+@bp.route('/clear', methods=('POST',))
 @login_required
 @is_ruolo(['moderatore', 'presidi'])
 def clear():
@@ -57,7 +57,7 @@ def clear():
     return redirect(url_for('presidi.list_presidi'))
 
 
-@bp.route('/newy')
+@bp.route('/newy', methods=('POST',))
 @login_required
 @is_ruolo(['moderatore', 'presidi'])
 def newy():
@@ -65,7 +65,6 @@ def newy():
     dbi = get_db()
 
     for giorno in get_giorni_presidi(datetime.today().year):
-        dbi.execute('INSERT INTO presidi (giorno) VALUES (%s)', [giorno])
         dbi.execute('INSERT INTO presidi (giorno) VALUES (%s)', [giorno])
 
     return redirect(url_for('presidi.list_presidi'))
@@ -174,11 +173,11 @@ def _aggiungi_ruolo(id_utente, id_presidio):
         )
 
 
-@bp.route('/booking')
+@bp.route('/booking', methods=('POST',))
 @login_required
 def booking():
     """Creazione di un Presidio"""
-    id_presidio = request.args.get('id_presidio')
+    id_presidio = request.form.get('id_presidio')
     error = check_inputs_isid({'id': id_presidio})
     if error:
         flash(error['error_msg'], 'warning')
@@ -211,11 +210,20 @@ def _aggiorna_ruolo(id_presidio):
         )
 
 
-@bp.route('/unbooking/<int:id_presidio>')
+@bp.route('/unbooking/<int:id_presidio>', methods=('POST',))
 @login_required
 def unbooking(id_presidio):
-    """Rimozione di una prenotazione presidio"""
+    """Rimozione di una prenotazione presidio, solo per il proprietario
+    della prenotazione o per chi ha ruolo 'presidi'/'moderatore'"""
     dbi = get_db()
+
+    dbi.execute('SELECT id_utente FROM presidi WHERE id = %s', (id_presidio,))
+    presidio = dbi.fetchone()
+    proprietario = presidio and presidio['id_utente'] == g.user['id']
+
+    if not proprietario and not {'moderatore', 'presidi'} & set(g.ruoli):
+        flash('Non autorizzato a rimuovere questa prenotazione', 'warning')
+        return redirect(url_for('presidi.list_presidi'))
 
     # Rimuovi la prenotazione
     dbi.execute('UPDATE presidi SET id_utente = NULL WHERE id = %s', (id_presidio,))
@@ -251,7 +259,7 @@ def assign(id_presidio):
     return render_template('presidi/assign.html', utenti=dbi.fetchall())
 
 
-@bp.route('/<int:id_presidio>/delete', methods=('GET',))
+@bp.route('/<int:id_presidio>/delete', methods=('POST',))
 @login_required
 @is_ruolo(['moderatore', 'presidi'])
 def delete(id_presidio):

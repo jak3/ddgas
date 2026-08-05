@@ -73,7 +73,10 @@ passaggio intermedio per verificare gli importi.</u></p>
         <div class="group group-m group-stretch margin-xxs">
           <ul>
             <li style="flex: 1 1 auto"><input type="text" name="motivazione" placeholder="Specifica (opzionale)" value="{{ motivazioni[loop.index0] if motivazioni }}"/></li>
-            <li style="flex: 0 1 auto"><a class="button button-error button-border button-square" href="{{ url_for('ordini.rimuovi_singolo_ordine', id_produttore=produttore.id, id_utente=ordine.id_utente) }}" aria-label="rimuovi ordine">&#128465;</a></li>
+            <li style="flex: 0 1 auto"><button type="submit" form="rimuovi-ordine-{{ ordine.id_utente }}"
+                                                                class="button button-error button-border button-square"
+                                                                aria-label="rimuovi ordine"
+                                                                onclick="return confirm('Rimuovere questo ordine?');">&#128465;</button></li>
           </ul>
         </div>
       </li>
@@ -157,5 +160,9 @@ ordine, basterà aggiungerlo nuovamente come ordine extra.</p>
 
 </form>
 
+{% for ordine in ordini %}
+<form id="rimuovi-ordine-{{ ordine.id_utente }}" method="post" style="display: none"
+      action="{{ url_for('ordini.rimuovi_singolo_ordine', id_produttore=produttore.id, id_utente=ordine.id_utente) }}">{{ csrf_field() }}</form>
+{% endfor %}
 
 {% endblock %}

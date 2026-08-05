@@ -376,17 +376,7 @@ def _create_referente(id_produttore, id_utente):
     )
 
 
-@bp.route('/<int:id_produttore>/<int:id_utente>/create')
-@login_required
-@is_ruolo(['moderatore', 'referente'])
-def create_referente(id_produttore, id_utente):
-    """Aggiunge una referenza tramite una richiesta HTTP"""
-    _create_referente(id_produttore, id_utente)
-    flash('Aggiunta Referente avvenuta con successo', 'success')
-    return redirect(url_for('produttori.update', id_produttore=id_produttore))
-
-
-@bp.route('/<int:id_produttore>/<int:id_utente>/delete')
+@bp.route('/<int:id_produttore>/<int:id_utente>/delete', methods=('POST',))
 @login_required
 @is_ruolo(['moderatore', 'referente'])
 def remove_referente(id_produttore, id_utente):

@@ -28,8 +28,17 @@
   <ul>
     <li><a href="{{ url_for('presidi.stats') }}" class="button button-info button-border">Mostra Statistiche Gasisti</a></li>
     <li><a href="{{ url_for('presidi.list_presidi_passati') }}" class="button button-info button-border">Mostra Presidi Passati</a></li>
-    <li><a href="{{ url_for('presidi.newy') }}" class="button button-warning button-border">Genera Date Anno in Corso</a></li>
-    <li><a href="{{ url_for('presidi.clear') }}" class="button button-error button-border">Cancella Date Anno Passato</a></li>
+    <li>
+      <form method="post" style="display: inline" action="{{ url_for('presidi.newy') }}">{{ csrf_field() }}
+        <button type="submit" class="button button-warning button-border">Genera Date Anno in Corso</button>
+      </form>
+    </li>
+    <li>
+      <form method="post" style="display: inline" action="{{ url_for('presidi.clear') }}"
+            onsubmit="return confirm('Cancellare tutte le date di presidio degli anni passati?');">{{ csrf_field() }}
+        <button type="submit" class="button button-error button-border">Cancella Date Anno Passato</button>
+      </form>
+    </li>
   </ul>
 </div>
 

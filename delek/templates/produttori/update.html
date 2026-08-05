@@ -14,10 +14,13 @@
         <div class="group group-m">
           <ul>
             <li>{{ referente | utente }}</li>
-            <li><a class="button button-xxs button-square button-error
-                          button-border" aria-label="Rimuovi Ruolo" href="{{
-                                        url_for('produttori.remove_referente', id_produttore=produttore.id,
-                                        id_utente=referente.id_utente) }}">&#128465;</a>
+            <li>
+              <form method="post" style="display: inline"
+                    action="{{ url_for('produttori.remove_referente', id_produttore=produttore.id, id_utente=referente.id_utente) }}"
+                    onsubmit="return confirm('Rimuovere questo referente?');">{{ csrf_field() }}
+                <button type="submit" class="button button-xxs button-square button-error
+                          button-border" aria-label="Rimuovi Ruolo">&#128465;</button>
+              </form>
             </li>
           </ul>
         </div>
