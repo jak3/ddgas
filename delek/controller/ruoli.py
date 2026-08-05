@@ -14,7 +14,7 @@ bp = Blueprint('ruoli', __name__, url_prefix='/ruoli')
 @is_ruolo(['moderatore'])
 def list_ruoli():
     """Elenco Ruoli"""
-    get_db().execute('SELECT nome, descrizione FROM ruoli WHERE attivo ORDER BY nome')
+    get_db().execute('SELECT id, nome, descrizione FROM ruoli WHERE attivo ORDER BY nome')
 
     return render_template('ruoli/list.html', ruoli=get_db().fetchall())
 

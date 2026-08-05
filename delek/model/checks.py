@@ -14,7 +14,6 @@ MULTI_LINE_STRING = r'(.+\n?)+'
 PHONE = r'(\+?[0-9]{6,12})?'
 SINGLE_LINE_STRING = r'.*'
 URL = r'^(https?|ftp)://[^\s/$.?#].[^\s]*$'
-VARCHAR_40 = r'[a-z]{,40}'
 ZERO_OR_ONE = r'(0|1)'
 
 ChecknError = namedtuple('ChecknError', ['regex', 'error_msg', 'could_be_empty'])
@@ -356,7 +355,7 @@ def check_inputs_ruolo(inputs):
             MULTI_LINE_STRING, 'Descrizione non conforme', could_be_empty=False
         ),
         'nome': create_checknerror(
-            VARCHAR_40, 'Nome del ruolo non conforme', could_be_empty=False
+            SINGLE_LINE_STRING, 'Nome del ruolo non conforme', could_be_empty=False
         ),
     }
 

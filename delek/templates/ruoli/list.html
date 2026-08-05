@@ -5,6 +5,10 @@
   <ul>
     <li><h2>{% block title %}Elenco Ruoli{% endblock %}</h2></li>
     <li>
+      <a href="{{ url_for('ruoli.create') }}" class="button
+                                                        button-warning button-border">Nuovo Ruolo</a>
+    </li>
+    <li>
       <a href="{{ url_for('ruoli.list_ruoli_utenti') }}" target="_blank" class="button
                                                         button-warning button-border">Visualizza Ruoli Utenti</a>
     </li>
@@ -15,7 +19,10 @@
 {% block content %}
 <dl>
   {% for ruolo in ruoli %}
-  <dt>{{ ruolo['nome'] }}</dt>
+  <dt>{{ ruolo['nome'] }}
+    <a class="button button-xxs button-square button-border"
+       aria-label="Modifica" href="{{ url_for('ruoli.update', idr=ruolo.id) }}">&#9998;</a>
+  </dt>
   <dl>{{ ruolo['descrizione'] }}</dl>
   {% endfor %}
 </dl>

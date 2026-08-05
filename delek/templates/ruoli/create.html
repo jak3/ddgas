@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Nuovo Ruolo{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="container padding-top-l">
+  <form method="post">{{ csrf_field() }}
+    <p class="field">
+    <label for="nome">Nome</label>
+    <input name="nome" id="nome" placeholder="Nome Ruolo" value="{{ request.form.nome }}" required/>
+    </p>
+    <p class="field">
+    <label for="descrizione">Descrizione</label>
+    <textarea name="descrizione" id="descrizione" placeholder="Descrizione">{{ request.form.descrizione }}</textarea>
+    </p>
+
+    <p class="field">
+    <button type="submit" class="button">Crea</button>
+    </p>
+
+  </form>
+</div>
+{% endblock %}

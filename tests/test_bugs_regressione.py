@@ -88,3 +88,37 @@ def test_filtro_date_movimenti(login_moderatore):
     assert resp.status_code == 200, resp.data
     assert b'value="2020-01-01"' in resp.data
     assert b'value="2020-01-02"' in resp.data
+
+
+def test_ruoli_create_e_update_hanno_un_template(login_moderatore):
+    """ruoli.create()/update() esistevano già con la logica POST completa,
+    ma render_template() puntava a 'ruoli/create.html'/'update.html', mai
+    creati: qualunque GET su quelle route dava TemplateNotFound (500), e
+    list.html non le linkava comunque da nessuna parte."""
+    client = login_moderatore
+
+    token = get_csrf_token(client, '/ruoli/create')
+    resp = client.post(
+        '/ruoli/create',
+        data={'nome': 'TestRuolo', 'descrizione': 'desc test', 'csrf_token': token},
+    )
+    assert resp.status_code == 302, resp.data
+
+    resp = client.get('/ruoli/')
+    assert b'TestRuolo' in resp.data
+
+    conn = _connect()
+    with conn.cursor() as cur:
+        cur.execute("SELECT id FROM ruoli WHERE nome = 'TestRuolo'")
+        idr = cur.fetchone()[0]
+    conn.close()
+
+    token = get_csrf_token(client, '/ruoli/{0}/update'.format(idr))
+    resp = client.post(
+        '/ruoli/{0}/update'.format(idr),
+        data={'nome': 'TestRuoloMod', 'descrizione': 'desc mod', 'csrf_token': token},
+    )
+    assert resp.status_code == 302, resp.data
+
+    resp = client.get('/ruoli/')
+    assert b'TestRuoloMod' in resp.data

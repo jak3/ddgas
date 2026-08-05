@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}{{ ruolo.nome }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="box-shadow-m padding-s">
+  <form method="post">{{ csrf_field() }}
+    <p class="field">
+    <label for="nome">Nome</label>
+    <input name="nome" id="nome" placeholder="Nome Ruolo"
+                      value="{{ request.form.nome or ruolo.nome }}"
+                      required/>
+    </p>
+    <p class="field">
+    <label for="descrizione">Descrizione</label>
+    <textarea name="descrizione" id="descrizione" placeholder="Descrizione">{{ request.form.descrizione or ruolo.descrizione }}</textarea>
+    </p>
+
+    <p class="field">
+    <button type="submit" class="button border-color-info">Save</button>
+    </p>
+  </form>
+  <hr>
+  <form action="{{ url_for('ruoli.delete', idr=ruolo.id) }}" method="post">{{ csrf_field() }}
+    <input class="color-error border-color-error" type="submit" value="Elimina"
+                                                                onclick="return confirm('Sicuro di voler eliminare il ruolo?');">
+  </form>
+</div>
+{% endblock %}
