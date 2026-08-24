@@ -61,7 +61,8 @@ def _clean_db():
             cur.execute('DROP TABLE IF EXISTS {0} CASCADE'.format(name))
         cur.execute("""
             TRUNCATE utenti, ruoli, arruolati, produttori, dettagli_ordini,
-                     movimenti, tipologie_movimenti, ricariche_esterne
+                     movimenti, tipologie_movimenti, ricariche_esterne,
+                     righe_estratto_conto, configurazione_estratto_conto
             RESTART IDENTITY CASCADE
         """)
     conn.close()

@@ -78,7 +78,7 @@ def conferma_pagamento(provider, provider_ref):
         if not pagamento or pagamento['stato'] == 'completato':
             return False
 
-        insert_movimento(
+        id_movimento = insert_movimento(
             {
                 'tipologia': 1,  # versamento
                 'per_id_utente': pagamento['id_utente'],
@@ -88,10 +88,10 @@ def conferma_pagamento(provider, provider_ref):
         )
         dbi.execute(
             """
-            UPDATE ricariche_esterne SET stato = 'completato'
+            UPDATE ricariche_esterne SET stato = 'completato', id_movimento = %s
             WHERE provider = %s AND provider_ref = %s
             """,
-            (provider, provider_ref),
+            (id_movimento, provider, provider_ref),
         )
 
     return True

@@ -419,6 +419,14 @@ def update(id_produttore):
     )
     dettaglio = get_db().fetchone()
 
+    if request.method == 'POST' and dettaglio is None:
+        # Raggiungibile se l'ordine è stato chiuso/cancellato da qualcun
+        # altro tra il caricamento del form e questo submit: senza questo
+        # controllo, dettaglio['scadenza'] più sotto solleverebbe un
+        # TypeError non gestito invece di un errore comprensibile.
+        flash('Nessun ordine aperto per questo produttore.', 'warning')
+        return redirect(url_for('ordini.list_ordini'))
+
     if request.method == 'POST':
         error = check_inputs_dettagli_ordine(request.form)
         reset_promemoria = False

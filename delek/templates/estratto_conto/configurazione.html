@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Configurazione Estratto Conto{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<p>Imposta come leggere il file CSV che scarichi dalla tua banca. Puoi
+cambiarlo in qualsiasi momento, ad esempio se in futuro cambi banca.</p>
+
+{% set dati = request.form if request.method == 'POST' else (configurazione or {}) %}
+{% if request.method == 'POST' %}
+{% set decimale_virgola_checked = 'decimale_virgola' in request.form %}
+{% else %}
+{% set decimale_virgola_checked = configurazione.decimale_virgola if configurazione else true %}
+{% endif %}
+
+<form method="post" class="box-shadow-m padding-s">{{ csrf_field() }}
+  <div class="field">
+    <label for="colonna_data">Nome della colonna con la data del bonifico</label>
+    <input type="text" name="colonna_data" id="colonna_data"
+           value="{{ dati.colonna_data or '' }}" placeholder="Data valuta" required>
+  </div>
+  <div class="field">
+    <label for="colonna_causale">Nome della colonna con la causale</label>
+    <input type="text" name="colonna_causale" id="colonna_causale"
+           value="{{ dati.colonna_causale or '' }}" placeholder="Causale" required>
+  </div>
+  <div class="field">
+    <label for="colonna_importo">Nome della colonna con l'importo</label>
+    <input type="text" name="colonna_importo" id="colonna_importo"
+           value="{{ dati.colonna_importo or '' }}" placeholder="Importo" required>
+  </div>
+  <div class="field">
+    <label for="formato_data">Formato della data</label>
+    <select name="formato_data" id="formato_data">
+      {% for formato in formati_data %}
+      <option value="{{ formato }}"
+        {% if formato == (dati.formato_data or formati_data[0]) %}selected{% endif %}>
+        {{ formato }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label for="separatore_csv">Separatore delle colonne nel file</label>
+    <select name="separatore_csv" id="separatore_csv">
+      {% for separatore in separatori_csv %}
+      <option value="{{ separatore }}"
+        {% if separatore == (dati.separatore_csv or separatori_csv[0]) %}selected{% endif %}>
+        {{ separatore }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label for="encoding">Codifica del file</label>
+    <select name="encoding" id="encoding">
+      {% for enc in encoding_disponibili %}
+      <option value="{{ enc }}"
+        {% if enc == (dati.encoding or encoding_disponibili[0]) %}selected{% endif %}>
+        {{ enc }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label>
+      <input type="checkbox" name="decimale_virgola" value="1"
+        {% if decimale_virgola_checked %}checked{% endif %}>
+      Gli importi usano la virgola come separatore decimale (es. 12,50)
+    </label>
+  </div>
+  <div class="field">
+    <button type="submit" class="button border-color-info">Salva</button>
+  </div>
+</form>
+{% endblock %}

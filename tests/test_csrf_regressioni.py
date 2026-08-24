@@ -6,8 +6,11 @@ inesistente e falliscono con un 500. Ogni test qui sotto invia un vero
 csrf_token (CSRF resta attivo, non viene disabilitato) proprio per
 riprodurre le condizioni reali."""
 
+from datetime import timedelta
+
 import psycopg2
 
+from delek.controller.tempo import adesso
 from tests.conftest import DB_HOST, TEST_DB, get_csrf_token
 
 
@@ -27,8 +30,10 @@ def test_ordini_create_non_fallisce_con_csrf_token(
         '/ordini/create',
         data={
             'id_produttore': produttore_con_listino,
-            'scadenza': '2026-08-05',
-            'consegna': '2026-08-10',
+            # Relative ad adesso(), non date fisse: 'create' rifiuta
+            # scadenza/consegna nel passato, e una data fissa scade.
+            'scadenza': (adesso() + timedelta(days=5)).strftime('%Y-%m-%d'),
+            'consegna': (adesso() + timedelta(days=10)).strftime('%Y-%m-%d'),
             'minimo_ordine': '',
             'nota': '',
             'csrf_token': token,
@@ -57,25 +62,26 @@ def test_ordini_update_non_fallisce_con_csrf_token(
 
     # Precondizione: un ordine già aperto da modificare.
     token = get_csrf_token(client, '/ordini/create')
-    client.post(
+    resp_create = client.post(
         '/ordini/create',
         data={
             'id_produttore': produttore_con_listino,
-            'scadenza': '2026-08-05',
-            'consegna': '2026-08-10',
+            'scadenza': (adesso() + timedelta(days=5)).strftime('%Y-%m-%d'),
+            'consegna': (adesso() + timedelta(days=10)).strftime('%Y-%m-%d'),
             'minimo_ordine': '',
             'nota': '',
             'csrf_token': token,
         },
     )
+    assert resp_create.status_code == 302, resp_create.data
 
     token = get_csrf_token(client, '/ordini/update/{0}'.format(produttore_con_listino))
     resp = client.post(
         '/ordini/update/{0}'.format(produttore_con_listino),
         data={
             'id_produttore': produttore_con_listino,
-            'scadenza': '2026-08-06',
-            'consegna': '2026-08-11',
+            'scadenza': (adesso() + timedelta(days=6)).strftime('%Y-%m-%d'),
+            'consegna': (adesso() + timedelta(days=11)).strftime('%Y-%m-%d'),
             'minimo_ordine': '',
             'nota': 'Nota aggiornata',
             'csrf_token': token,

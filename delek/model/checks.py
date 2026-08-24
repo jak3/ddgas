@@ -433,3 +433,40 @@ def check_inputs_contenuto(inputs):
     }
 
     return _check(checks, inputs)
+
+
+# Whitelist invece di testo libero: un formato/encoding sbagliato in
+# configurazione_estratto_conto romperebbe silenziosamente ogni import
+# successivo, meglio limitare alle poche varianti realmente in uso dagli
+# export bancari italiani.
+FORMATO_DATA_VALIDI = r'(%d/%m/%Y|%Y-%m-%d|%d-%m-%Y)'
+ENCODING_VALIDI = r'(utf-8|latin-1|cp1252)'
+SEPARATORE_CSV_VALIDI = r'(,|;|\|)'
+
+
+def check_inputs_configurazione_estratto_conto(inputs):
+    """:inputs form di configurazione del parsing del CSV dell'estratto
+    conto (delek/controller/estratto_conto.py)."""
+    checks = {
+        'colonna_data': create_checknerror(
+            SINGLE_LINE_STRING, 'Nome colonna data non conforme', could_be_empty=False
+        ),
+        'colonna_causale': create_checknerror(
+            SINGLE_LINE_STRING, 'Nome colonna causale non conforme', could_be_empty=False
+        ),
+        'colonna_importo': create_checknerror(
+            SINGLE_LINE_STRING, 'Nome colonna importo non conforme', could_be_empty=False
+        ),
+        'formato_data': create_checknerror(
+            FORMATO_DATA_VALIDI, 'Formato data non conforme', could_be_empty=False
+        ),
+        'separatore_csv': create_checknerror(
+            SEPARATORE_CSV_VALIDI, 'Separatore CSV non conforme', could_be_empty=False
+        ),
+        'encoding': create_checknerror(
+            ENCODING_VALIDI, 'Encoding non conforme', could_be_empty=False
+        ),
+        'decimale_virgola': create_checknerror(ZERO_OR_ONE, 'Valore non conforme'),
+    }
+
+    return _check(checks, inputs)

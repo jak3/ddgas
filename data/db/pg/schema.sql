@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS righe_estratto_conto;
+DROP TABLE IF EXISTS configurazione_estratto_conto;
 DROP TABLE IF EXISTS ricariche_esterne;
 DROP TABLE IF EXISTS contenuti_editabili;
 DROP TABLE IF EXISTS codici_ente_terzo;
@@ -204,3 +206,45 @@ CREATE TABLE contenuti_editabili (
   aggiornato_da INTEGER,
   FOREIGN KEY (aggiornato_da) REFERENCES utenti (id)
 );
+
+-- Impostazioni di parsing del CSV dell'estratto conto (una sola banca
+-- collegata per installazione: riga singola, id fisso a 1). Modificabile in
+-- qualunque momento da un moderatore, non solo al setup iniziale.
+CREATE TABLE configurazione_estratto_conto (
+  id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  colonna_data TEXT NOT NULL,
+  colonna_causale TEXT NOT NULL,
+  colonna_importo TEXT NOT NULL,
+  formato_data TEXT NOT NULL DEFAULT '%d/%m/%Y',
+  separatore_csv VARCHAR(1) NOT NULL DEFAULT ';',
+  decimale_virgola BOOLEAN NOT NULL DEFAULT TRUE,
+  encoding VARCHAR(20) NOT NULL DEFAULT 'utf-8',
+  aggiornato_il TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  aggiornato_da INTEGER,
+  FOREIGN KEY (aggiornato_da) REFERENCES utenti (id)
+);
+
+-- Una riga per ogni riga di estratto conto importata (solo accrediti
+-- positivi: le uscite non sono ricariche e si scartano già in fase di
+-- parsing). id_utente/id_movimento restano NULL finché non risolta, a mano
+-- o in automatico (vedi delek/controller/estratto_conto.py).
+CREATE TABLE righe_estratto_conto (
+  id SERIAL PRIMARY KEY,
+  data_valuta DATE NOT NULL,
+  causale TEXT NOT NULL,
+  importo NUMERIC(7, 2) NOT NULL,
+  stato VARCHAR(20) NOT NULL DEFAULT 'da_verificare',
+  id_utente INTEGER,
+  id_movimento INTEGER,
+  caricato_il TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  caricato_da INTEGER NOT NULL,
+  FOREIGN KEY (id_utente) REFERENCES utenti (id),
+  FOREIGN KEY (id_movimento) REFERENCES movimenti (id),
+  FOREIGN KEY (caricato_da) REFERENCES utenti (id)
+);
+
+-- Supporta la query di deduplica a ogni import: per ogni tripla già
+-- presente si conta quante righe esistono già in DB, e si inseriscono solo
+-- le nuove in eccesso rispetto al file caricato.
+CREATE INDEX idx_righe_estratto_conto_dedup
+  ON righe_estratto_conto (data_valuta, causale, importo);

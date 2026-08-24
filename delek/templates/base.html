@@ -70,11 +70,17 @@ function hideShowMenu() {
             {% if config.PAGAMENTI_ABILITATI %}
             <li class="no-margin"><a href="{{ url_for('pagamenti.ricarica') }}">Ricarica</a></li>
             {% endif %}
+            <li class="no-margin"><a href="{{ url_for('estratto_conto.dichiara') }}">Ricarica con Bonifico</a></li>
             {% if 'moderatore' in g.ruoli or 'tesoriere' in g.ruoli %}
             <li class="no-margin"><a href="{{ url_for('movimenti.handle') }}">Cassa</a></li>
             <li class="no-margin"><a href="{{ url_for('ordini.chiusi') }}">Ordini Chiusi</a></li>
             {% if config.PAGAMENTI_ABILITATI %}
             <li class="no-margin"><a href="{{ url_for('pagamenti.riconciliazione') }}">Riconciliazione Pagamenti</a></li>
+            {% endif %}
+            <li class="no-margin"><a href="{{ url_for('estratto_conto.importa') }}">Importa Estratto Conto</a></li>
+            <li class="no-margin"><a href="{{ url_for('estratto_conto.coda') }}">Estratto Conto da Verificare</a></li>
+            {% if 'moderatore' in g.ruoli %}
+            <li class="no-margin"><a href="{{ url_for('estratto_conto.configurazione') }}">Configurazione Estratto Conto</a></li>
             {% endif %}
             {% else %}
             <li class="no-margin"><a href="{{ url_for('movimenti.giroconto_utente') }}">Giroconto</a></li>

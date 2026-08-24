@@ -135,17 +135,20 @@ def get_totale_tutti_ordini_in_corso():
 
 
 def insert_movimento(movimento: dict):
-    """Wrap per inserire un movimento"""
+    """Wrap per inserire un movimento. Ritorna l'id del movimento creato."""
     cp_movimento = movimento.copy()
     for campo_non_colonna in ('verso_id', 'csrf_token'):
         cp_movimento.pop(campo_non_colonna, None)
     column_names, placeholders = column_names_placeholders(cp_movimento)
-    get_db().execute(
+    dbi = get_db()
+    dbi.execute(
         """
             INSERT INTO movimenti {column_names} VALUES {placeholders}
+            RETURNING id
         """.format(column_names=column_names, placeholders=placeholders),
         tuple(cp_movimento.values()),
     )
+    return dbi.fetchone()['id']
 
 
 def get_tipologie_movimenti():

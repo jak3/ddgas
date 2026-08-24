@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Importa Estratto Conto{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<p>Carica il file CSV scaricato dalla tua banca. Le righe già importate in
+precedenza non vengono duplicate, anche se il file si sovrappone a un
+import passato.</p>
+
+<p>Assicurati che il file rispetti la
+<a href="{{ url_for('estratto_conto.configurazione') }}">configurazione attuale</a>.</p>
+
+<form method="post" enctype="multipart/form-data">{{ csrf_field() }}
+  <div class="field">
+    <input type="file" id="estratto" name="estratto" accept="text/csv">
+  </div>
+  <button type="submit"
+          class="button button-xs button-pill button-border button-warning">
+    Importa Estratto Conto</button>
+</form>
+
+<p><a href="{{ url_for('estratto_conto.coda') }}">Vai alla coda di risoluzione manuale</a></p>
+{% endblock %}

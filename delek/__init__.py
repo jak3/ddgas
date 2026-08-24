@@ -15,6 +15,7 @@ from werkzeug.security import generate_password_hash
 from delek.extensions import csrf
 from delek.controller.db import get_db, init_app
 from delek.controller.auth import bp as auth_bp
+from delek.controller.estratto_conto import bp as estratto_conto_bp
 from delek.controller.istruzioni import bp as istruzioni_bp
 from delek.controller.listini import bp as listini_bp
 from delek.controller.movimenti import bp as movimenti_bp, get_totale_utente
@@ -175,6 +176,7 @@ def create_app(local=False):
 
     init_app(app)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(estratto_conto_bp)
     app.register_blueprint(istruzioni_bp)
     app.register_blueprint(listini_bp)
     app.register_blueprint(movimenti_bp)
