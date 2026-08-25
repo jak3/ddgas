@@ -10,6 +10,34 @@ aside { flex:12%; }
 #space-aside-main { flex:3%; }
 main { flex:85%; }
 
+/* Ogni voce del menu laterale è un blocco cliccabile (non solo testo
+   sottolineato): così quando il testo va a capo su schermi stretti resta
+   chiaro che le righe fanno parte dello stesso link. */
+#homemenu nav a {
+  display: block;
+  padding: 0.35rem 0.5rem;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+#homemenu nav a:hover,
+#homemenu nav a:focus {
+  text-decoration: underline;
+  border-left-color: var(--brand-color);
+  background-color: color-mix(in srgb, var(--brand-color) 6%, transparent);
+}
+
+/* Etichette di sezione non cliccabili (es. "Ordini", "Amministrazione"):
+   raggruppano i link sotto un nome e segnalano quali sono riservati a un
+   ruolo, senza affidarsi al solo colore (accessibilità). */
+#homemenu .menu-heading {
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #767676;
+  padding: 0.3rem 0.5rem 0.1rem;
+}
+
 @media (max-width: 480px) {
 
   /* Solo titoli e la barra header sono centrati: testo di corpo, note,

@@ -54,23 +54,32 @@ function hideShowMenu() {
             <li class="no-margin"><a href="{{ url_for('contatti') }}">Contatti</a></li>
             {% if g.user %}
             <hr>
+            <li class="menu-heading no-margin">Ordini</li>
             <li class="no-margin"><a href="{{ url_for('ordini.list_ordini') }}">Ordina</a></li>
-            <hr>
             <li class="no-margin"><a href="{{ url_for('presidi.list_presidi') }}">Turni di Presidio</a></li>
             <hr>
+            <li class="menu-heading no-margin">Comunità</li>
             <li class="no-margin"><a href="{{ url_for('auth.list_utenti') }}">Membri</a></li>
-            {% if 'moderatore' in g.ruoli %}
-            <li class="no-margin"><a href="{{ url_for('ruoli.list_ruoli') }}">Ruoli</a></li>
-            {% endif %}
             <li class="no-margin"><a href="{{ url_for('auth.accoglienza') }}">Accoglienza</a></li>
-            {% if 'moderatore' in g.ruoli or 'tesseramenti' in g.ruoli %}
-            <li class="no-margin"><a href="{{ url_for('auth.tesseramenti') }}">Tesseramenti</a></li>
-            {% endif %}
             <hr>
+            <li class="menu-heading no-margin">Portafoglio</li>
             {% if config.PAGAMENTI_ABILITATI %}
             <li class="no-margin"><a href="{{ url_for('pagamenti.ricarica') }}">Ricarica</a></li>
             {% endif %}
             <li class="no-margin"><a href="{{ url_for('estratto_conto.dichiara') }}">Ricarica con Bonifico</a></li>
+            {% if 'moderatore' not in g.ruoli and 'tesoriere' not in g.ruoli %}
+            <li class="no-margin"><a href="{{ url_for('movimenti.giroconto_utente') }}">Giroconto</a></li>
+            {% endif %}
+            <li class="no-margin"><a href="{{ url_for('movimenti.list_movimenti') }}">Movimenti</a></li>
+            {% if 'moderatore' in g.ruoli or 'tesoriere' in g.ruoli or 'tesseramenti' in g.ruoli %}
+            <hr>
+            <li class="menu-heading no-margin">Amministrazione</li>
+            {% if 'moderatore' in g.ruoli %}
+            <li class="no-margin"><a href="{{ url_for('ruoli.list_ruoli') }}">Ruoli</a></li>
+            {% endif %}
+            {% if 'moderatore' in g.ruoli or 'tesseramenti' in g.ruoli %}
+            <li class="no-margin"><a href="{{ url_for('auth.tesseramenti') }}">Tesseramenti</a></li>
+            {% endif %}
             {% if 'moderatore' in g.ruoli or 'tesoriere' in g.ruoli %}
             <li class="no-margin"><a href="{{ url_for('movimenti.handle') }}">Cassa</a></li>
             <li class="no-margin"><a href="{{ url_for('ordini.chiusi') }}">Ordini Chiusi</a></li>
@@ -82,10 +91,8 @@ function hideShowMenu() {
             {% if 'moderatore' in g.ruoli %}
             <li class="no-margin"><a href="{{ url_for('estratto_conto.configurazione') }}">Configurazione Estratto Conto</a></li>
             {% endif %}
-            {% else %}
-            <li class="no-margin"><a href="{{ url_for('movimenti.giroconto_utente') }}">Giroconto</a></li>
             {% endif %}
-            <li class="no-margin"><a href="{{ url_for('movimenti.list_movimenti') }}">Movimenti</a></li>
+            {% endif %}
             {% endif %}
           </ul>
         </nav>
