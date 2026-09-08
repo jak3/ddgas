@@ -89,8 +89,15 @@ main { flex:85%; }
     margin: 0;
     padding: 0;
   }
-  .group ul { flex-direction:column; }
-  .group ul li { padding:0.3rem; }
+  /* align-items:stretch sovrascrive l'align-items:center di turretcss:
+     in colonna, con align-items:center ogni <li> si dimensiona sul
+     proprio contenuto (fit-content) invece che sulla larghezza del
+     contenitore. Un <li> con testo lungo e senza spazi (nome produttore,
+     nota) resta quindi largo quanto il suo "contenuto naturale" e sporge
+     oltre lo schermo invece di andare a capo, rendendo di fatto inutile
+     overflow-wrap-anywhere sul testo al suo interno. */
+  .group ul { flex-direction:column; align-items:stretch; flex-wrap:nowrap; }
+  .group ul li { padding:0.3rem; min-width:0; }
 
   /* Da usare sui gruppi di soli pulsanti (niente testo/etichette lunghe da
      spezzare): li affiancate e a capo automatico invece che una per riga,
@@ -102,8 +109,24 @@ main { flex:85%; }
   /* I pulsanti xxs sono già minuscoli: lo spacing di .group-m (0.5rem di
      margin da turretcss) più i 0.3rem di padding di '.group ul li' sopra
      si sommano a 0.8rem per lato, quasi 1.6rem di vuoto tra due pulsanti
-     affiancati. Qui a leggibilità pari basta molto meno. */
-  .group-wrap-mobile>ul>li { margin:.2rem; padding:0; }
+     affiancati. Qui a leggibilità pari basta molto meno.
+     flex-shrink/min-width: un bottone il cui testo include un campo
+     dinamico (es. "Avvisami sempre per {nome produttore}") può risultare
+     più largo della riga su schermi stretti: turretcss dà agli <li>
+     flex:none (flex-shrink:0), quindi di norma non si restringono mai.
+     Qui permettiamo di restringersi (e, con min-width:0, di andare sotto
+     la propria larghezza "naturale") così che il testo interno possa
+     andare a capo invece di sporgere. */
+  .group-wrap-mobile>ul>li {
+    margin:.2rem; padding:0; flex-shrink:1; min-width:0; max-width:100%;
+  }
+
+  /* Il bottone stesso è inline-block a altezza fissa (turretcss): senza
+     un max-width resta largo quanto il suo testo anche se il <li> che lo
+     contiene si è ristretto, e senza height:auto un'eventuale seconda
+     riga di testo andata a capo verrebbe tagliata fuori dal bottone. */
+  .group-wrap-mobile .button,
+  .group-wrap-mobile button { max-width:100%; height:auto; white-space:normal; }
 
   /* .group-space-between ha senso in riga (un elemento a sinistra, uno a
      destra): impilato in colonna su mobile lo stesso space-between non
