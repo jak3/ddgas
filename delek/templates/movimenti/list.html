@@ -16,10 +16,12 @@
     <ul>
       {% include 'movimenti/_filtro_date.html' %}
       <li>
-        <button name="mese" type="submit" class="margin-bottom-xxs button button-warning
-                                         button-border">Ultimo Mese</button>
-        <button name="trimestre" type="submit" class="button button-warning
-                                         button-border">Ultimo Trimestre</button>
+        <div class="group group-xs group-wrap-mobile">
+          <ul>
+            <li><button name="mese" type="submit" class="button button-warning button-border">Ultimo Mese</button></li>
+            <li><button name="trimestre" type="submit" class="button button-warning button-border">Ultimo Trimestre</button></li>
+          </ul>
+        </div>
       </li>
     </ul>
   </div>

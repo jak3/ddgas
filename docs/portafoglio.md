@@ -62,3 +62,5 @@ giroconto, tesseramento) genera un movimento tracciato, visibile al
 socio per il proprio storico e al moderatore/tesoriere per la cassa
 complessiva del gruppo — inclusa la possibilità di esportare tutto in
 CSV.
+
+<img src="img/cassa-desktop.png" alt="Gestione movimenti cassa, vista desktop" width="600"> <img src="img/cassa-mobile.png" alt="Gestione movimenti cassa, vista mobile" width="220">

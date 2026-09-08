@@ -5,9 +5,13 @@
     <ul>
       <li><h1>{% block title %}Produttori{% endblock %}</h1></li>
       {% if 'moderatore' in g.ruoli %}
-        <li><a class="button button-warning button-border" href="{{ url_for('produttori.create') }}">Nuovo Produttore</a>
-            <button id="btn-inattivi" class="display-none button button-warning
-                    button-border" onclick="toggleInattivi()">Vedi Produttori Inattivi</button>
+        <li>
+          <div class="group group-m group-wrap-mobile group-center">
+            <ul>
+              <li><a class="button button-warning button-border" href="{{ url_for('produttori.create') }}">Nuovo Produttore</a></li>
+              <li><button id="btn-inattivi" class="display-none button button-warning button-border" onclick="toggleInattivi()">Vedi Produttori Inattivi</button></li>
+            </ul>
+          </div>
         </li>
       {% endif %}
     </ul>
@@ -64,11 +68,11 @@
   {% for produttore in produttori %}
   <div id="pb-{{produttore.id}}">
     {% if not produttore.attivo %}
-    <article class="container border border-radius background-light-200" id="pi-{{produttore.id}}">
+    <article class="padding-s border border-radius background-light-200" id="pi-{{produttore.id}}">
     {% else %}
-    <article class="container border border-radius background-warning-50">
+    <article class="padding-s border border-radius background-warning-50">
     {% endif %}
-      <header class="padding-top-xs">
+      <header>
         <div class="group group-m group-column">
           <ul>
             <li><h2 id="nomepi-{{produttore.id}}">{{ '(inattivo) ' if not produttore.attivo }}{{ produttore.nome }}</h2></li>
@@ -116,12 +120,16 @@
             </li>
             <li>
               <p class="text-align-right">
+              {% if referenti[produttore.id] %}
               <b>Referent{{ 'e' if referenti[produttore.id]|length == 1 else 'i' }}</b> (
                     {% for referente in referenti[produttore.id] %}
                       <span class="color-warning-800">{{ referente.nome ~ ' ' ~ referente.cognome if referente.nome and referente.cognome else referente.username }}</span>
                       {{ ', ' if not loop.last }}
                     {% endfor %}
                     )
+              {% else %}
+              <b>Nessun Referente</b>
+              {% endif %}
               </p>
             </li>
           </ul>
@@ -139,7 +147,7 @@
               )
         </p>
         {% if 'moderatore' in g.ruoli or produttore.id in g.referenze %}
-        <div class="group group-space-between padding-bottom-s">
+        <div class="group group-space-between">
           <ul>
             <li></li>
             <li><a class="button button-border button-warning button-pill button-xxs" href="{{ url_for('produttori.update', id_produttore=produttore.id) }}">Modifica Informazioni Produttore</a></li>

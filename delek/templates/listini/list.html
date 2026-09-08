@@ -52,12 +52,12 @@
 <p class="border padding-xs background-light-100 font-weight-bold
           font-style-italic font-size-xl" >{{ prodotto.categoria if prodotto.categoria }}</p>
 {% endif %}
-<div class="border group group-stretch margin-top-xxs margin-bottom-xxs
+<div class="border group group-stretch riga-prodotto margin-top-xxs margin-bottom-xxs
             padding-xxs {{ 'opacity-40' if prodotto.disponibile == 0 }}">
   <ul>
-    <li class="no-padding font-weight-bold font-size-l" style="min-width:100px">{{ prodotto.descrizione_prodotto|e }}</li>
+    <li class="no-padding font-weight-bold font-size-l col-nome" style="min-width:100px">{{ prodotto.descrizione_prodotto|e }}</li>
     {% if prodotto.dettaglio_qta %}
-    <li class="no-padding">
+    <li class="no-padding col-dettaglio-qta">
       <div class="group group-column">
         <ul>
           <li><p class="color-info-800">Dettaglio Quantità</p></li>
@@ -66,7 +66,7 @@
       </div>
     </li>
     {% endif %}
-    <li class="no-padding">
+    <li class="no-padding col-prezzo">
       <div class="group group-column">
         <ul>
           <li><p class="color-info-800">Prezzo (&euro;)</p></li>
@@ -75,7 +75,7 @@
       </div>
     </li>
     {% if prodotto.n_min_colli > 1 %}
-    <li class="no-padding">
+    <li class="no-padding col-pacco">
       <div class="group group-column">
         <ul>
           <li><p class="color-info-800">Pacco da...</p></li>
@@ -85,7 +85,7 @@
     </li>
     {% endif %}
     {% if prodotto.n_max_colli %}
-    <li class="no-padding">
+    <li class="no-padding col-colli-massimi">
       <div class="group group-column">
         <ul>
           <li><p class="color-info-800">Colli Massimi per
@@ -96,7 +96,7 @@
     </li>
     {% endif %}
     {% if prodotto.colli_disponibili %}
-    <li class="no-padding">
+    <li class="no-padding col-disponibilita">
       <div class="group group-column">
         <ul>
           <li><p class="color-info-800">Disponibilità</p></li>
@@ -106,7 +106,7 @@
     </li>
     {% endif %}
     {% if prodotto.nota %}
-    <li class="no-padding" style="min-width:100px">
+    <li class="no-padding col-note" style="min-width:100px">
       <div class="group group-column">
         <ul>
           <li><p class="color-info-800">Note</p></li>

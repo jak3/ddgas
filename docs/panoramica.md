@@ -7,6 +7,8 @@ caso d'uso reale vedi [`casi-duso.md`](casi-duso.md); per la checklist
 tecnica di attivazione di una nuova istanza vedi
 [`ONBOARDING.md`](../ONBOARDING.md).
 
+<img src="img/ordini-desktop.png" alt="Elenco ordini in DDGAS" width="700">
+
 ## Cosa fa
 
 DDGAS è un gestionale web per GAS: sostituisce fogli di calcolo, gruppi

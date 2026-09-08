@@ -16,6 +16,8 @@ Include anche i **turni di presidio**: la prenotazione di chi si occupa
 del ritiro/consegna della merce nel giorno stabilito, per i GAS che
 organizzano il ritiro con un presidio fisico a turni.
 
+<img src="img/ordini-desktop.png" alt="Elenco ordini, vista desktop" width="600"> <img src="img/ordini-mobile.png" alt="Elenco ordini, vista mobile" width="220">
+
 ## Chi la può usare
 
 - Qualunque socio loggato può ordinare da un ordine aperto, prenotare un

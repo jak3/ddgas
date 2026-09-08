@@ -53,37 +53,48 @@
           scadenza: <b>{{ ordine.scadenza|data_it }}</b> consegna: <b>{{ ordine.consegna|data_it }}</b>
         </li>
         <li>
-          {% if ordine.id_produttore in produttori_notificati %}
-          <form method="post" style="display: inline"
-                action="{{ url_for('notifiche.produttore_disiscriviti', id_produttore=ordine.id_produttore) }}">{{ csrf_field() }}
-            <button type="submit" class="button button-border button-pill button-xxs">Non avvisarmi più per {{ ordine.nome_produttore }}</button>
-          </form>
-          {% else %}
-          <form method="post" style="display: inline"
-                action="{{ url_for('notifiche.produttore_iscriviti', id_produttore=ordine.id_produttore) }}">{{ csrf_field() }}
-            <button type="submit" class="button button-border button-pill button-xxs">Avvisami sempre per {{ ordine.nome_produttore }}</button>
-          </form>
-          {% endif %}
-          {% if ordine.id_dettaglio in ordini_notificati %}
-          <form method="post" style="display: inline"
-                action="{{ url_for('notifiche.ordine_disiscriviti', id_dettaglio_ordine=ordine.id_dettaglio) }}">{{ csrf_field() }}
-            <button type="submit" class="button button-border button-pill button-xxs">Non avvisarmi per questo ordine</button>
-          </form>
-          {% else %}
-          <form method="post" style="display: inline"
-                action="{{ url_for('notifiche.ordine_iscriviti', id_dettaglio_ordine=ordine.id_dettaglio) }}">{{ csrf_field() }}
-            <button type="submit" class="button button-border button-pill button-xxs">Avvisami solo per questo ordine</button>
-          </form>
-          {% endif %}
+          <div class="group group-xs group-wrap-mobile">
+            <ul>
+              <li>
+                {% if ordine.id_produttore in produttori_notificati %}
+                <form method="post" style="display: inline"
+                      action="{{ url_for('notifiche.produttore_disiscriviti', id_produttore=ordine.id_produttore) }}">{{ csrf_field() }}
+                  <button type="submit" class="button button-border button-pill button-xxs">Non avvisarmi più per {{ ordine.nome_produttore }}</button>
+                </form>
+                {% else %}
+                <form method="post" style="display: inline"
+                      action="{{ url_for('notifiche.produttore_iscriviti', id_produttore=ordine.id_produttore) }}">{{ csrf_field() }}
+                  <button type="submit" class="button button-border button-pill button-xxs">Avvisami sempre per {{ ordine.nome_produttore }}</button>
+                </form>
+                {% endif %}
+              </li>
+              <li>
+                {% if ordine.id_dettaglio in ordini_notificati %}
+                <form method="post" style="display: inline"
+                      action="{{ url_for('notifiche.ordine_disiscriviti', id_dettaglio_ordine=ordine.id_dettaglio) }}">{{ csrf_field() }}
+                  <button type="submit" class="button button-border button-pill button-xxs">Non avvisarmi per questo ordine</button>
+                </form>
+                {% else %}
+                <form method="post" style="display: inline"
+                      action="{{ url_for('notifiche.ordine_iscriviti', id_dettaglio_ordine=ordine.id_dettaglio) }}">{{ csrf_field() }}
+                  <button type="submit" class="button button-border button-pill button-xxs">Avvisami solo per questo ordine</button>
+                </form>
+                {% endif %}
+              </li>
+            </ul>
+          </div>
         </li>
         {% if 'moderatore' in g.ruoli or ('referente' in g.ruoli and
         ordine.id_produttore in g.referenze ) %}
         <li>
-          <a class="button button-border button-warning button-pill button-xs
-                    margin-bottom-xxs"
-             href="{{ url_for('stampa.dettagli_ordini', id_produttore=ordine.id_produttore) }}">Dettagli Ordini</a>
-          <a class="button button-border button-warning button-pill button-xs"
-             href="{{ url_for('ordini.update', id_produttore=ordine.id_produttore) }}">Modifica</a>
+          <div class="group group-xs group-wrap-mobile">
+            <ul>
+              <li><a class="button button-border button-warning button-pill button-xs"
+                     href="{{ url_for('stampa.dettagli_ordini', id_produttore=ordine.id_produttore) }}">Dettagli Ordini</a></li>
+              <li><a class="button button-border button-warning button-pill button-xs"
+                     href="{{ url_for('ordini.update', id_produttore=ordine.id_produttore) }}">Modifica</a></li>
+            </ul>
+          </div>
         </li>
         {% endif %}
         </li>
@@ -116,11 +127,14 @@
         </li>
         {% if 'moderatore' in g.ruoli or ('referente' in g.ruoli and ordine.id_produttore in g.referenze ) %}
         <li>
-          <a class="button button-border button-warning button-pill button-xs
-                    margin-bottom-xxs"
-             href="{{ url_for('stampa.dettagli_ordini', id_produttore=ordine.id_produttore) }}">Dettagli Ordini</a>
-          <a class="button button-border button-warning button-pill button-xs"
-             href="{{ url_for('ordini.update', id_produttore=ordine.id_produttore) }}">Modifica</a>
+          <div class="group group-xs group-wrap-mobile">
+            <ul>
+              <li><a class="button button-border button-warning button-pill button-xs"
+                     href="{{ url_for('stampa.dettagli_ordini', id_produttore=ordine.id_produttore) }}">Dettagli Ordini</a></li>
+              <li><a class="button button-border button-warning button-pill button-xs"
+                     href="{{ url_for('ordini.update', id_produttore=ordine.id_produttore) }}">Modifica</a></li>
+            </ul>
+          </div>
         </li>
         {% endif %}
       </ul>
@@ -172,11 +186,14 @@
         </li>
         {% if 'moderatore' in g.ruoli or ('referente' in g.ruoli and ordine.id_produttore in g.referenze ) %}
         <li>
-          <a class="button button-border button-warning button-pill button-xs
-                    margin-bottom-xxs"
-             href="{{ url_for('stampa.dettagli_ordini', id_produttore=ordine.id_produttore) }}">Dettagli Ordini</a>
-          <a class="button button-border button-warning button-pill button-xs"
-             href="{{ url_for('ordini.rettifica_ordine', id_produttore=ordine.id_produttore) }}">Rettifica</a>
+          <div class="group group-xs group-wrap-mobile">
+            <ul>
+              <li><a class="button button-border button-warning button-pill button-xs"
+                     href="{{ url_for('stampa.dettagli_ordini', id_produttore=ordine.id_produttore) }}">Dettagli Ordini</a></li>
+              <li><a class="button button-border button-warning button-pill button-xs"
+                     href="{{ url_for('ordini.rettifica_ordine', id_produttore=ordine.id_produttore) }}">Rettifica</a></li>
+            </ul>
+          </div>
         </li>
         {% endif %}
       </ul>

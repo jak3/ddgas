@@ -58,8 +58,12 @@ Selezionare la data di consegna per l'ordine di cui si vuole visionare lo storic
 <div class="group group-space-between">
   <ul>
     <li>
-      <a href="{{ url_for('stampa.storico_tiny', id_produttore=id_produttore, data=data) }}" class="button button-warning button-border">Stampa Ridotta</a>
-      <a href="{{ url_for('stampa.storico', id_produttore=id_produttore, data=data) }}" class="button button-warning button-border">Stampa</a>
+      <div class="group group-xs group-wrap-mobile">
+        <ul>
+          <li><a href="{{ url_for('stampa.storico_tiny', id_produttore=id_produttore, data=data) }}" class="button button-warning button-border">Stampa Ridotta</a></li>
+          <li><a href="{{ url_for('stampa.storico', id_produttore=id_produttore, data=data) }}" class="button button-warning button-border">Stampa</a></li>
+        </ul>
+      </div>
     </li>
     <li class="font-size-l">Totale: <b>{{ "%.2f" | format(totale) }} &euro;</b></li>
   </ul>

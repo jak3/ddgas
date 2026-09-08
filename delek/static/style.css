@@ -38,6 +38,33 @@ main { flex:85%; }
   padding: 0.3rem 0.5rem 0.1rem;
 }
 
+/* Righe prodotto del listino (delek/templates/listini/list.html): ogni
+   prodotto ha un sottoinsieme diverso di colonne opzionali (dettaglio
+   quantità, pacco da, colli massimi, disponibilità, note), quindi con
+   .group-stretch (flex per-riga, 'flex:1 1 0px' su ogni cella presente)
+   il numero di celle cambia riga per riga e le colonne non si allineano
+   tra un prodotto e l'altro. Una singola griglia con tracce di colonna
+   fisse e condivise da tutte le righe risolve l'allineamento: ogni
+   .col-* ha sempre la stessa posizione, una cella mancante lascia
+   semplicemente vuoto il suo posto invece di far scalare le altre.
+   Solo da tablet in su: sotto i 480px le righe sono già impilate in
+   colonna (vedi il blocco @media sotto) e l'allineamento incrociato tra
+   prodotti diversi non si pone nemmeno. */
+@media (min-width: 481px) {
+  .riga-prodotto > ul {
+    display: grid;
+    grid-template-columns: minmax(120px, 2fr) repeat(5, minmax(70px, 1fr)) minmax(120px, 2fr);
+    align-items: center;
+  }
+  .riga-prodotto .col-nome { grid-column: 1; }
+  .riga-prodotto .col-dettaglio-qta { grid-column: 2; }
+  .riga-prodotto .col-prezzo { grid-column: 3; }
+  .riga-prodotto .col-pacco { grid-column: 4; }
+  .riga-prodotto .col-colli-massimi { grid-column: 5; }
+  .riga-prodotto .col-disponibilita { grid-column: 6; }
+  .riga-prodotto .col-note { grid-column: 7; }
+}
+
 @media (max-width: 480px) {
 
   /* Solo titoli e la barra header sono centrati: testo di corpo, note,
@@ -71,6 +98,20 @@ main { flex:85%; }
      (es. produttori). Non è il default per .group perché altrove le liste
      hanno contenuti (titoli, indirizzi) che vanno bene solo impilati. */
   .group-wrap-mobile ul { flex-direction:row; flex-wrap:wrap; }
+
+  /* I pulsanti xxs sono già minuscoli: lo spacing di .group-m (0.5rem di
+     margin da turretcss) più i 0.3rem di padding di '.group ul li' sopra
+     si sommano a 0.8rem per lato, quasi 1.6rem di vuoto tra due pulsanti
+     affiancati. Qui a leggibilità pari basta molto meno. */
+  .group-wrap-mobile>ul>li { margin:.2rem; padding:0; }
+
+  /* .group-space-between ha senso in riga (un elemento a sinistra, uno a
+     destra): impilato in colonna su mobile lo stesso space-between non
+     serve più a nulla (le voci sono già una sotto l'altra), e lasciarlo
+     le allinea a sinistra invece che a centro come il resto della UI
+     mobile (titoli inclusi). Specificità di '.group-space-between>ul' di
+     turretcss uguale alla nostra: vince perché dichiarata dopo. */
+  .group-space-between>ul { justify-content:center; }
 }
 
 #btnmenu {display: none;}

@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="padding-horizontal-s">
   <form method="post" action="{{ url_for('ordini.update', id_produttore=produttore.id) if dettaglio.scadenza else url_for('ordini.create') }}" method="post"
         class="margin-bottom-m" >{{ csrf_field() }}
     <input type="hidden" value="{{ produttore.id }}" name="id_produttore"/>

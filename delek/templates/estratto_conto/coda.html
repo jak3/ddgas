@@ -12,38 +12,52 @@
   {% set candidati = suggerimenti[riga.id] %}
   <li class="border padding-xs">
     <div class="group group-xxs group-column">
-      <p>
-        <b>{{ '%.2f' | format(riga.importo) }} &euro;</b>
-        il {{ riga.data_valuta | data }}
-        &mdash; <i>{{ riga.causale }}</i>
-      </p>
-      {% if candidati %}
-      <p>Possibili corrispondenze:
-        {% for utente in utenti %}
-        {% if utente.id in candidati %}
-        {{ [utente.username, '(', utente.nome or '', utente.cognome or '', ')'] | join(' ') }}
-        {% endif %}
-        {% endfor %}
-      </p>
-      {% endif %}
-      <div class="group group-xxs">
-        <form method="post" action="{{ url_for('estratto_conto.risolvi', id_riga=riga.id) }}">{{ csrf_field() }}
-          <select name="id_utente" required autocomplete="off">
-            <option value="" selected>- - -</option>
+      <ul>
+        <li>
+          <p>
+            <b>{{ '%.2f' | format(riga.importo) }} &euro;</b>
+            il {{ riga.data_valuta | data }}
+            &mdash; <i>{{ riga.causale }}</i>
+          </p>
+        </li>
+        {% if candidati %}
+        <li>
+          <p>Possibili corrispondenze:
             {% for utente in utenti %}
-            <option value="{{ utente.id }}"
-              {% if candidati|length == 1 and utente.id in candidati %}selected{% endif %}>
-              {{ [utente.username, '(', utente.nome or '', utente.cognome or '', ')'] | join(' ') }}
-            </option>
+            {% if utente.id in candidati %}
+            {{ [utente.username, '(', utente.nome or '', utente.cognome or '', ')'] | join(' ') }}
+            {% endif %}
             {% endfor %}
-          </select>
-          <button type="submit" class="button button-border success button-xxs">Accredita</button>
-        </form>
-        <form method="post" action="{{ url_for('estratto_conto.scarta', id_riga=riga.id) }}"
-              onsubmit="return confirm('Confermi che questa riga non è una ricarica?');">{{ csrf_field() }}
-          <button type="submit" class="button button-border button-xxs">Scarta</button>
-        </form>
-      </div>
+          </p>
+        </li>
+        {% endif %}
+        <li>
+          <div class="group group-xxs group-wrap-mobile">
+            <ul>
+              <li>
+                <form method="post" action="{{ url_for('estratto_conto.risolvi', id_riga=riga.id) }}">{{ csrf_field() }}
+                  <select name="id_utente" required autocomplete="off">
+                    <option value="" selected>- - -</option>
+                    {% for utente in utenti %}
+                    <option value="{{ utente.id }}"
+                      {% if candidati|length == 1 and utente.id in candidati %}selected{% endif %}>
+                      {{ [utente.username, '(', utente.nome or '', utente.cognome or '', ')'] | join(' ') }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit" class="button button-border success button-xxs">Accredita</button>
+                </form>
+              </li>
+              <li>
+                <form method="post" action="{{ url_for('estratto_conto.scarta', id_riga=riga.id) }}"
+                      onsubmit="return confirm('Confermi che questa riga non è una ricarica?');">{{ csrf_field() }}
+                  <button type="submit" class="button button-border button-xxs">Scarta</button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
     </div>
   </li>
   {% else %}

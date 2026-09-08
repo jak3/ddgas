@@ -48,14 +48,22 @@
           </li>
           {% else %}
           <li>
-            <form method="post" style="display: inline" action="{{ url_for('presidi.booking') }}">{{ csrf_field() }}
-              <input type="hidden" name="id_presidio" value="{{ presidio.id }}"/>
-              <button type="submit" class="button button-xs button-warning button-border">Prenota</button>
-            </form>
-            {% if 'presidi' in g.ruoli or 'moderatore' in g.ruoli %}
-            <a class="button button-xs button-warning button-border"
-               href="{{ url_for('presidi.assign', id_presidio=presidio.id) }}">Assegna</a>
-            {% endif %}
+            <div class="group group-xs group-wrap-mobile">
+              <ul>
+                <li>
+                  <form method="post" style="display: inline" action="{{ url_for('presidi.booking') }}">{{ csrf_field() }}
+                    <input type="hidden" name="id_presidio" value="{{ presidio.id }}"/>
+                    <button type="submit" class="button button-xs button-warning button-border">Prenota</button>
+                  </form>
+                </li>
+                {% if 'presidi' in g.ruoli or 'moderatore' in g.ruoli %}
+                <li>
+                  <a class="button button-xs button-warning button-border"
+                     href="{{ url_for('presidi.assign', id_presidio=presidio.id) }}">Assegna</a>
+                </li>
+                {% endif %}
+              </ul>
+            </div>
           </li>
           {% endif %}
         </ul>

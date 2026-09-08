@@ -11,6 +11,10 @@ note. Il listino è quello da cui i soci ordinano (vedi
 Ogni produttore ha anche uno storico degli ordini passati, consultabile
 sia in generale sia per singolo socio.
 
+<img src="img/produttori-desktop.png" alt="Elenco produttori, vista desktop" width="600"> <img src="img/produttori-mobile.png" alt="Elenco produttori, vista mobile" width="220">
+
+<img src="img/listino-desktop.png" alt="Listino di un produttore, vista desktop" width="600"> <img src="img/listino-mobile.png" alt="Listino di un produttore, vista mobile" width="220">
+
 ## Chi la può usare
 
 - Tutti i soci loggati vedono l'elenco produttori e i listini.

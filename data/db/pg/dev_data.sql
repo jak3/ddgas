@@ -137,21 +137,23 @@ CREATE TABLE listino_4 (
   nota TEXT
 );
 
-insert into listino_4 (disponibile, categoria, descrizione_prodotto, dettaglio_qta, prezzo, n_min_colli, nota)
+-- Listino realistico (non 'Prodotto N' segnaposto) per Blu di Persia,
+-- produttore di sali: usato anche come screenshot di riferimento nella
+-- documentazione (docs/img/listino-*.png), da cui l'attenzione a coprire
+-- più combinazioni di colonne opzionali (dettaglio_qta, pacco da, colli
+-- massimi, disponibilità, note) con nomi prodotto veritieri.
+insert into listino_4 (disponibile, categoria, descrizione_prodotto, dettaglio_qta, prezzo, n_min_colli, n_max_colli, colli_disponibili, nota)
 values
-  (TRUE, '', 'Prodotto 1 ', '1kg', 1 , 1, NULL),
-  (FALSE, 'unita', 'Prodotto 2 ', NULL, 2.0 , 1, NULL),
-  (FALSE, 'unita', 'Prodotto 3 ', '3kg', 3.1 , 1, NULL),
-  (TRUE, 'unita', 'Prodotto 4 ', '4kg', 4.2 , 1, NULL),
-  (TRUE, 'unita', 'Prodotto 5 ', '5kg', 5.3 , 5, NULL),
-  (FALSE, 'unita', 'Prodotto 6 ', '6kg', 6.4 , 1, NULL),
-  (FALSE, 'unita', 'Prodotto 7 ', '7kg', 7.5 , 1, 'solo per <saturno>'),
-  (TRUE, 'unita', 'Prodotto 8 ', '8kg', 8.6 , 1, NULL),
-  (TRUE, 'unita', 'Prodotto 9 ', '9kg', 9.7 , 1, NULL),
-  (TRUE, '', 'Prodotto 10', NULL, 10, 1, NULL),
-  (TRUE, 'decin', 'Prodotto 11', '1l', 11, 1, NULL),
-  (TRUE, 'decin', 'Prodotto 12', '2l', 12, 1, 'NON CI PROVARE'),
-  (TRUE, 'decin', 'Prodotto 13', '3l', 13.99, 1, NULL);
+  (TRUE, 'Sali Base', 'Sale Grosso da Cucina', '1kg', 2.20, 1, 0, 0, NULL),
+  (TRUE, 'Sali Base', 'Sale Fino Iodato', '1kg', 2.00, 1, 0, 0, NULL),
+  (TRUE, 'Sali Base', 'Sale Marino Integrale', '500g', 3.50, 1, 0, 0, NULL),
+  (TRUE, 'Sali Pregiati', 'Fior di Sale', '100g', 7.50, 1, 0, 12, NULL),
+  (TRUE, 'Sali Pregiati', 'Sale Rosa dell''Himalaya', '250g', 4.80, 1, 0, 0, 'Macinatura fine'),
+  (TRUE, 'Sali Pregiati', 'Sale al Tartufo', '100g', 9.90, 1, 0, 0, 'Edizione limitata, quantità ridotta'),
+  (TRUE, 'Sali Aromatizzati', 'Sale Affumicato', '200g', 6.20, 1, 0, 0, NULL),
+  (TRUE, 'Sali Aromatizzati', 'Sale alle Erbe Aromatiche', '150g', 5.00, 2, 0, 0, NULL),
+  (TRUE, 'Sali Aromatizzati', 'Sale all''Aglio Nero', '150g', 6.50, 1, 0, 0, NULL),
+  (TRUE, 'Sali Aromatizzati', 'Sale Aromatizzato al Peperoncino', '150g', 5.80, 3, 6, 0, NULL);
 
 CREATE TABLE listino_5 (
   id SERIAL PRIMARY KEY,
