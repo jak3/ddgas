@@ -2,8 +2,10 @@
 
 Applicazione generica per la gestione di un GAS (produttori, ordini, cassa
 condivisa, ricariche), personalizzabile per associazione tramite
-`config/associazione.yaml`. Per attivare una nuova istanza vedi
-[`ONBOARDING.md`](ONBOARDING.md); per lo sviluppo vedi [`DEV.md`](DEV.md).
+`config/associazione.yaml`. Per capire cosa offre e cosa serve per
+adottarlo vedi [`docs/panoramica.md`](docs/panoramica.md); per attivare
+una nuova istanza vedi [`ONBOARDING.md`](ONBOARDING.md); per lo sviluppo
+vedi [`DEV.md`](DEV.md).
 
 - Framework: [flask](https://flask.palletsprojects.com)
   - Template Engine [Jinja](https://jinja.palletsprojects.com)

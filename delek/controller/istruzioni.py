@@ -60,11 +60,18 @@ Attenzione! Ricordatevi che da quando fate il bonifico al momento nel quale trov
 
 Questo è il semplice funzionamento, ovvero ciò che ogni gasista ha bisogno di sapere per aderire al prepagato. Ciò che il singolo gasista che acquista deve fare è semplicemente versare soldi nel conto corrente e sincerarsi che il suo saldo sia sempre più o meno sufficiente per far fronte ai suoi acquisti.""",
     },
-    # Link a risorse esterne (es. un documento condiviso di FAQ): vuoto di
-    # default, non ha senso spedire link altrui come esempio.
+    # Link a risorse esterne (es. un documento condiviso di FAQ): di
+    # default punta alla documentazione modulare in docs/ (una pagina per
+    # funzionalità), un moderatore può sostituirlo con link propri.
     'list_link_esterni': {
         'endpoint': 'istruzioni.list_tutorial',
-        'default': '',
+        'default': """Documentazione completa del sito, funzionalità per funzionalità:
+https://github.com/jak3/ddgas/blob/master/docs/panoramica.md
+https://github.com/jak3/ddgas/blob/master/docs/produttori-e-listini.md
+https://github.com/jak3/ddgas/blob/master/docs/ordini.md
+https://github.com/jak3/ddgas/blob/master/docs/portafoglio.md
+https://github.com/jak3/ddgas/blob/master/docs/comunita.md
+https://github.com/jak3/ddgas/blob/master/docs/stampe-ed-esportazioni.md""",
     },
     # Come sopra, ma per l'elenco di eventuali video tutorial.
     'list_video_tutorial': {
