@@ -44,3 +44,9 @@ source env/bin/activate
 flask init-db
 flask run
 ```
+
+## Licenza
+
+[MIT](LICENSE) — puoi clonarlo, modificarlo e auto-ospitarlo liberamente
+anche per il tuo GAS. Se preferisci non occupartene tu, vedi
+[Contatti](#contatti) per farlo fare a noi.
