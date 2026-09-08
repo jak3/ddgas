@@ -67,6 +67,7 @@ Questo è il semplice funzionamento, ovvero ciò che ogni gasista ha bisogno di 
         'endpoint': 'istruzioni.list_tutorial',
         'default': """Documentazione completa del sito, funzionalità per funzionalità:
 https://github.com/jak3/ddgas/blob/master/docs/panoramica.md
+https://github.com/jak3/ddgas/blob/master/docs/casi-duso.md
 https://github.com/jak3/ddgas/blob/master/docs/produttori-e-listini.md
 https://github.com/jak3/ddgas/blob/master/docs/ordini.md
 https://github.com/jak3/ddgas/blob/master/docs/portafoglio.md

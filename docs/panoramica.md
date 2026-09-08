@@ -2,8 +2,9 @@
 
 Questa pagina è per chi sta valutando se usare DDGAS per il proprio Gruppo
 di Acquisto Solidale (GAS): cosa permette di fare, cosa serve avere prima
-di iniziare, e dove trovare il dettaglio di ogni funzionalità. Per la
-checklist tecnica di attivazione di una nuova istanza vedi
+di iniziare, e dove trovare il dettaglio di ogni funzionalità. Per un
+caso d'uso reale vedi [`casi-duso.md`](casi-duso.md); per la checklist
+tecnica di attivazione di una nuova istanza vedi
 [`ONBOARDING.md`](../ONBOARDING.md).
 
 ## Cosa fa
@@ -50,3 +51,9 @@ giuridica, né avere un numero minimo di soci.
 
 Ogni file copre una sola area e viene aggiornato insieme al codice che
 descrive: se una funzionalità cambia, cambia solo il file corrispondente.
+
+## Chi lo usa già
+
+Non è solo teoria: vedi [`casi-duso.md`](casi-duso.md) per un GAS che lo
+usa in produzione da anni, con numeri reali di soci e cosa ha
+sostituito.
