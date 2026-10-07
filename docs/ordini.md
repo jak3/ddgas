@@ -43,11 +43,17 @@ Un produttore con un listino compilato (vedi
 4. Se il costo reale consegnato differisce da quanto ordinato (rotture di
    stock, arrotondamenti sul peso, ecc.), il referente fa una rettifica:
    il credito del socio viene corretto di conseguenza.
-5. **Notifiche**: un socio può iscriversi per essere avvisato quando un
-   produttore apre un nuovo ordine, o per ricevere un promemoria via
-   email 24 ore prima della scadenza di un ordine a cui non ha ancora
-   partecipato — utile per non perdere la finestra di un produttore che
-   ordina raramente.
-6. **Turni di presidio**: nei giorni di consegna configurati, i soci
+5. **Notifiche personali**: un socio può iscriversi per essere avvisato
+   quando un produttore apre un nuovo ordine, o per ricevere un
+   promemoria via email 24 ore prima della scadenza di un ordine a cui
+   non ha ancora partecipato — utile per non perdere la finestra di un
+   produttore che ordina raramente.
+6. **Avviso alla mailing list**: se il gruppo ha configurato un
+   indirizzo (una mailing list, non i singoli soci), all'apertura di un
+   nuovo ordine parte in automatico una singola email con produttore,
+   scadenza, consegna e link per ordinare — comodo per chi preferisce
+   seguire gli ordini da una lista email invece di controllare il sito.
+   Facoltativo, si attiva in fase di configurazione dell'istanza.
+7. **Turni di presidio**: nei giorni di consegna configurati, i soci
    possono prenotarsi per il turno di ritiro/allestimento; un vademecum
    dedicato spiega gli orari e le indicazioni pratiche della sede.
