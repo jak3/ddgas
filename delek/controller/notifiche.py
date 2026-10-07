@@ -136,6 +136,57 @@ def invia_promemoria(ordine, destinatari):
     return inviate
 
 
+def invia_notifica_apertura_ordine(ordine):
+    """Un'unica email quando si apre un nuovo ordine, invece di una
+    email per ogni iscritto: risparmia invii rispetto a
+    invia_promemoria(). L'indirizzo è un'impostazione pubblica
+    dell'associazione (config/associazione.yaml, regole.
+    mailing_list_apertura_ordini), non una variabile d'ambiente: non
+    tutte le installazioni hanno una mailing list o vogliono questo
+    avviso, va scelto in fase di configurazione iniziale. Lasciata
+    vuota/assente, non invia nulla, senza sollevare eccezioni."""
+    destinatario = (
+        current_app.config['ASSOCIAZIONE']
+        .get('regole', {})
+        .get('mailing_list_apertura_ordini')
+    )
+    if not destinatario:
+        current_app.logger.info(
+            "regole.mailing_list_apertura_ordini non configurata:"
+            " notifica apertura ordine per %s non inviata",
+            ordine['nome_produttore'],
+        )
+        return False
+
+    corpo = [
+        "È stato aperto un nuovo ordine per {0}.\n".format(
+            ordine['nome_produttore']),
+        'Scadenza: {0}\n'.format(
+            ordine['scadenza'].strftime('%d/%m/%Y %H:%M')),
+        'Consegna: {0}\n'.format(
+            ordine['consegna'].strftime('%d/%m/%Y %H:%M')),
+    ]
+    if ordine.get('nota'):
+        corpo.append('Nota: {0}\n'.format(ordine['nota']))
+    corpo.append('\nPer ordinare: {0}'.format(ordine['link']))
+
+    msg = Mail(
+        from_email=current_app.config['SENDGRID_FROM_EMAIL'],
+        to_emails=destinatario,
+        subject='Nuovo ordine aperto: {0}'.format(ordine['nome_produttore']),
+        plain_text_content=''.join(corpo),
+    )
+    try:
+        SendGridAPIClient(current_app.config['SENDGRID_API_KEY']).send(msg)
+        return True
+    except Exception:
+        current_app.logger.exception(
+            "Invio notifica apertura ordine fallito per produttore id=%s",
+            ordine['id_produttore'],
+        )
+        return False
+
+
 def esegui_promemoria_ordini():
     """Per ogni ordine dovuto: calcola i destinatari, invia, e marca come
     processato solo se l'invio non solleva eccezione (send-then-mark: se

@@ -53,3 +53,8 @@ regole:
   tessera_ente_terzo:
     richiesta: false
     nome_ente: "ARCI"
+  # Email a cui inviare un unico avviso ogni volta che si apre un nuovo
+  # ordine (es. l'indirizzo della mailing list dei soci), invece di una
+  # email a ciascun iscritto. Lasciare null per disattivare: non tutti i
+  # GAS hanno una mailing list o vogliono questo tipo di avviso.
+  mailing_list_apertura_ordini: null

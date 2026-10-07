@@ -29,6 +29,7 @@ from delek.controller.auth import (
     is_mod_or_ref_of,
 )
 from delek.controller.db import get_db, column_names_placeholders
+from delek.controller.notifiche import invia_notifica_apertura_ordine
 from delek.controller.db_wrapper import (
     get_spesa_totale_utenti,
     get_totale_utente_temporaneo,
@@ -391,6 +392,24 @@ def create():
                 'UPDATE produttori SET attivo = TRUE WHERE id = %s',
                 (request.form['id_produttore'],),
             )
+
+            # Una sola email (se configurata, vedi regole.
+            # mailing_list_apertura_ordini) per apertura ordine, invece
+            # di una per ogni gasista iscritto. Un fallimento dell'invio
+            # non deve mai bloccare la creazione dell'ordine, già andata
+            # a buon fine sopra.
+            produttore = get_produttore(inputs['id_produttore'])
+            invia_notifica_apertura_ordine({
+                'id_produttore': inputs['id_produttore'],
+                'nome_produttore': produttore['nome'],
+                'scadenza': da_form(inputs['scadenza']),
+                'consegna': da_form(inputs['consegna']),
+                'nota': inputs.get('nota'),
+                'link': request.host_url.rstrip('/') + url_for(
+                    'ordini.effettua_ordine',
+                    id_produttore=inputs['id_produttore']),
+            })
+
             return redirect(url_for('ordini.list_ordini'))
 
         flash(error['error_msg'], 'warning')

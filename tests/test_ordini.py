@@ -10,9 +10,10 @@ list_ordini() confrontava l'orario esatto (consegna < adesso()) invece
 del solo giorno di calendario. """
 
 from datetime import timedelta
+from unittest.mock import patch
 
 from delek.controller.tempo import adesso
-from tests.conftest import TEST_DB
+from tests.conftest import TEST_DB, get_csrf_token
 
 import psycopg2
 
@@ -103,3 +104,88 @@ def test_consegna_ieri_passa_in_fase_di_rettifica(
             in resp.data), (
         "l'ordine dovrebbe comparire in 'In Fase di Rettifica' il giorno"
         " dopo la consegna")
+
+
+def _post_create_ordine(client, id_produttore, **extra):
+    token = get_csrf_token(client, '/ordini/create')
+    data = {
+        'id_produttore': id_produttore,
+        'scadenza': (adesso() + timedelta(days=3)).strftime('%Y-%m-%d'),
+        'consegna': (adesso() + timedelta(days=7)).strftime('%Y-%m-%d'),
+        'minimo_ordine': '',
+        'csrf_token': token,
+    }
+    data.update(extra)
+    return client.post('/ordini/create', data=data)
+
+
+@patch('delek.controller.notifiche.SendGridAPIClient')
+def test_apertura_ordine_invia_una_email_alla_mailing_list(
+    mock_sendgrid_client, app, login_moderatore, produttore_con_listino
+):
+    """ Aprire un nuovo ordine deve inviare UNA sola email all'indirizzo
+    impostato in config/associazione.yaml (regole.
+    mailing_list_apertura_ordini), non una per ogni gasista iscritto. """
+    app.config['ASSOCIAZIONE']['regole']['mailing_list_apertura_ordini'] = (
+        'dai-gas@googlegroups.com')
+    mock_send = mock_sendgrid_client.return_value.send
+
+    resp = _post_create_ordine(login_moderatore, produttore_con_listino,
+                               nota='Portare sacchetti')
+    assert resp.status_code == 302, resp.data
+    assert mock_send.call_count == 1
+
+    msg = mock_send.call_args.args[0].get()
+    assert (msg['personalizations'][0]['to'][0]['email']
+           == 'dai-gas@googlegroups.com')
+    assert 'Produttore Test' in msg['subject']
+    corpo = msg['content'][0]['value']
+    assert 'Produttore Test' in corpo
+    assert 'Portare sacchetti' in corpo
+    assert '/ordini/effettua/{0}'.format(produttore_con_listino) in corpo
+
+
+@patch('delek.controller.notifiche.SendGridAPIClient')
+def test_apertura_ordine_creato_anche_se_invio_email_fallisce(
+    mock_sendgrid_client, app, login_moderatore, produttore_con_listino
+):
+    """ Un fallimento dell'invio della notifica non deve mai impedire la
+    creazione dell'ordine, già avvenuta nello stesso INSERT. """
+    app.config['ASSOCIAZIONE']['regole']['mailing_list_apertura_ordini'] = (
+        'dai-gas@googlegroups.com')
+    mock_sendgrid_client.return_value.send.side_effect = Exception('boom')
+
+    resp = _post_create_ordine(login_moderatore, produttore_con_listino)
+    assert resp.status_code == 302, resp.data
+
+    conn = _connect()
+    with conn.cursor() as cur:
+        cur.execute(
+            'SELECT id FROM dettagli_ordini WHERE id_produttore = %s',
+            (produttore_con_listino,))
+        assert cur.fetchone() is not None, (
+            "l'ordine deve essere creato anche se l'invio della notifica"
+            " fallisce")
+    conn.close()
+
+
+@patch('delek.controller.notifiche.SendGridAPIClient')
+def test_apertura_ordine_senza_mailing_list_configurata_non_invia(
+    mock_sendgrid_client, app, login_moderatore, produttore_con_listino
+):
+    """ Senza regole.mailing_list_apertura_ordini configurata (default
+    per una nuova installazione), la notifica viene saltata
+    silenziosamente e l'ordine si crea comunque. """
+    app.config['ASSOCIAZIONE']['regole']['mailing_list_apertura_ordini'] = None
+
+    resp = _post_create_ordine(login_moderatore, produttore_con_listino)
+    assert resp.status_code == 302, resp.data
+    assert mock_sendgrid_client.return_value.send.call_count == 0
+
+    conn = _connect()
+    with conn.cursor() as cur:
+        cur.execute(
+            'SELECT id FROM dettagli_ordini WHERE id_produttore = %s',
+            (produttore_con_listino,))
+        assert cur.fetchone() is not None
+    conn.close()
