@@ -105,7 +105,15 @@ def list_ordini():
 
     prossime_consegne = list(
         filter(
-            lambda o: o['scadenza'] < adesso() and o['consegna'] >= adesso() and
+            lambda o: o['scadenza'] < adesso() and
+            # Confronto sulla sola data di consegna, non sull'orario
+            # esatto: create()/update() assegnano sempre le 19:00 a
+            # 'consegna' a prescindere dall'orario reale della consegna
+            # (es. latte consegnato al mattino), quindi un confronto
+            # sull'orario esatto farebbe sparire l'ordine da qui già
+            # nel pomeriggio dello stesso giorno in cui viene ancora
+            # consegnato.
+            o['consegna'].date() >= adesso().date() and
             # escludo gli ordini che non hanno raggiunto il minimo d'ordine
             float(o['minimo_ordine'])
             < sum(get_spesa_totale_utenti(o['id_produttore']).values()),
@@ -127,7 +135,7 @@ def list_ordini():
     ordini_in_rettifica = sorted(
         list(
             filter(
-                lambda o: o['consegna'] < adesso()
+                lambda o: o['consegna'].date() < adesso().date()
                 and (
                     o['id_produttore'] in da_chi_ordino
                     or o['id_produttore'] in g.referenze
