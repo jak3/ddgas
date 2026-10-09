@@ -5,6 +5,11 @@
 {% endblock %}
 
 {% block content %}
+<p>In questa pagina sono elencati i movimenti dell'estratto conto che la
+procedura automatica non è riuscita a risolvere da sola: vanno verificati
+e assegnati manualmente al socio giusto (oppure scartati, se non sono
+ricariche).</p>
+
 <p><a href="{{ url_for('estratto_conto.importa') }}">Importa un nuovo estratto conto</a></p>
 
 <ul style="list-style: none inside" class="overflow-wrap-anywhere">
